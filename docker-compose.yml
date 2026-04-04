@@ -1,0 +1,17 @@
+# Docker Compose file -- defines how to run the project's containers
+
+services:
+  # The Django web application
+  web:
+    # Build the image using the Dockerfile in the current directory (./Dockerfile)
+    build: .
+
+    # Map port 8000 on your machine to port 8000 in the container
+    # Access the app at http://localhost:8000
+    ports:
+      - "8000:8000"
+
+    # Mount the current directory into /app in the container
+    # This means code changes on your machine are reflected instantly (live reload)
+    volumes:
+      - .:/app  # "." = your project folder, "/app" = where it goes inside the container
