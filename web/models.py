@@ -11,7 +11,7 @@ class Map(models.Model):
     map_name = models.CharField(max_length=50)
     creator = models.CharField(max_length=50)
     type = models.CharField(max_length=20, choices=MapType)
-    dimensions = models.DecimalField(decimal_places=2, validators=[MinValueValidator(2)])
+    dimensions = models.DecimalField(decimal_places=2, max_digits=10, validators=[MinValueValidator(2)])
 
     def __str__(self):
         return self.map_name
@@ -44,7 +44,7 @@ class Review(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["reviewer", "reviewee"],name="unique_reviewer_reviewee"),
-                       models.CheckConstraint(check=~Q(reviewer=F("reviewee")),name="check_no_self_reviews")]
+                       models.CheckConstraint(condition=~Q(reviewer=F("reviewee")),name="check_no_self_reviews")]
 
     def __str__(self):
         return f"From {self.reviewer_name} to {self.reviewee.username}: {self.title}"
@@ -63,8 +63,8 @@ class CounterUser(models.Model):
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
-    players = models.ManyToManyField(CounterUser, through="MatchStats")
-    winner = models.ForeignKey(CounterUser, on_delete=models.SET_NULL, null=True)
+    players = models.ManyToManyField(CounterUser, related_name= "matches_played", through="MatchStats")
+    winner = models.ForeignKey(CounterUser, related_name= "matches_won", on_delete=models.SET_NULL, null=True)
     winner_name = models.CharField(max_length=50)
     score_display = models.CharField(max_length=20, validators=[RegexValidator(regex=r"^\d+-\d+$")])
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
@@ -90,7 +90,7 @@ class MatchStats(models.Model):
 class GlobalRanking(models.Model):
     global_ranking_id = models.AutoField(primary_key=True)
     counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking", unique=True)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_counter_users")
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="global_country_counter_users")
     global_position = models.IntegerField(unique=True, validators=[MinValueValidator(1)])
 
     def __str__(self):
@@ -99,7 +99,7 @@ class GlobalRanking(models.Model):
 class LocalRanking(models.Model):
     local_ranking_id = models.AutoField(primary_key=True)
     counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_local_ranking", unique=True)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_counter_users")
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="local_country_counter_users")
     local_position = models.IntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
