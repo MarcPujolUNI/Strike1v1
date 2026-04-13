@@ -19,5 +19,7 @@ from django.urls import include, path
 from web import views
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/signup/', SignUpView.as_view(), name='signup'),
+    path('accounts/', include('django.contrib.auth.urls')),  # all of Django's auth views (login, logout, etc.)
     path('', include('web.urls')),
 ]
