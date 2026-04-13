@@ -1,0 +1,92 @@
+/* Fons amb patró de punts a tota la pantalla */
+.bg-dot-grid {
+    background-color: #1a1a1b;
+    background-image: radial-gradient(#2a2a2a 1px, transparent 1px);
+    background-size: 25px 25px;
+}
+
+/* Componentes Universales escalables para futuras páginas */
+
+.xp-window {
+    background-color: #2e2e2e;
+    border: 3px solid #000000;
+    width: 100%;
+}
+
+.xp-title-bar {
+    background: linear-gradient(to bottom, #0058e6 0%, #003db3 100%);
+    border-bottom: 1px solid #000;
+    box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+}
+
+.xp-card-header {
+    background: linear-gradient(to bottom, #555555, #111111);
+    color: #ffffff;
+    border-bottom: 3px solid #000;
+    text-align: center;
+    font-weight: bold;
+    text-transform: uppercase;
+}
+
+/* Botones principales */
+.xp-btn {
+    border: 3px solid #000;
+    font-weight: 900;
+    text-transform: uppercase;
+    cursor: pointer;
+    box-shadow: inset 2px 2px 0px rgba(255,255,255,0.4);
+    transition: transform 0.05s, box-shadow 0.05s;
+}
+
+.xp-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: none;
+    outline: none;
+}
+
+.xp-btn-blue {
+    background-color: #0B246A;
+    color: white;
+}
+
+.xp-btn-green {
+    background-color: #E04343;
+    color: white;
+}
+
+/* Botones de control de ventana (Minimizar, Maximizar, Cerrar) */
+.ctrl-btn {
+    background: #ece9d8;
+    border: 1px solid #707070;
+    width: 24px;
+    height: 22px;
+    cursor: pointer;
+    box-shadow: inset -1px -1px 2px #888, inset 1px 1px 1px #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    color: black;
+}
+.ctrl-btn.close {
+    background: #e04343;
+    color: white;
+    border-color: #7a0000;
+}
+
+.flex-center-optical {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0;
+    padding-top: 2px;
+}
+
+.nav-link-center {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    line-height: 1; /* Forzamos a que no haya espacio extra por debajo */
+    padding-top: 4px; /* Ajuste óptico para la tipografía Tahoma en mayúsculas */
+}

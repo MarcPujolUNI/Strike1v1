@@ -1,0 +1,50 @@
+<footer class="w-full bg-card-dark border-t-[4px] border-border-black pt-10 pb-6 mt-auto">
+    <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-10">
+
+        <div class="col-span-1 md:col-span-1">
+            <a href="/" class="bg-brand-red inline-block border-2 border-white text-white font-black px-2 py-0.5 text-lg mb-4">
+                Strike 1v1
+            </a>
+            <p class="text-[11px] text-footer-link leading-relaxed font-bold uppercase">
+                La plataforma líder de enfrentamientos competitivos 1v1. Tecnología de baja latencia desarrollada para el competidor ejecutivo.
+            </p>
+        </div>
+
+        <div>
+            <h4 class="text-white text-xs font-black uppercase mb-4 tracking-tighter border-b border-brand-red inline-block">Legal</h4>
+            <ul class="space-y-2">
+                <li><a href="/terms" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Términos de Servicio</a></li>
+                <li><a href="/privacy" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Política de Privacidad</a></li>
+                <li><a href="/cookies" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Uso de Cookies</a></li>
+                <li><a href="/eula" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Contrato de Licencia</a></li>
+            </ul>
+        </div>
+
+        <div>
+            <h4 class="text-white text-xs font-black uppercase mb-4 tracking-tighter border-b border-brand-red inline-block">Soporte</h4>
+            <ul class="space-y-2">
+                <li><a href="/faq" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Centro de Ayuda</a></li>
+                <li><a href="/status" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Estado del Servidor</a></li>
+                <li><a href="/report" class="text-[11px] text-footer-link hover:text-white font-bold uppercase underline-offset-4 hover:underline">Reportar Vulnerabilidad</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="mt-10 pt-6 border-t border-white/5 px-6 flex flex-col md:flex-row justify-between items-center gap-4">
+        <span class="text-[10px] text-footer-link font-bold uppercase tracking-[2px]">
+            &copy; 2026 STRIKE 1V1 MATCHMAKING. ALL RIGHTS RESERVED.
+        </span>
+        <div class="flex items-center gap-6">
+            <span id="system-clock" class="text-[11px] font-black text-white bg-brand-red px-3 py-1 rounded-sm">00:00:00</span>
+        </div>
+    </div>
+</footer>
+
+<script>
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('system-clock').innerText = now.toLocaleTimeString();
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+</script>
