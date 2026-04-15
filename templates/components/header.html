@@ -1,36 +1,107 @@
-<header class="w-full bg-[#1a1a1b] border-b-[4px] border-black z-50 shadow-2xl h-16">
+<header class="w-full bg-[#1a1a1b] border-b-[4px] border-black z-50 shadow-2xl h-16 font-sans">
     <div class="w-full h-full px-6 flex items-center justify-between">
 
         <div class="flex items-center gap-10 h-full">
             <div class="flex items-center h-full">
-                <a href="/" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000]">
+                <a href="/" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all">
                     Strike 1v1
                 </a>
             </div>
 
             <nav class="flex h-full">
-                <a href="/" class="nav-link-center px-6 text-[15px] font-black text-white border-b-4 border-brand-red bg-white/5 transition-all tracking-tight uppercase">
-                    LANDING PAGE
+                <a href="/"
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
+                   {% if request.path == '/' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
+                    {% if user.is_authenticated %}
+                        HOME PAGE
+                    {% else %}
+                        LANDING PAGE
+                    {% endif %}
                 </a>
-                <a href="/servers" class="nav-link-center px-6 text-[15px] font-black text-[#808080] hover:text-white hover:bg-white/5 border-b-4 border-transparent transition-all tracking-tight uppercase">
-                    SERVERS
+                <a href="/play"
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
+                   {% if request.path == '/play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
+                    PLAY
                 </a>
-                <a href="/leaderboard" class="nav-link-center px-6 text-[15px] font-black text-[#808080] hover:text-white hover:bg-white/5 border-b-4 border-transparent transition-all tracking-tight uppercase">
+                <a href="/leaderboard"
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
+                   {% if request.path == '/leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
                     RANKING
                 </a>
             </nav>
         </div>
 
-        <div class="flex items-center gap-6 h-full">
-            <div class="flex items-center gap-4 border-l border-white/10 pl-6 h-full">
-                <a href="/login" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#0B246A] border-2 border-[#7B8ED9] shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
-                    Login
-                </a>
+        <div class="flex items-center h-full">
+            <div class="flex items-center border-l border-white/10 pl-6 h-full">
 
-                <a href="/register" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#E04343] border-2 border-[#ff7a7a] shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest text-center">
-                    Register
-                </a>
+                {% if user.is_authenticated %}
+                    <div class="relative h-full flex items-center" id="profile-dropdown-container">
+                        <button onclick="toggleDropdown()" class="flex items-center gap-3 hover:bg-white/5 px-4 h-full transition-all group outline-none">
+                            <div class="flex flex-col items-end">
+                                <span class="text-white font-bold text-xs uppercase tracking-widest group-hover:text-brand-red transition-colors">
+                                    Player: {{ user.username }}
+                                </span>
+                            </div>
+
+                            <div class="w-10 h-10 border-2 border-white/20 bg-black flex-shrink-0 overflow-hidden shadow-[2px_2px_0px_#000] group-hover:border-brand-red transition-colors">
+                                {% if user.profile.image %}
+                                    <img src="{{ user.profile.image.url }}" alt="Avatar" class="w-full h-full object-cover">
+                                {% else %}
+                                    <div class="w-full h-full bg-[#333] flex items-center justify-center text-white/40 font-black text-[10px]">IMG</div>
+                                {% endif %}
+                            </div>
+                        </button>
+
+                        <div id="profile-menu" class="hidden absolute right-0 top-[64px] w-full bg-[#2e2e2e] border-2 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.5)] z-[100]">
+
+                            <div class="h-5 bg-[#1a1a1b] border-b border-black flex items-center px-2 justify-end gap-1">
+                                <span class="w-2 h-2 bg-[#444] border border-black/50"></span>
+                                <span class="w-2 h-2 bg-brand-red border border-black/50"></span>
+                            </div>
+
+                            <div class="flex flex-col p-1">
+                                <a href="/profile" class="px-3 py-2.5 text-[11px] font-bold text-white hover:bg-brand-red transition-colors uppercase tracking-widest text-right border border-transparent hover:border-white/10">
+                                    My Profile
+                                </a>
+
+                                <div class="border-t border-black/40 my-1 mx-1"></div>
+
+                                <a href="/logout" class="px-3 py-2.5 text-[11px] font-bold text-red-500 hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent hover:border-black/20">
+                                    Log Out
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                {% else %}
+                    <div class="flex items-center gap-4">
+                        <a href="/login" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#0B246A] border-2 border-[#7B8ED9] shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
+                            Login
+                        </a>
+                        <a href="/register" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#E04343] border-2 border-[#ff7a7a] shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest">
+                            Register
+                        </a>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
     </div>
 </header>
+
+<script>
+    function toggleDropdown() {
+        const menu = document.getElementById('profile-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    window.addEventListener('click', function(e) {
+        const container = document.getElementById('profile-dropdown-container');
+        const menu = document.getElementById('profile-menu');
+        if (container && !container.contains(e.target)) {
+            if (menu && !menu.classList.contains('hidden')) {
+                menu.classList.add('hidden');
+            }
+        }
+    });
+</script>

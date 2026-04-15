@@ -34,7 +34,7 @@
     font-weight: 900;
     text-transform: uppercase;
     cursor: pointer;
-    box-shadow: inset 2px 2px 0px rgba(255,255,255,0.4);
+    box-shadow: inset 0px 0px 0px 2px rgba(255,255,255,0.4);
     transition: transform 0.05s, box-shadow 0.05s;
 }
 
@@ -55,20 +55,28 @@
 }
 
 /* Botones de control de ventana (Minimizar, Maximizar, Cerrar) */
-.ctrl-btn {
-    background: #ece9d8;
-    border: 1px solid #707070;
-    width: 24px;
-    height: 22px;
-    cursor: pointer;
-    box-shadow: inset -1px -1px 2px #888, inset 1px 1px 1px #fff;
-    display: flex;
+/* Contenedores visuales de control (Sin interacción) */
+.ctrl-display {
+    display: inline-flex;
     align-items: center;
     justify-content: center;
+    width: 24px;
+    height: 22px;
+    margin-left: 2px;
+    background: #ece9d8;
+    border: 1px solid #707070;
+    border-radius: 2px;
+    font-family: "Tahoma", sans-serif;
     font-weight: bold;
+    font-size: 13px;
     color: black;
+    box-shadow: inset -1px -1px 2px #888, inset 1px 1px 1px #fff;
+    pointer-events: none;
+    user-select: none;
+    cursor: default;
 }
-.ctrl-btn.close {
+
+.ctrl-display.close {
     background: #e04343;
     color: white;
     border-color: #7a0000;
