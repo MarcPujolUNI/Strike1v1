@@ -1,0 +1,116 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - Leaderboard {% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[900px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-sans">
+
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            Leaderboard -
+            {% if request.GET.country == 'ES' %} Spain
+            {% elif request.GET.country == 'AD' %} Andorra
+            {% else %} Global
+            {% endif %}
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
+    </div>
+
+    <div class="bg-[#2e2e2e] border-x border-b border-black/50 p-6">
+
+        <div class="flex flex-col gap-4 mb-6">
+            <div class="bg-black/40 border-[3px] border-black p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+                <div>
+                    <h2 class="text-white text-2xl font-black uppercase tracking-wider">Leaderboard</h2>
+                    <p class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">
+                        Region:
+                        <span class="text-white">
+                            {% if request.GET.country == 'ES' %} Spain
+                            {% elif request.GET.country == 'AD' %} Andorra
+                            {% else %} Worldwide
+                            {% endif %}
+                        </span>
+                    </p>
+                </div>
+
+                <form method="GET" class="flex items-center gap-2">
+                    <label class="text-white/40 text-[12px] font-black uppercase whitespace-nowrap">Region:</label>
+                    <select name="country"
+                        class="bg-white border-2 border-black px-3 py-1 text-black font-black text-xs uppercase focus:outline-none cursor-pointer appearance-none w-auto min-w-[130px]
+                               bg-[url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2220%22%20height%3D%2220%22%20viewBox%3D%220%200%2020%2020%22%3E%3Cpath%20fill%3D%22%23000%22%20d%3D%22M5.293%207.293a1%201%200%20011.414%200L10%2010.586l3.293-3.293a1%201%200%20111.414%201.414l-4%204a1%201%200%2001-1.414%200l-4-4a1%201%200%20010-1.414z%22%2F%3E%3C%2Fsvg%3E')]
+                               bg-no-repeat bg-[right_0.4rem_center] bg-[length:1rem_1rem] pr-8">
+                        <option value="">Global</option>
+                        <option value="ES" {% if request.GET.country == 'ES' %}selected{% endif %}>Spain</option>
+                        <option value="AD" {% if request.GET.country == 'AD' %}selected{% endif %}>Andorra</option>
+                    </select>
+                    <button type="submit" class="bg-[#0B246A] border-2 border-[#7B8ED9] px-4 py-1 text-white font-black text-xs uppercase hover:brightness-125 transition-all active:translate-y-[1px]">
+                        Apply
+                    </button>
+                </form>
+            </div>
+        </div>
+
+        <div class="w-full border-[3px] border-black bg-black overflow-x-auto">
+            <table class="w-full text-left table-fixed min-w-[600px] border-separate border-spacing-0">
+                <thead>
+                    <tr class="bg-brand-red text-white uppercase border-b-[3px] border-black">
+                        <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest">Rank</th>
+                        <th class="p-5 font-black text-[14px] tracking-widest">Player Name</th>
+                        <th class="p-5 w-32 text-center font-black text-[14px] tracking-widest">Region</th>
+                        <th class="p-5 w-40 text-center font-black text-[14px] tracking-widest">Elo Points</th>
+                    </tr>
+                </thead>
+                <tbody class="text-sm">
+                    {% for player in players %}
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors {% if player.user.username == request.user.username %} bg-[#0B246A]/40 {% endif %}">
+
+                        <td class="p-4 text-center {% if player.user.username == request.user.username %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
+                            <span class="text-white/40 font-black text-2xl">#{{ forloop.counter }}</span>
+                        </td>
+
+                        <td class="p-4">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000]">
+                                    {% if player.image %}
+                                        <img src="{% if player.image.url %}{{ player.image.url }}{% else %}{{ player.image }}{% endif %}" alt="Profile picture" class="w-full h-full object-cover">
+                                    {% else %}
+                                        <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black uppercase">IMG</div>
+                                    {% endif %}
+                                </div>
+                                <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user.username == request.user.username %} text-brand-red {% endif %}">
+                                    {{ player.user.username }}
+                                </span>
+                            </div>
+                        </td>
+
+                        <td class="p-4 text-center">
+                            <span class="text-gray-500 font-bold text-[10px] uppercase">
+                                {{ player.country|default:"GLB" }}
+                            </span>
+                        </td>
+
+                        <td class="p-4 text-center">
+                            <span class="text-white font-black text-3xl drop-shadow-[2px_2px_0_#000] tabular-nums">
+                                {{ player.elo }}
+                            </span>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="p-16 text-center text-white/60 font-black uppercase text-sm tracking-widest">
+                            No players recorded in this region
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

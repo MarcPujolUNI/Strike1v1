@@ -13,7 +13,7 @@
                    class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
                    {% if request.path == '/' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
                     {% if user.is_authenticated %}
-                        HOME PAGE
+                        DASHBOARD
                     {% else %}
                         LANDING PAGE
                     {% endif %}
@@ -26,7 +26,7 @@
                 <a href="/leaderboard"
                    class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
                    {% if request.path == '/leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
-                    RANKING
+                    LEADERBOARD
                 </a>
             </nav>
         </div>
