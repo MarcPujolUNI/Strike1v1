@@ -8,6 +8,8 @@ from django.db.models import Q, F
 from django.utils.timezone import now
 from django.core.files.base import ContentFile
 
+DEFAULT_COUNTRY = 1
+
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Medium Large")
     map_id = models.AutoField(primary_key=True)
@@ -25,8 +27,15 @@ class Country(models.Model):
     country_name = models.CharField(max_length=50)
     flag_image = models.ImageField(upload_to="country_flags/", blank=True)
 
+    class Meta:
+        verbose_name_plural = "Countries"
+
     def __str__(self):
         return f"{self.country_name}-{self.country_iso}"
+
+    @staticmethod
+    def get_default_country():
+        return DEFAULT_COUNTRY
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -42,8 +51,12 @@ class Country(models.Model):
 
 class WebUser(AbstractUser):
     email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
-    user_country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_users")
+    user_country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_users", default=Country.get_default_country())
     user_image = models.ImageField(upload_to="user_images/", blank=True)
+
+    class Meta:
+        verbose_name = "WebUser"
+        verbose_name_plural = "WebUsers"
 
     def __str__(self):
         return self.username
@@ -85,6 +98,9 @@ class Match(models.Model):
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
     date = models.DateField(validators=[MaxValueValidator(now)])
 
+    class Meta:
+        verbose_name_plural = "Matches"
+
     def __str__(self):
         return f"Winner: {self.winner_name}, result: {self.score_display}"
 
@@ -98,6 +114,7 @@ class MatchStats(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["user", "match"], condition=Q(user__isnull=False),name="unique_user_match")]
+        verbose_name_plural = "MatchStats"
 
     def __str__(self):
         return f"{self.username}: {self.kills} kills, {self.deaths} deaths"
