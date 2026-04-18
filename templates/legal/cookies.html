@@ -6,18 +6,33 @@
 {% block legal_title %} Cookie Policy {% endblock %}
 
 {% block legal_content %}
-    <section class="border-l-2 border-white/10 pl-6">
-        <h2 class="text-white mb-3 text-[14px]">00. Session Tokens</h2>
-        <p>This website uses essential session cookies provided by Django to manage user authentication and security (CSRF protection). These are strictly necessary for the terminal to function.</p>
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[00]</span>
+            Session Tokens
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            This website uses essential session cookies provided by Django to manage user authentication and security (CSRF protection). These are strictly necessary for the terminal to function.
+        </p>
     </section>
 
-    <section class="border-l-2 border-white/10 pl-6">
-        <h2 class="text-white mb-3 text-[14px]">01. Zero Tracking</h2>
-        <p>We do not deploy any marketing, analytics, or third-party tracking pixels. Your interactions with this educational project are private and self-contained.</p>
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[01]</span>
+            Zero Tracking
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            We do not deploy any marketing, analytics, or third-party tracking pixels. Your interactions with this educational project are private and self-contained.
+        </p>
     </section>
 
-    <section class="border-l-2 border-white/10 pl-6">
-        <h2 class="text-white mb-3 text-[14px]">02. Persistence</h2>
-        <p>Session cookies are typically cleared when you close your browser or after a short period of inactivity, following standard Django security protocols.</p>
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[02]</span>
+            Persistence
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            Session cookies are typically cleared when you close your browser or after a short period of inactivity, following standard Django security protocols.
+        </p>
     </section>
 {% endblock %}

@@ -1,11 +1,8 @@
-/* Fons amb patró de punts a tota la pantalla */
 .bg-dot-grid {
-    background-color: #1a1a1b;
-    background-image: radial-gradient(#2a2a2a 1px, transparent 1px);
+    background-color: #1a1a1b; /* Valor manual para asegurar el fondo */
+    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
     background-size: 25px 25px;
 }
-
-/* Componentes Universales escalables para futuras páginas */
 
 .xp-window {
     background-color: #2e2e2e;
@@ -28,7 +25,6 @@
     text-transform: uppercase;
 }
 
-/* Botones principales */
 .xp-btn {
     border: 3px solid #000;
     font-weight: 900;
@@ -44,18 +40,9 @@
     outline: none;
 }
 
-.xp-btn-blue {
-    background-color: #0B246A;
-    color: white;
-}
+.xp-btn-blue { background-color: #0B246A; color: white; }
+.xp-btn-red { background-color: #cc3333; color: white; }
 
-.xp-btn-green {
-    background-color: #E04343;
-    color: white;
-}
-
-/* Botones de control de ventana (Minimizar, Maximizar, Cerrar) */
-/* Contenedores visuales de control (Sin interacción) */
 .ctrl-display {
     display: inline-flex;
     align-items: center;
@@ -71,23 +58,11 @@
     font-size: 13px;
     color: black;
     box-shadow: inset -1px -1px 2px #888, inset 1px 1px 1px #fff;
-    pointer-events: none;
-    user-select: none;
-    cursor: default;
 }
 
 .ctrl-display.close {
-    background: #e04343;
+    background: #cc3333;
     color: white;
-    border-color: #7a0000;
-}
-
-.flex-center-optical {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0;
-    padding-top: 2px;
 }
 
 .nav-link-center {
@@ -95,6 +70,6 @@
     align-items: center;
     justify-content: center;
     height: 100%;
-    line-height: 1; /* Forzamos a que no haya espacio extra por debajo */
-    padding-top: 4px; /* Ajuste óptico para la tipografía Tahoma en mayúsculas */
+    line-height: 1;
+    padding-top: 4px;
 }

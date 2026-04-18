@@ -3,7 +3,7 @@
 {% block title %} Strike 1v1 - Leaderboard {% endblock %}
 
 {% block content %}
-<div class="w-full max-w-[900px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-sans">
+<div class="w-full max-w-[900px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
 
     <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
         <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="bg-[#2e2e2e] border-x border-b border-black/50 p-6">
+    <div class="bg-card-dark border-x border-b border-black/50 p-6">
 
         <div class="flex flex-col gap-4 mb-6">
             <div class="bg-black/40 border-[3px] border-black p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
@@ -48,7 +48,7 @@
                         <option value="ES" {% if request.GET.country == 'ES' %}selected{% endif %}>Spain</option>
                         <option value="AD" {% if request.GET.country == 'AD' %}selected{% endif %}>Andorra</option>
                     </select>
-                    <button type="submit" class="bg-[#0B246A] border-2 border-[#7B8ED9] px-4 py-1 text-white font-black text-xs uppercase hover:brightness-125 transition-all active:translate-y-[1px]">
+                    <button type="submit" class="bg-xp-blue border-2 border-xp-blue-border px-4 py-1 text-white font-black text-xs uppercase hover:brightness-125 transition-all active:translate-y-[1px] shadow-[2px_2px_0px_#000]">
                         Apply
                     </button>
                 </form>
@@ -62,12 +62,12 @@
                         <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest">Rank</th>
                         <th class="p-5 font-black text-[14px] tracking-widest">Player Name</th>
                         <th class="p-5 w-32 text-center font-black text-[14px] tracking-widest">Region</th>
-                        <th class="p-5 w-40 text-center font-black text-[14px] tracking-widest">Elo Points</th>
+                        <th class="p-4 w-40 text-center font-black text-[14px] tracking-widest">Elo Points</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
                     {% for player in players %}
-                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors {% if player.user.username == request.user.username %} bg-[#0B246A]/40 {% endif %}">
+                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors {% if player.user.username == request.user.username %} bg-xp-blue/40 {% endif %}">
 
                         <td class="p-4 text-center {% if player.user.username == request.user.username %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
                             <span class="text-white/40 font-black text-2xl">#{{ forloop.counter }}</span>
@@ -89,8 +89,11 @@
                         </td>
 
                         <td class="p-4 text-center">
-                            <span class="text-gray-500 font-bold text-[10px] uppercase">
-                                {{ player.country|default:"GLB" }}
+                            <span class="text-footer-text font-bold text-[10px] uppercase border border-footer-text/30 px-2 py-0.5">
+                                {% if player.country == 'ES' %} Spain
+                                {% elif player.country == 'AD' %} Andorra
+                                {% else %} World
+                                {% endif %}
                             </span>
                         </td>
 
@@ -110,7 +113,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 </div>
 {% endblock %}

@@ -1,4 +1,4 @@
-<header class="w-full bg-[#2e2e2e] border-b-[4px] border-black z-50 shadow-2xl h-16 font-sans">
+<header class="w-full bg-card-dark border-b-[4px] border-black z-50 shadow-2xl h-16 font-tahoma">
     <div class="w-full h-full px-6 flex items-center justify-between">
 
         <div class="flex items-center gap-10 h-full">
@@ -10,8 +10,8 @@
 
             <nav class="flex h-full">
                 <a href="/"
-                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
-                   {% if request.path == '/' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center
+                   {% if request.path == '/' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     {% if user.is_authenticated %}
                         DASHBOARD
                     {% else %}
@@ -19,13 +19,13 @@
                     {% endif %}
                 </a>
                 <a href="/play"
-                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
-                   {% if request.path == '/play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center
+                   {% if request.path == '/play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     PLAY
                 </a>
                 <a href="/leaderboard"
-                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4
-                   {% if request.path == '/leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-[#808080] hover:text-white hover:bg-white/5 {% endif %}">
+                   class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center
+                   {% if request.path == '/leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     LEADERBOARD
                 </a>
             </nav>
@@ -52,9 +52,9 @@
                             </div>
                         </button>
 
-                        <div id="profile-menu" class="hidden absolute right-0 top-[64px] w-full bg-[#2e2e2e] border-2 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.5)] z-[100]">
+                        <div id="profile-menu" class="hidden absolute right-0 top-[64px] w-full bg-card-dark border-2 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.5)] z-[100]">
 
-                            <div class="h-5 bg-[#1a1a1b] border-b border-black flex items-center px-2 justify-end gap-1">
+                            <div class="h-5 bg-main-dark border-b border-black flex items-center px-2 justify-end gap-1">
                                 <span class="w-2 h-2 bg-[#444] border border-black/50"></span>
                                 <span class="w-2 h-2 bg-brand-red border border-black/50"></span>
                             </div>
@@ -66,7 +66,7 @@
 
                                 <div class="border-t border-black/40 my-1 mx-1"></div>
 
-                                <a href="/logout" class="px-3 py-2.5 text-[11px] font-bold text-red-500 hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent hover:border-black/20">
+                                <a href="/logout" class="px-3 py-2.5 text-[11px] font-bold text-xp-red hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent hover:border-black/20">
                                     Log Out
                                 </a>
                             </div>
@@ -75,10 +75,10 @@
 
                 {% else %}
                     <div class="flex items-center gap-4">
-                        <a href="/login" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#0B246A] border-2 border-[#7B8ED9] shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
+                        <a href="/login" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-blue border-2 border-xp-blue-border shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
                             Login
                         </a>
-                        <a href="/register" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-[#E04343] border-2 border-[#ff7a7a] shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest">
+                        <a href="/register" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-red border-2 border-xp-red-border shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest">
                             Register
                         </a>
                     </div>

@@ -3,7 +3,7 @@
 {% block title %} Strike 1v1 - Play {% endblock %}
 
 {% block content %}
-<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-sans relative">
+<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma relative">
 
     <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
         <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
@@ -17,7 +17,7 @@
         </div>
     </div>
 
-    <div class="bg-[#2e2e2e] border-x border-b border-black/50 p-10 md:p-14 text-center">
+    <div class="bg-card-dark border-x border-b border-black/50 p-10 md:p-14 text-center">
 
         <div class="mb-0">
             <h1 class="text-white text-5xl md:text-6xl font-black uppercase tracking-tighter drop-shadow-[4px_4px_0_#000]">
@@ -26,22 +26,22 @@
         </div>
 
         <div class="mt-7 mb-7">
-            <p class="text-[13px] text-gray-400 font-bold uppercase tracking-[2px] max-w-[450px] mx-auto leading-relaxed">
+            <p class="text-[13px] text-footer-text font-bold uppercase tracking-[2px] max-w-[450px] mx-auto leading-relaxed">
                 Connect to our global server network and find an opponent instantly.
             </p>
         </div>
 
         <div class="group relative">
-            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] group-hover:border-brand-red transition-colors duration-0">
+            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] group-hover:border-brand-red transition-colors duration-75">
                 <div class="mb-6">
-                    <div class="text-white text-2xl font-black uppercase tracking-widest mb-2 group-hover:text-brand-red transition-colors duration-0">
+                    <div class="text-white text-2xl font-black uppercase tracking-widest mb-2 group-hover:text-brand-red transition-colors duration-75">
                         Instant Matchmaking
                     </div>
                     <div class="h-[1px] w-16 bg-white/20 mx-auto"></div>
                 </div>
 
                 <div class="mb-10 space-y-4">
-                    <p class="text-[12px] text-gray-400 font-bold uppercase tracking-widest">
+                    <p class="text-[12px] text-footer-text font-bold uppercase tracking-widest">
                         Ready to join the global queue?
                     </p>
                     <p class="text-[11px] text-white/40 font-medium uppercase tracking-[1px] leading-normal max-w-[350px] mx-auto">
@@ -50,7 +50,7 @@
                     </p>
                 </div>
 
-                <button onclick="showWipModal()" class="w-full bg-[#0B246A] border-[4px] border-[#7B8ED9] py-6 text-2xl font-black text-white uppercase tracking-[6px] hover:brightness-125 transition-all duration-0 active:translate-y-[2px] cursor-pointer">
+                <button onclick="showWipModal()" class="xp-btn xp-btn-blue w-full py-6 text-2xl tracking-[6px]">
                     &gt;&gt; Find Match &lt;&lt;
                 </button>
             </div>
@@ -59,24 +59,25 @@
 </div>
 
 <div id="wip-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-    <div id="modal-container" class="w-full max-w-[380px] shadow-[10px_10px_0px_#000] border-[3px] border-black">
+    <div id="modal-container" class="w-full max-w-[380px] shadow-[10px_10px_0px_#000] border-[3px] border-black font-tahoma">
 
         <div class="xp-title-bar h-[35px] flex justify-center items-center px-3 border-b-2 border-black">
-            <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-widest">
+            <div class="flex items-center text-[11px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-widest">
                 System Notification
             </div>
         </div>
 
-        <div class="bg-[#2e2e2e] p-10 flex flex-col items-center text-center">
+        <div class="bg-card-dark p-10 flex flex-col items-center text-center">
             <div class="mb-6 bg-black border-2 border-brand-red px-6 py-2">
                 <span class="text-brand-red text-3xl font-black">W.I.P.</span>
             </div>
-            <h3 class="text-white text-xl font-black uppercase tracking-tight mb-4">Work in Progress</h3>
-            <p class="text-gray-400 text-[11px] font-bold uppercase tracking-[2px] mb-8 leading-relaxed">
-                The matchmaking module is <br>
-                still under development
+            <h3 class="text-white text-xl font-black uppercase tracking-tight mb-4">Module Locked</h3>
+            <p class="text-footer-text text-[11px] font-bold uppercase tracking-[2px] mb-8 leading-relaxed">
+                The matchmaking is still<br>
+                under development
             </p>
-            <button onclick="closeWipModal()" class="w-full bg-white border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-brand-red hover:text-white transition-colors duration-0 active:translate-y-[2px] active:shadow-[1px_1px_0px_#000] cursor-pointer">
+
+            <button onclick="closeWipModal()" class="w-full bg-xp-gray-light border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-brand-red hover:text-white active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
                 Acknowledge
             </button>
         </div>
