@@ -7,7 +7,7 @@
 
     <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
         <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
-            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">S</div>
             Leaderboard -
             {% if request.GET.country == 'ES' %} Spain
             {% elif request.GET.country == 'AD' %} Andorra
@@ -21,7 +21,7 @@
         </div>
     </div>
 
-    <div class="bg-card-dark border-x border-b border-black/50 p-6">
+    <div class="bg-card-dark border-x border-b border-black p-6">
 
         <div class="flex flex-col gap-4 mb-6">
             <div class="bg-black/40 border-[3px] border-black p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
@@ -59,27 +59,27 @@
             <table class="w-full text-left table-fixed min-w-[600px] border-separate border-spacing-0">
                 <thead>
                     <tr class="bg-brand-red text-white uppercase border-b-[3px] border-black">
-                        <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest">Rank</th>
-                        <th class="p-5 font-black text-[14px] tracking-widest">Player Name</th>
-                        <th class="p-5 w-32 text-center font-black text-[14px] tracking-widest">Region</th>
-                        <th class="p-4 w-40 text-center font-black text-[14px] tracking-widest">Elo Points</th>
+                        <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">Rank</th>
+                        <th class="p-5 font-black text-[14px] tracking-widest border-b-[3px] border-black">Player Name</th>
+                        <th class="p-5 w-32 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">Region</th>
+                        <th class="p-4 w-40 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">Elo Points</th>
                     </tr>
                 </thead>
                 <tbody class="text-sm">
                     {% for player in players %}
-                    <tr class="border-b border-white/5 hover:bg-white/5 transition-colors {% if player.user.username == request.user.username %} bg-xp-blue/40 {% endif %}">
+                    <tr class="border-b border-white/5 hover:bg-white/10 transition-colors {% if player.user.username == request.user.username %} bg-xp-blue/30 {% endif %}">
 
-                        <td class="p-4 text-center {% if player.user.username == request.user.username %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
+                        <td class="p-4 text-center border-b border-white/5 {% if player.user.username == request.user.username %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
                             <span class="text-white/40 font-black text-2xl">#{{ forloop.counter }}</span>
                         </td>
 
-                        <td class="p-4">
+                        <td class="p-4 border-b border-white/5">
                             <div class="flex items-center gap-4">
                                 <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000]">
                                     {% if player.image %}
-                                        <img src="{% if player.image.url %}{{ player.image.url }}{% else %}{{ player.image }}{% endif %}" alt="Profile picture" class="w-full h-full object-cover">
+                                        <img src="{% if player.image.url %}{{ player.image.url }}{% else %}{{ player.image }}{% endif %}" alt="Profile" class="w-full h-full object-cover">
                                     {% else %}
-                                        <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black uppercase">IMG</div>
+                                        <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black">IMG</div>
                                     {% endif %}
                                 </div>
                                 <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user.username == request.user.username %} text-brand-red {% endif %}">
@@ -88,16 +88,16 @@
                             </div>
                         </td>
 
-                        <td class="p-4 text-center">
-                            <span class="text-footer-text font-bold text-[10px] uppercase border border-footer-text/30 px-2 py-0.5">
-                                {% if player.country == 'ES' %} Spain
-                                {% elif player.country == 'AD' %} Andorra
-                                {% else %} World
+                        <td class="p-4 text-center border-b border-white/5">
+                            <span class="text-footer-text font-black text-[10px] uppercase border border-footer-text/30 px-2 py-0.5 bg-black/20">
+                                {% if player.country == 'ES' %} ESP
+                                {% elif player.country == 'AD' %} AND
+                                {% else %} WLD
                                 {% endif %}
                             </span>
                         </td>
 
-                        <td class="p-4 text-center">
+                        <td class="p-4 text-center border-b border-white/5">
                             <span class="text-white font-black text-3xl drop-shadow-[2px_2px_0_#000] tabular-nums">
                                 {{ player.elo }}
                             </span>
