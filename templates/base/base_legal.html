@@ -1,0 +1,40 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Legal Documentation - {% block page_name %}{% endblock %} {% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[800px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-sans">
+
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">
+                S
+            </div>
+            Legal Documentation - {% block bar_name %}{% endblock %}
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
+    </div>
+
+    <div class="bg-[#2e2e2e] border-x border-b border-black/50 p-6 md:p-8">
+        <div class="bg-black/40 border-[3px] border-black p-6 mb-8 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+            <h1 class="text-white text-4xl font-black uppercase tracking-wider">
+                {% block legal_title %}{% endblock %}
+            </h1>
+        </div>
+
+        <div class="space-y-8 mb-10 px-2 text-gray-400 font-bold uppercase text-[12px] tracking-widest leading-relaxed">
+            {% block legal_content %}{% endblock %}
+        </div>
+
+        <div class="border-t-2 border-black pt-8">
+            <a href="{% url 'web:index' %}" class="block w-full text-center bg-[#0B246A] border-[4px] border-[#7B8ED9] py-4 text-xl font-black text-white uppercase tracking-[4px] shadow-[6px_6px_0px_#000] hover:brightness-125 active:translate-y-[4px] active:translate-x-[2px] active:shadow-[2px_2px_0px_#000] transition-all cursor-pointer">
+                Return to main page
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

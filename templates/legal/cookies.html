@@ -1,0 +1,23 @@
+{% extends 'base/base_legal.html' %}
+
+{% block page_name %}Cookie Policy{% endblock %}
+{% block bar_name %}Cookie Policy{% endblock %}
+
+{% block legal_title %} Cookie Policy {% endblock %}
+
+{% block legal_content %}
+    <section class="border-l-2 border-white/10 pl-6">
+        <h2 class="text-white mb-3 text-[14px]">00. Session Tokens</h2>
+        <p>This website uses essential session cookies provided by Django to manage user authentication and security (CSRF protection). These are strictly necessary for the terminal to function.</p>
+    </section>
+
+    <section class="border-l-2 border-white/10 pl-6">
+        <h2 class="text-white mb-3 text-[14px]">01. Zero Tracking</h2>
+        <p>We do not deploy any marketing, analytics, or third-party tracking pixels. Your interactions with this educational project are private and self-contained.</p>
+    </section>
+
+    <section class="border-l-2 border-white/10 pl-6">
+        <h2 class="text-white mb-3 text-[14px]">02. Persistence</h2>
+        <p>Session cookies are typically cleared when you close your browser or after a short period of inactivity, following standard Django security protocols.</p>
+    </section>
+{% endblock %}

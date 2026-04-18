@@ -10,7 +10,7 @@
             <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">
                 S
             </div>
-            Dashboard - {{ user.username }}
+            Dashboard - Player: {{ user.username }}
         </div>
         <div class="flex gap-1">
             <span class="ctrl-display">_</span>
@@ -39,10 +39,10 @@
                     </div>
                 </div>
             </div>
-            <-- drop-shadow-[3px_3px_0_#000] -->
+
             <div class="bg-brand-red border-[3px] border-white p-4 flex-1 flex flex-col justify-center items-center">
                 <span class="text-white text-[10px] font-black uppercase tracking-[2px] mb-1 opacity-80">Current Rating</span>
-                <span class="text-white text-5xl font-black ">{{ user.profile.elo|default:"0" }}</span>
+                <span class="text-white text-5xl font-black drop-shadow-[3px_3px_0_#000]">{{ user.profile.elo|default:"0" }}</span>
                 <span class="text-white text-[10px] font-black uppercase mt-1 tracking-widest">ELO POINTS</span>
             </div>
         </div>

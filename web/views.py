@@ -12,5 +12,17 @@ def index(request):
 def leaderboard(request):
     return render(request, 'pages/leaderboard.html')
 
+def play(request):
+    return render(request, 'pages/play.html')
+
+def terms_of_service(request):
+    return render(request, 'legal/tos.html')
+
+def privacy_policy(request):
+    return render(request, 'legal/privacy.html')
+
+def cookie_policy(request):
+    return render(request, 'legal/cookies.html')
+
 class MyLoginView(LoginView):
     template_name = 'pages/login.html'
