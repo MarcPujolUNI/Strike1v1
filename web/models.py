@@ -1,10 +1,13 @@
-from datetime import timedelta
+import requests
 
-from django.core.validators import MinValueValidator, MaxValueValidator, EmailValidator, RegexValidator
+from datetime import timedelta
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q, F
 from django.utils.timezone import now
-#make migrations i migrate fer quan acabi str, i editar lo de la pull request
+from django.core.files.base import ContentFile
+
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Medium Large")
     map_id = models.AutoField(primary_key=True)
@@ -18,17 +21,29 @@ class Map(models.Model):
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
+    country_iso = models.CharField(unique=True, max_length=2, validators=[RegexValidator(regex=r"^[A-Z]{2}$")])
     country_name = models.CharField(max_length=50)
+    flag_image = models.ImageField(upload_to="country_flags/", blank=True)
 
     def __str__(self):
-        return self.country_name
+        return f"{self.country_name}-{self.country_iso}"
 
-class WebUser(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(validators=[EmailValidator()])
-    password = models.CharField(max_length=200)
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.flag_image:
+            self.get_flag_image()
+
+    def get_flag_image(self):
+        response = requests.get(f"https://flagsapi.com/{self.country_iso}/flat/64.png")
+        for _ in range(3):
+            if response.status_code == 200:
+                self.flag_image.save(f"{self.country_iso}.png", ContentFile(response.content), save=True)
+                return
+
+class WebUser(AbstractUser):
+    email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
     user_country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_users")
+    user_image = models.ImageField(upload_to="user_images/", blank=True)
 
     def __str__(self):
         return self.username
