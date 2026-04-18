@@ -58,6 +58,8 @@
     font-size: 13px;
     color: black;
     box-shadow: inset -1px -1px 2px #888, inset 1px 1px 1px #fff;
+    cursor: default;
+    user-select: none;
 }
 
 .ctrl-display.close {
