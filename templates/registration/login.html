@@ -1,24 +1,77 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 
-{% block title %}Login - Strike1v1{% endblock %}
-account
+{% block title %} Strike 1v1 - Login {% endblock %}
+
 {% block content %}
-<h1>Login</h1>
-
-{% if form.errors %}
-<p class="error-text">Invalid username or password. Please try again.</p>
-{% endif %}
-
-<form method="post" class="form-narrow">
-    {% csrf_token %}
-    <div class="form-group">
-        <label for="id_username" class="form-label">Username:</label>
-        {{ form.username }}
+<div class="w-full max-w-[500px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-sans">
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">
+                S
+            </div>
+            Strike 1v1 - Login
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
     </div>
-    <div class="form-group">
-        <label for="id_password" class="form-label">Password:</label>
-        {{ form.password }}
+
+    <div class="bg-[#2e2e2e] border-x border-b border-black/50 px-8 pt-10 pb-8 flex flex-col items-center">
+
+        <div class="bg-brand-red border-[4px] border-white px-12 py-5 mb-4 text-center shadow-[6px_6px_0px_rgba(0,0,0,0.4)]">
+            <h1 class="text-white text-4xl font-black tracking-[2px] drop-shadow-[3px_3px_0_#000]">
+                STRIKE 1v1
+            </h1>
+        </div>
+
+        <p class="text-white text-sm font-bold mb-8 opacity-90 text-center uppercase">
+            Enter your account credentials
+        </p>
+
+        <form method="POST" class="w-full">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="bg-red-600/20 border border-red-600 p-2 mb-5">
+                    <p class="text-red-500 text-[11px] font-bold text-center uppercase">
+                        Invalid username or password. Please try again.
+                    </p>
+                </div>
+            {% endif %}
+
+            <div class="space-y-4 mb-6">
+                <div class="space-y-1.5">
+                    <label for="id_username" class="text-white font-bold text-[13px] block">Username</label>
+                    <div class="django-input-wrapper">
+                        {{ form.username }}
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label for="id_password" class="text-white font-bold text-[13px] block">Password</label>
+                    <div class="django-input-wrapper">
+                        {{ form.password }}
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <button type="submit" class="xp-btn xp-btn-blue w-full py-3.5 text-[15px] font-bold uppercase tracking-wider">
+                    Login
+                </button>
+            </div>
+
+            <div class="border-t border-gray-600 mt-8 mb-6"></div>
+
+            <div class="text-center">
+                <span class="text-white opacity-70 text-[15px] font-medium">Don't have an account?</span>
+                <a href="{% url 'signup' %}" class="text-[#0058e6] font-bold text-[15px] ml-1 hover:underline">
+                    Create new account
+                </a>
+            </div>
+        </form>
     </div>
-    <button type="submit" class="btn btn-blue">Login</button>
-</form>
+</div>
 {% endblock %}

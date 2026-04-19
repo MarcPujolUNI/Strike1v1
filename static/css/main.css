@@ -1,6 +1,6 @@
 .bg-dot-grid {
     background-color: #1a1a1b; /* Valor manual para asegurar el fondo */
-    background-image: radial-gradient(rgba(255,255,255,0.05) 1px, transparent 1px);
+    background-image: radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
     background-size: 25px 25px;
 }
 
@@ -13,7 +13,7 @@
 .xp-title-bar {
     background: linear-gradient(to bottom, #0058e6 0%, #003db3 100%);
     border-bottom: 1px solid #000;
-    box-shadow: inset 0 1px 1px rgba(255,255,255,0.4);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.4);
 }
 
 .xp-card-header {
@@ -30,7 +30,7 @@
     font-weight: 900;
     text-transform: uppercase;
     cursor: pointer;
-    box-shadow: inset 0px 0px 0px 2px rgba(255,255,255,0.4);
+    box-shadow: inset 0px 0px 0px 2px rgba(255, 255, 255, 0.4);
     transition: transform 0.05s, box-shadow 0.05s;
 }
 
@@ -40,8 +40,15 @@
     outline: none;
 }
 
-.xp-btn-blue { background-color: #0B246A; color: white; }
-.xp-btn-red { background-color: #cc3333; color: white; }
+.xp-btn-blue {
+    background-color: #0B246A;
+    color: white;
+}
+
+.xp-btn-red {
+    background-color: #cc3333;
+    color: white;
+}
 
 .ctrl-display {
     display: inline-flex;
@@ -74,4 +81,43 @@
     height: 100%;
     line-height: 1;
     padding-top: 4px;
+}
+
+.django-input-wrapper input,
+.django-input-wrapper select {
+    width: 100%;
+    background-color: white !important;
+    border: 2px solid black;
+    padding: 0.75rem;
+    color: black !important;
+    font-weight: 700;
+    box-shadow: inset 2px 2px 0px rgba(0, 0, 0, 0.1);
+    appearance: none;
+}
+
+.django-input-wrapper input:focus,
+.django-input-wrapper select:focus {
+    outline: none;
+    border-color: #0058e6;
+}
+
+.django-input-wrapper select {
+    cursor: pointer;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='black'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    background-size: 1.2em;
+    padding-right: 2.5rem;
+}
+
+.django-input-wrapper select option {
+    background-color: white;
+    color: black;
+    font-family: sans-serif;
+    padding: 10px;
+}
+
+.django-input-wrapper input::placeholder {
+    color: #9ca3af;
+    font-weight: 400;
 }

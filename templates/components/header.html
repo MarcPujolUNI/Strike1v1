@@ -75,10 +75,10 @@
 
                 {% else %}
                     <div class="flex items-center gap-4">
-                        <a href="/login" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-blue border-2 border-xp-blue-border shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
+                        <a href="{% url 'login' %}" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-blue border-2 border-xp-blue-border shadow-[2px_2px_0px_#000] hover:brightness-125 transition-all uppercase tracking-widest">
                             Login
                         </a>
-                        <a href="/register" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-red border-2 border-xp-red-border shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest">
+                        <a href="{% url 'signup' %}" class="flex items-center justify-center px-6 h-10 text-xs font-black text-white bg-xp-red border-2 border-xp-red-border shadow-[2px_2px_0px_#000] hover:brightness-110 transition-all uppercase tracking-widest">
                             Register
                         </a>
                     </div>

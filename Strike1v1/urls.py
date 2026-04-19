@@ -16,10 +16,19 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
+from django.contrib.auth.views import LoginView
 from web.views import SignUpView
+from web.forms import UserLoginForm
+from django.conf import settings
+from django.conf.urls.static import static
+
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('accounts/login/', LoginView.as_view(template_name='registration/login.html', authentication_form=UserLoginForm), name='login'),
     path('accounts/signup/', SignUpView.as_view(), name='signup'),
-    path('accounts/', include('django.contrib.auth.urls')),  # all of Django's auth views (login, logout, etc.)
+    path('accounts/', include('django.contrib.auth.urls')),
     path('', include('web.urls')),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

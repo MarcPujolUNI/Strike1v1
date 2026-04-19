@@ -1,26 +1,108 @@
-{% extends "base/base.html" %}
+{% extends 'base/base.html' %}
 
-{% block title %}Sign Up - Strike1v1{% endblock %}
+{% block title %} Strike 1v1 - Sign Up {% endblock %}
 
 {% block content %}
-<h1>Sign Up</h1>
-
-<form method="post" class="form-narrow">
-    {% csrf_token %}
-    {% for field in form %}
-    <div class="form-group">
-        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
-        {{ field }}
-        {% if field.help_text %}
-        <small class="help-text">{{ field.help_text }}</small>
-        {% endif %}
-        {% for error in field.errors %}
-        <small class="error-text">{{ error }}</small>
-        {% endfor %}
+<div class="w-full max-w-[500px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            Strike 1v1 - Sign Up
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
     </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-green">Sign Up</button>
-</form>
 
-<p class="login-link">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+    <div class="bg-card-dark border-x border-b border-black/50 px-8 pt-10 pb-8 flex flex-col items-center">
+        <div class="bg-brand-red border-[4px] border-white px-12 py-5 mb-4 text-center shadow-[6px_6px_0px_rgba(0,0,0,0.4)]">
+            <h1 class="text-white text-4xl font-black tracking-[2px] drop-shadow-[3px_3px_0_#000]">STRIKE 1v1</h1>
+        </div>
+
+        <p class="text-white text-sm font-bold mb-8 text-center uppercase">Join Strike 1v1 Platform</p>
+
+        <form method="POST" class="w-full">
+            {% csrf_token %}
+
+            {% if form.errors %}
+                <div class="bg-red-600/20 border border-red-600 p-2 mb-5">
+                    <p class="text-xp-red-border text-[11px] font-bold text-center uppercase">Check your data (errors found)</p>
+                </div>
+            {% endif %}
+
+            <div class="space-y-4 mb-8">
+                {% for field in form %}
+                <div class="space-y-1.5">
+                    <label for="{{ field.id_for_label }}" class="text-white font-bold text-[13px] block">
+                        {{ field.label }}
+                    </label>
+
+                    {% if field.name == 'user_country' %}
+                        <div class="flex gap-3 items-center">
+                            <div class="django-input-wrapper flex-1">
+                                {{ field }}
+                            </div>
+                            <div class="w-[60px] h-[40px] bg-black border-2 border-white/30 flex items-center justify-center overflow-hidden shadow-[2px_2px_0px_#000] shrink-0">
+                                <img id="flag-preview" src="" class="hidden w-full h-full object-contain">
+                                <span id="flag-placeholder" class="text-[9px] text-gray-400 font-bold">N/A</span>
+                            </div>
+                        </div>
+                    {% else %}
+                        <div class="django-input-wrapper">
+                            {{ field }}
+                        </div>
+                    {% endif %}
+
+                    {% if field.help_text %}
+                        <p class="text-gray-200 text-[10px] leading-tight font-medium">{{ field.help_text }}</p>
+                    {% endif %}
+
+                    {% for error in field.errors %}
+                        <p class="text-brand-red text-[11px] font-bold uppercase italic">{{ error }}</p>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="xp-btn xp-btn-blue w-full py-3.5 text-[15px] font-bold uppercase tracking-wider shadow-[4px_4px_0px_#000]">
+                Create Account
+            </button>
+
+            <div class="border-t border-gray-600 mt-8 mb-6"></div>
+
+            <div class="text-center">
+                <span class="text-gray-200 text-[15px] font-medium">Already have an account?</span>
+                <a href="{% url 'login' %}" class="text-title-blue-light font-bold text-[15px] ml-1 hover:underline">Login here</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const flagsMap = {{ form.flag_map|safe }};
+        const countrySelect = document.querySelector('select[name="user_country"]');
+        const flagImg = document.getElementById('flag-preview');
+        const flagPlaceholder = document.getElementById('flag-placeholder');
+
+        function updateFlag() {
+            const selectedId = countrySelect.value;
+            const url = flagsMap[selectedId];
+
+            if (url) {
+                flagImg.src = url;
+                flagImg.classList.remove('hidden');
+                flagPlaceholder.classList.add('hidden');
+            } else {
+                flagImg.classList.add('hidden');
+                flagPlaceholder.classList.remove('hidden');
+            }
+        }
+
+        countrySelect.addEventListener('change', updateFlag);
+        updateFlag();
+    });
+</script>
 {% endblock %}
