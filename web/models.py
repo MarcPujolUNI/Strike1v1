@@ -1,10 +1,15 @@
-from datetime import timedelta
+import requests
 
-from django.core.validators import MinValueValidator, MaxValueValidator, EmailValidator, RegexValidator
+from datetime import timedelta
+from django.contrib.auth.models import AbstractUser
+from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
 from django.db import models
 from django.db.models import Q, F
 from django.utils.timezone import now
-#make migrations i migrate fer quan acabi str, i editar lo de la pull request
+from django.core.files.base import ContentFile
+
+DEFAULT_COUNTRY = 1
+
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Medium Large")
     map_id = models.AutoField(primary_key=True)
@@ -18,17 +23,40 @@ class Map(models.Model):
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
+    country_iso = models.CharField(unique=True, max_length=2, validators=[RegexValidator(regex=r"^[A-Z]{2}$")])
     country_name = models.CharField(max_length=50)
+    flag_image = models.ImageField(upload_to="country_flags/", blank=True)
+
+    class Meta:
+        verbose_name_plural = "Countries"
 
     def __str__(self):
-        return self.country_name
+        return f"{self.country_name}-{self.country_iso}"
 
-class WebUser(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=50, unique=True)
-    email = models.EmailField(validators=[EmailValidator()])
-    password = models.CharField(max_length=200)
-    user_country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_users")
+    @staticmethod
+    def get_default_country():
+        return DEFAULT_COUNTRY
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if not self.flag_image:
+            self.get_flag_image()
+
+    def get_flag_image(self):
+        response = requests.get(f"https://flagsapi.com/{self.country_iso}/flat/64.png")
+        for _ in range(3):
+            if response.status_code == 200:
+                self.flag_image.save(f"{self.country_iso}.png", ContentFile(response.content), save=True)
+                return
+
+class WebUser(AbstractUser):
+    email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
+    user_country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="country_users", default=Country.get_default_country())
+    user_image = models.ImageField(upload_to="user_images/", blank=True)
+
+    class Meta:
+        verbose_name = "WebUser"
+        verbose_name_plural = "WebUsers"
 
     def __str__(self):
         return self.username
@@ -70,6 +98,9 @@ class Match(models.Model):
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
     date = models.DateField(validators=[MaxValueValidator(now)])
 
+    class Meta:
+        verbose_name_plural = "Matches"
+
     def __str__(self):
         return f"Winner: {self.winner_name}, result: {self.score_display}"
 
@@ -83,6 +114,7 @@ class MatchStats(models.Model):
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["user", "match"], condition=Q(user__isnull=False),name="unique_user_match")]
+        verbose_name_plural = "MatchStats"
 
     def __str__(self):
         return f"{self.username}: {self.kills} kills, {self.deaths} deaths"
