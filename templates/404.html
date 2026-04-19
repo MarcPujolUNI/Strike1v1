@@ -1,0 +1,51 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - Page Not Found {% endblock %}
+
+{% block content %}
+<div class="w-full flex flex-col items-center justify-center font-tahoma relative overflow-hidden px-6 py-20 min-h-[70vh]">
+
+    <div class="relative w-full max-w-[1200px] flex flex-col items-center justify-center">
+
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none select-none z-0">
+            <h1 class="text-[35vw] md:text-[28vw] font-black italic tracking-tighter text-white/[0.03] leading-none whitespace-nowrap flex-shrink-0 translate-y-[-5%]">
+                404
+            </h1>
+        </div>
+
+        <div class="relative z-10 flex flex-col items-center text-center">
+
+            <div class="flex items-center gap-4 mb-6">
+                <div class="h-[1px] w-12 bg-brand-red opacity-50"></div>
+                <span class="text-brand-red font-black uppercase tracking-[4px] text-[11px]">Error 404</span>
+                <div class="h-[1px] w-12 bg-brand-red opacity-50"></div>
+            </div>
+
+            <div class="mb-10">
+                <h1 class="text-white text-6xl md:text-[110px] font-black mb-4 tracking-tighter italic leading-none drop-shadow-2xl">
+                    PAGE <span class="text-transparent" style="-webkit-text-stroke: 1.5px rgba(255,255,255,0.8);">NOT FOUND</span>
+                </h1>
+                <p class="text-footer-text font-bold uppercase tracking-[2px] text-[10px] md:text-xs opacity-80">
+                    The page you are looking for does not exist or has been moved.
+                </p>
+            </div>
+
+            <div class="flex flex-col md:flex-row gap-4 w-full max-w-[480px]">
+
+                <a href="{% url 'web:index' %}" class="group flex-1 relative">
+                    <div class="bg-brand-red px-8 py-4 transition-all group-hover:bg-brand-red-hover group-active:scale-95 flex items-center justify-center shadow-lg">
+                        <span class="text-white font-black uppercase tracking-[2px] text-xs">Go Main Page</span>
+                    </div>
+                </a>
+
+                <button onclick="window.history.back()" class="group flex-1 relative">
+                    <div class="border-2 border-white/10 bg-white/5 backdrop-blur-sm px-8 py-4 transition-all group-hover:border-white/30 group-hover:bg-white/10 group-active:scale-95 flex items-center justify-center shadow-lg">
+                        <span class="text-white/70 group-hover:text-white font-black uppercase tracking-[2px] text-xs transition-colors">Go Back</span>
+                    </div>
+                </button>
+
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

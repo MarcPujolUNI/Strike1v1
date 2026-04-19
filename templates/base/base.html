@@ -1,0 +1,101 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>{% block title %}Strike 1v1 Platform{% endblock %}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@400,0..1" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script src="{% static 'js/tailwind-config.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body class="bg-dot-grid font-tahoma text-white min-h-screen flex flex-col overflow-y-auto">
+
+    {% include 'components/header.html' %}
+
+    <main class="flex-grow flex items-center justify-center p-8 mt-10 mb-20">
+        {% block content %}{% endblock %}
+    </main>
+
+    {% include 'components/footer.html' %}
+
+    <div id="wip-modal" class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+        <div id="modal-container-global" class="w-full max-w-[380px] shadow-[10px_10px_0px_#000] border-[3px] border-black font-tahoma bg-card-dark">
+
+            <div class="xp-title-bar h-[35px] flex justify-center items-center px-3 border-b-2 border-black">
+                <div class="flex items-center text-[11px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-widest">
+                    System Notification
+                </div>
+            </div>
+
+            <div class="p-10 flex flex-col items-center text-center">
+                <div class="mb-6 bg-black border-2 border-brand-red px-6 py-2">
+                    <span class="text-brand-red text-3xl font-black">W.I.P.</span>
+                </div>
+
+                <h3 class="text-white text-xl font-black uppercase tracking-tight mb-4">Module Locked</h3>
+
+                <p class="text-footer-text text-[11px] font-bold uppercase tracking-[2px] mb-8 leading-relaxed">
+                    This feature is still<br>
+                    under development
+                </p>
+
+                <button onclick="closeWipModal()" class="w-full bg-xp-gray-light border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-brand-red hover:text-white active:translate-y-[2px] active:shadow-none transition-all cursor-pointer outline-none">
+                    Acknowledge
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleDropdown() {
+            const menu = document.getElementById('profile-menu');
+            if (menu) {
+                menu.classList.toggle('hidden');
+            }
+        }
+
+        function showWipModal(e) {
+            if (e) e.preventDefault();
+            const menu = document.getElementById('profile-menu');
+            if (menu) menu.classList.add('hidden');
+
+            const modal = document.getElementById('wip-modal');
+            modal.classList.remove('hidden');
+        }
+
+        function closeWipModal() {
+            const modal = document.getElementById('wip-modal');
+            modal.classList.add('hidden');
+        }
+
+        window.addEventListener('click', function(e) {
+            const profileContainer = document.getElementById('profile-dropdown-container');
+            const profileMenu = document.getElementById('profile-menu');
+            if (profileContainer && !profileContainer.contains(e.target)) {
+                if (profileMenu) profileMenu.classList.add('hidden');
+            }
+
+            const modal = document.getElementById('wip-modal');
+            const modalContainer = document.getElementById('modal-container-global');
+            if (e.target === modal) {
+                closeWipModal();
+            }
+        });
+
+        window.addEventListener('keydown', function(e) {
+            if (e.key === "Escape") {
+                closeWipModal();
+            }
+        });
+    </script>
+</body>
+</html>

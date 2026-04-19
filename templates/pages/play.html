@@ -1,0 +1,62 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - Play {% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma relative">
+
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            Strike 1v1 - Play
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
+    </div>
+
+    <div class="bg-card-dark border-x border-b border-black p-10 md:p-14 text-center">
+
+        <div class="mb-0">
+            <h1 class="text-white text-5xl md:text-6xl font-black uppercase tracking-tighter drop-shadow-[4px_4px_0_#000]">
+                START PLAYING
+            </h1>
+        </div>
+
+        <div class="mt-7 mb-7">
+            <p class="text-[13px] text-footer-text font-bold uppercase tracking-[2px] max-w-[450px] mx-auto leading-relaxed">
+                Connect to our global server network and find an opponent instantly.
+            </p>
+        </div>
+
+        <div class="group relative">
+            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] group-hover:border-brand-red transition-colors duration-200">
+
+                <div class="mb-6">
+                    <div class="text-white text-2xl font-black uppercase tracking-widest mb-2 group-hover:text-brand-red transition-colors duration-200">
+                        Instant Matchmaking
+                    </div>
+                    <div class="h-[1px] w-16 bg-white/20 mx-auto group-hover:bg-brand-red/50 transition-colors"></div>
+                </div>
+
+                <div class="mb-10 space-y-4">
+                    <p class="text-[12px] text-footer-text font-bold uppercase tracking-widest">
+                        Ready to join the global queue?
+                    </p>
+                    <p class="text-[11px] text-white/40 font-medium uppercase tracking-[1px] leading-normal max-w-[350px] mx-auto">
+                        Please ensure your connection is stable. <br>
+                        Matchmaking is done based on your elo points.
+                    </p>
+                </div>
+
+                <button onclick="showWipModal()" class="xp-btn xp-btn-blue w-full py-5 text-2xl tracking-[4px] font-bold uppercase">
+                    &gt;&gt; Find Match &lt;&lt;
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
