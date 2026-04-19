@@ -21,14 +21,14 @@
             <h1 class="text-white text-4xl font-black tracking-[2px] drop-shadow-[3px_3px_0_#000]">STRIKE 1v1</h1>
         </div>
 
-        <p class="text-white text-sm font-bold mb-8 text-center uppercase">Join Strike 1v1 Platform</p>
+        <p class="text-white text-sm font-bold mb-8 text-center uppercase opacity-90">Join Strike 1v1 Platform</p>
 
         <form method="POST" class="w-full">
             {% csrf_token %}
 
             {% if form.errors %}
                 <div class="bg-red-600/20 border border-red-600 p-2 mb-5">
-                    <p class="text-xp-red-border text-[11px] font-bold text-center uppercase">Check your data (errors found)</p>
+                    <p class="text-red-500 text-[11px] font-bold text-center uppercase">Check your data (errors found)</p>
                 </div>
             {% endif %}
 
@@ -56,7 +56,7 @@
                     {% endif %}
 
                     {% if field.help_text %}
-                        <p class="text-gray-200 text-[10px] leading-tight font-medium">{{ field.help_text }}</p>
+                        <p class="text-gray-400 text-[10px] leading-tight font-medium">{{ field.help_text }}</p>
                     {% endif %}
 
                     {% for error in field.errors %}
@@ -66,15 +66,19 @@
                 {% endfor %}
             </div>
 
-            <button type="submit" class="xp-btn xp-btn-blue w-full py-3.5 text-[15px] font-bold uppercase tracking-wider shadow-[4px_4px_0px_#000]">
-                Create Account
-            </button>
+            <div>
+                <button type="submit" class="xp-btn xp-btn-blue w-full py-3.5 text-[15px] font-bold uppercase tracking-wider">
+                    Create Account
+                </button>
+            </div>
 
             <div class="border-t border-gray-600 mt-8 mb-6"></div>
 
             <div class="text-center">
-                <span class="text-gray-200 text-[15px] font-medium">Already have an account?</span>
-                <a href="{% url 'login' %}" class="text-title-blue-light font-bold text-[15px] ml-1 hover:underline">Login here</a>
+                <span class="text-white opacity-70 text-[15px] font-medium">Already have an account?</span>
+                <a href="{% url 'login' %}" class="text-title-blue-light font-bold text-[15px] ml-1 hover:underline">
+                    Login here
+                </a>
             </div>
         </form>
     </div>
@@ -88,6 +92,7 @@
         const flagPlaceholder = document.getElementById('flag-placeholder');
 
         function updateFlag() {
+            if (!countrySelect) return;
             const selectedId = countrySelect.value;
             const url = flagsMap[selectedId];
 
@@ -101,8 +106,10 @@
             }
         }
 
-        countrySelect.addEventListener('change', updateFlag);
-        updateFlag();
+        if (countrySelect) {
+            countrySelect.addEventListener('change', updateFlag);
+            updateFlag();
+        }
     });
 </script>
 {% endblock %}

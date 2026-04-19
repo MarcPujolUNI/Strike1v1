@@ -6,7 +6,7 @@
 
             <div class="flex flex-col">
                 <div class="mb-6">
-                    <a href="/" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all inline-block">
+                    <a href="{% url 'web:index' %}" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all inline-block">
                         Strike 1v1
                     </a>
                 </div>
@@ -24,17 +24,17 @@
                 </h4>
                 <ul class="flex flex-col gap-3">
                     <li>
-                        <a href="/tos" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
+                        <a href="{% url 'web:tos' %}" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
                             Terms of Service
                         </a>
                     </li>
                     <li>
-                        <a href="/privacy" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
+                        <a href="{% url 'web:privacy' %}" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
                             Privacy Policy
                         </a>
                     </li>
                     <li>
-                        <a href="/cookies" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
+                        <a href="{% url 'web:cookies' %}" class="text-[11px] font-bold text-footer-text hover:text-white transition-colors uppercase tracking-widest">
                             Cookie Policy
                         </a>
                     </li>
@@ -47,9 +47,10 @@
                 </h4>
                 <div class="flex flex-col gap-1">
                     <span class="text-[10px] text-footer-text font-bold uppercase tracking-tighter">Contact us:</span>
-                    <a class="text-[12px] font-bold text-white hover:text-brand-red transition-colors uppercase tracking-widest py-1">
-                        WIP: We are still working in an official contact
-                    </a>
+                    <button onclick="showWipModal(event)" class="text-left text-[12px] font-bold text-white hover:text-brand-red transition-colors uppercase tracking-widest py-1 cursor-pointer">
+                        WIP: Submit a Ticket
+                    </button>
+                    <p class="text-[10px] text-footer-text italic mt-2 uppercase">Official contact method coming soon</p>
                 </div>
             </div>
 
@@ -70,12 +71,16 @@
 </footer>
 
 <script>
+    // Reloj en tiempo real
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        document.getElementById('system-clock').innerText = `${hours}:${minutes}:${seconds}`;
+        const clockElement = document.getElementById('system-clock');
+        if (clockElement) {
+            clockElement.innerText = `${hours}:${minutes}:${seconds}`;
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();

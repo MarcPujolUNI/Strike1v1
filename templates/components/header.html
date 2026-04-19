@@ -2,18 +2,21 @@
     <div class="w-full h-full px-6 flex items-center justify-between">
         <div class="flex items-center gap-10 h-full">
             <div class="flex items-center h-full">
-                <a href="/" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all">
+                <a href="{% url 'web:index' %}" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all">
                     Strike 1v1
                 </a>
             </div>
+
             <nav class="flex h-full">
-                <a href="/" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.path == '/' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                <a href="{% url 'web:index' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'index' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     {% if user.is_authenticated %}DASHBOARD{% else %}LANDING PAGE{% endif %}
                 </a>
-                <a href="/play" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.path == '/play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+
+                <a href="{% url 'web:play' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     PLAY
                 </a>
-                <a href="/leaderboard" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.path == '/leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+
+                <a href="{% url 'web:leaderboard' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
                     LEADERBOARD
                 </a>
             </nav>
@@ -27,9 +30,10 @@
                             <span class="text-white font-bold text-xs uppercase tracking-widest group-hover:text-brand-red transition-colors">
                                 Player: {{ user.username }}
                             </span>
+
                             <div class="w-10 h-10 border-2 border-white/20 bg-black flex-shrink-0 overflow-hidden shadow-[2px_2px_0px_#000] group-hover:border-brand-red">
-                                {% if user.profile.image %}
-                                    <img src="{{ user.profile.image.url }}" alt="Avatar" class="w-full h-full object-cover">
+                                {% if user.user_image %}
+                                    <img src="{{ user.user_image.url }}" alt="Avatar" class="w-full h-full object-cover">
                                 {% else %}
                                     <div class="w-full h-full bg-[#333] flex items-center justify-center text-white/40 font-black text-[10px]">IMG</div>
                                 {% endif %}
@@ -42,7 +46,7 @@
                                 <span class="w-2 h-2 bg-brand-red border border-black/50"></span>
                             </div>
                             <div class="flex flex-col p-1">
-                                <button onclick="showWipModal()" class="w-full px-3 py-2.5 text-[11px] font-bold text-white hover:bg-brand-red transition-colors uppercase tracking-widest text-right border border-transparent hover:border-white/10 outline-none">
+                                <button onclick="showWipModal()" class="w-full px-3 py-2.5 text-[11px] font-bold text-white hover:bg-brand-red transition-colors uppercase tracking-widest text-right border border-transparent hover:border-white/10 outline-none cursor-pointer">
                                     My Profile
                                 </button>
 
@@ -51,7 +55,7 @@
                                 <form id="logout-form" action="{% url 'logout' %}" method="post" class="hidden">
                                     {% csrf_token %}
                                 </form>
-                                <button onclick="document.getElementById('logout-form').submit();" class="w-full px-3 py-2.5 text-[11px] font-bold text-xp-red hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent outline-none">
+                                <button onclick="document.getElementById('logout-form').submit();" class="w-full px-3 py-2.5 text-[11px] font-bold text-xp-red-border hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent outline-none cursor-pointer">
                                     Log Out
                                 </button>
                             </div>

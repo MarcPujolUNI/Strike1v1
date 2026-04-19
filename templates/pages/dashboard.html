@@ -25,23 +25,20 @@
 
             <div class="bg-black/40 border-[3px] border-black p-4 flex-1 flex items-center gap-5 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
                 <div class="w-20 h-20 border-2 border-white/20 bg-black flex-shrink-0 shadow-[2px_2px_0px_#000]">
-                    {% if user.profile.image %}
-                        <img src="{{ user.profile.image.url }}" alt="Avatar" class="w-full h-full object-cover">
+                    {% if user.user_image %}
+                        <img src="{{ user.user_image.url }}" alt="Profile Picture" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-xs">IMG</div>
+                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-xs uppercase">No IMG</div>
                     {% endif %}
                 </div>
                 <div>
                     <h2 class="text-white text-2xl font-black uppercase tracking-wider mb-1">{{ user.username }}</h2>
                     <div class="flex items-center gap-2">
+                        {% if user.user_country.flag_image %}
+                            <img src="{{ user.user_country.flag_image.url }}" class="w-5 h-auto shadow-sm" alt="{{ user.user_country.country_iso }}">
+                        {% endif %}
                         <span class="text-footer-text text-[10px] font-black uppercase tracking-wider">
-                            Region:
-                            <span class="text-white/80">
-                                {% if user.profile.country == 'ES' %} Spain
-                                {% elif user.profile.country == 'AD' %} Andorra
-                                {% else %} Worldwide
-                                {% endif %}
-                            </span>
+                            Region: <span class="text-white/80">{{ user.user_country.country_name }}</span>
                         </span>
                     </div>
                 </div>
@@ -50,14 +47,14 @@
             <div class="bg-brand-red border-[3px] border-white p-4 flex-1 flex flex-col justify-center items-center shadow-[4px_4px_0px_#000]">
                 <span class="text-white text-[11px] font-black uppercase tracking-[2px] mb-1">Current Rating</span>
                 <span class="text-white text-5xl font-black drop-shadow-[3px_3px_0_#000] tabular-nums">
-                    {{ user.profile.elo|default:"0" }}
+                    {{ user.corresponding_CS_user.score|default:"0" }}
                 </span>
-                <span class="text-white text-[10px] font-black uppercase mt-1 tracking-widest">ELO POINTS</span>
+                <span class="text-white text-[10px] font-black uppercase mt-1 tracking-widest">RANKING POINTS</span>
             </div>
         </div>
 
         <div class="mb-8">
-            <a href="/play" class="block w-full text-center bg-xp-blue border-[4px] border-xp-blue-border py-6 text-2xl font-black text-white uppercase tracking-[4px] shadow-[6px_6px_0px_#000] hover:brightness-125 transition-all active:translate-y-[4px] active:translate-x-[2px] active:shadow-[2px_2px_0px_#000] cursor-pointer">
+            <a href="{% url 'web:play' %}" class="block w-full text-center bg-xp-blue border-[4px] border-xp-blue-border py-6 text-2xl font-black text-white uppercase tracking-[4px] shadow-[6px_6px_0px_#000] hover:brightness-125 transition-all active:translate-y-[4px] active:translate-x-[2px] active:shadow-[2px_2px_0px_#000] cursor-pointer">
                 >> Find 1v1 Match <<
             </a>
         </div>
@@ -66,17 +63,23 @@
 
             <div class="bg-main-dark border-2 border-black p-3 text-center shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
                 <div class="text-footer-text text-[10px] font-black uppercase mb-1 tracking-tighter">Total Wins</div>
-                <div class="text-[#4ade80] text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">{{ user.profile.wins|default:"0" }}</div>
+                <div class="text-[#4ade80] text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">
+                    {{ user.corresponding_CS_user.wins|default:"0" }}
+                </div>
             </div>
 
             <div class="bg-main-dark border-2 border-black p-3 text-center shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
                 <div class="text-footer-text text-[10px] font-black uppercase mb-1 tracking-tighter">Total Losses</div>
-                <div class="text-brand-red text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">{{ user.profile.losses|default:"0" }}</div>
+                <div class="text-brand-red text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">
+                    {{ user.corresponding_CS_user.losses|default:"0" }}
+                </div>
             </div>
 
             <div class="bg-main-dark border-2 border-black p-3 text-center shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
-                <div class="text-footer-text text-[10px] font-black uppercase mb-1 tracking-tighter">Win Rate</div>
-                <div class="text-white text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">{{ user.profile.winrate|default:"0%" }}</div>
+                <div class="text-footer-text text-[10px] font-black uppercase mb-1 tracking-tighter">Combat K/D</div>
+                <div class="text-white text-xl font-black drop-shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">
+                    {{ user.corresponding_CS_user.kd_ratio|default:"0.00" }}
+                </div>
             </div>
 
         </div>

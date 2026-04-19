@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from django.contrib.auth.views import LoginView
+from .models import CounterUser, Country
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm
@@ -17,7 +17,24 @@ def index(request):
         return render(request, 'pages/landing.html')
 
 def leaderboard(request):
-    return render(request, 'pages/leaderboard.html')
+    country_iso = request.GET.get('country')
+
+    countries = Country.objects.all().order_by('country_name')
+
+    players = CounterUser.objects.all()
+    if country_iso:
+        players = players.filter(user__user_country__country_iso=country_iso)
+
+    selected_country = None
+    if country_iso:
+        selected_country = Country.objects.filter(country_iso=country_iso).first()
+
+    context = {
+        'players': players,
+        'countries': countries,
+        'selected_country': selected_country,
+    }
+    return render(request, 'pages/leaderboard.html', context)
 
 def play(request):
     return render(request, 'pages/play.html')

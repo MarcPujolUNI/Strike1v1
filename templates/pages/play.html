@@ -32,12 +32,13 @@
         </div>
 
         <div class="group relative">
-            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] group-hover:border-brand-red transition-colors duration-75">
+            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] group-hover:border-brand-red transition-colors duration-200">
+
                 <div class="mb-6">
-                    <div class="text-white text-2xl font-black uppercase tracking-widest mb-2 group-hover:text-brand-red transition-colors duration-75">
+                    <div class="text-white text-2xl font-black uppercase tracking-widest mb-2 group-hover:text-brand-red transition-colors duration-200">
                         Instant Matchmaking
                     </div>
-                    <div class="h-[1px] w-16 bg-white/20 mx-auto"></div>
+                    <div class="h-[1px] w-16 bg-white/20 mx-auto group-hover:bg-brand-red/50 transition-colors"></div>
                 </div>
 
                 <div class="mb-10 space-y-4">
@@ -50,7 +51,7 @@
                     </p>
                 </div>
 
-                <button onclick="showWipModal()" class="xp-btn xp-btn-blue w-full py-6 text-2xl tracking-[6px] font-black uppercase">
+                <button onclick="showWipModal()" class="xp-btn xp-btn-blue w-full py-5 text-2xl tracking-[4px] font-bold uppercase">
                     &gt;&gt; Find Match &lt;&lt;
                 </button>
             </div>
@@ -58,45 +59,4 @@
     </div>
 </div>
 
-<div id="wip-modal" class="hidden fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
-    <div id="modal-container" class="w-full max-w-[380px] shadow-[10px_10px_0px_#000] border-[3px] border-black font-tahoma">
-
-        <div class="xp-title-bar h-[35px] flex justify-center items-center px-3 border-b-2 border-black">
-            <div class="flex items-center text-[11px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)] uppercase tracking-widest">
-                System Notification
-            </div>
-        </div>
-
-        <div class="bg-card-dark p-10 flex flex-col items-center text-center">
-            <div class="mb-6 bg-black border-2 border-brand-red px-6 py-2">
-                <span class="text-brand-red text-3xl font-black">W.I.P.</span>
-            </div>
-            <h3 class="text-white text-xl font-black uppercase tracking-tight mb-4">Module Locked</h3>
-            <p class="text-footer-text text-[11px] font-bold uppercase tracking-[2px] mb-8 leading-relaxed">
-                The matchmaking is still<br>
-                under development
-            </p>
-
-            <button onclick="closeWipModal()" class="w-full bg-xp-gray-light border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-brand-red hover:text-white active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
-                Acknowledge
-            </button>
-        </div>
-    </div>
-</div>
-
-<script>
-    const modal = document.getElementById('wip-modal');
-    const modalContainer = document.getElementById('modal-container');
-
-    function showWipModal() { modal.classList.remove('hidden'); }
-    function closeWipModal() { modal.classList.add('hidden'); }
-
-    modal.addEventListener('click', (e) => {
-        if (!modalContainer.contains(e.target)) closeWipModal();
-    });
-
-    window.addEventListener('keydown', (e) => {
-        if (e.key === "Escape") closeWipModal();
-    });
-</script>
 {% endblock %}
