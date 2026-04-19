@@ -1,39 +1,14 @@
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.shortcuts import render
 from django.contrib.auth.views import LoginView
 from django.urls import reverse_lazy
-from django.views.generic import CreateView, DetailView, ListView
-
+from django.views.generic import CreateView
+from web.forms import SignUpForm
 
 def home(request):
-    return render(request, 'web/home.html')
-
-
-class PostListView(ListView):
-    model = Post
-    template_name = 'web/users.html'
-    context_object_name = 'userid'
-
-
-class PostDetailView(DetailView):
-    model = Post
-    template_name = 'blog/post_detail.html'
-    context_object_name = 'post'
-
-
-class PostCreateView(LoginRequiredMixin, CreateView):
-    model = Post
-    fields = ['title', 'body']
-    template_name = 'blog/post_form.html'
-
-    def form_valid(self, form):
-        form.instance.author = self.request.user
-        return super().form_valid(form)
-
+    return render(request, 'pages/home.html')
 
 class SignUpView(CreateView):
-    form_class = UserCreationForm
+    form_class = SignUpForm
     template_name = 'registration/signup.html'
     success_url = reverse_lazy('login')
 
