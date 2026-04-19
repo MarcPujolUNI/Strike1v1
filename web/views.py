@@ -30,6 +30,3 @@ def privacy_policy(request):
 
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
-
-class MyLoginView(LoginView):
-    template_name = 'pages/login.html'
