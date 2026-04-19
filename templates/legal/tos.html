@@ -1,0 +1,41 @@
+{% extends 'base/base_legal.html' %}
+
+{% block page_name %}Terms of Service{% endblock %}
+{% block bar_name %}Terms of Service{% endblock %}
+
+{% block legal_title %} Terms of Service {% endblock %}
+
+{% block legal_content %}
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[00]</span>
+            Educational Disclaimer
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            This platform is a technical demonstration for learning the Django Framework. It is not a commercial entity.
+            All simulated environments are for academic purposes.
+        </p>
+    </section>
+
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[01]</span>
+            Service Reliability
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            As a development build, we do not guarantee uptime or data integrity. Matchmaking systems are
+            logic-simulations and do not represent a final production product.
+        </p>
+    </section>
+
+    <section class="border-l-4 border-brand-red pl-6 py-2 bg-black/10 transition-colors hover:bg-black/20">
+        <h2 class="text-white text-lg font-black mb-3 flex items-center gap-2">
+            <span class="text-brand-red opacity-50">[02]</span>
+            User Conduct
+        </h2>
+        <p class="normal-case tracking-normal text-sm font-medium text-gray-300">
+            Users must behave ethically within the simulation. Any attempt to exploit the logic of the
+            Django models is encouraged only for educational bug-hunting purposes.
+        </p>
+    </section>
+{% endblock %}

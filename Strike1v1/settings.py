@@ -130,6 +130,10 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [str(BASE_DIR / 'static')]
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+#Authentification redirects
+LOGIN_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'
+
 # Media path (for images)
 MEDIA_URL = "/media/"
 MEDIA_ROOT = BASE_DIR / "media"

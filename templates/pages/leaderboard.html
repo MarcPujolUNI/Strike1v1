@@ -1,0 +1,129 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - Leaderboard {% endblock %}
+
+{% block content %}
+    <div class="w-full max-w-[900px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+
+        <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+            <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
+                    S
+                </div>
+                Leaderboard - {{ selected_country.country_name|default:"Global" }}
+            </div>
+            <div class="flex gap-1">
+                <span class="ctrl-display">_</span>
+                <span class="ctrl-display">□</span>
+                <span class="ctrl-display close">x</span>
+            </div>
+        </div>
+
+        <div class="bg-card-dark border-x border-b border-black p-6">
+
+            <div class="flex flex-col gap-4 mb-6">
+                <div class="bg-black/40 border-[3px] border-black p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+                    <div>
+                        <h2 class="text-white text-2xl font-black uppercase tracking-wider">Leaderboard</h2>
+                        <p class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">
+                            Region: <span
+                                class="text-white">{{ selected_country.country_name|default:"Worldwide" }}</span>
+                        </p>
+                    </div>
+
+                    <form method="GET" class="flex items-center gap-2">
+                        <label class="text-white/40 text-[12px] font-black uppercase whitespace-nowrap">Filter
+                            Region:</label>
+                        <select name="country"
+                                class="bg-white border-2 border-black px-3 py-1 text-black font-black text-xs uppercase focus:outline-none cursor-pointer appearance-none w-auto min-w-[150px]
+                               bg-no-repeat bg-[right_0.4rem_center] bg-[length:1rem_1rem] pr-8">
+                            <option value="">Worldwide (All)</option>
+                            {% for c in countries %}
+                                <option value="{{ c.country_iso }}"
+                                        {% if request.GET.country == c.country_iso %}selected{% endif %}>
+                                    {{ c.country_name }}
+                                </option>
+                            {% endfor %}
+                        </select>
+                        <button type="submit"
+                                class="bg-xp-blue border-2 border-xp-blue-border px-4 py-1 text-white font-black text-xs uppercase hover:brightness-110 active:translate-y-[1px] shadow-[2px_2px_0px_#000] transition-all">
+                            Apply
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="w-full border-[3px] border-black bg-black overflow-x-auto">
+                <table class="w-full text-left table-fixed min-w-[650px] border-separate border-spacing-0">
+                    <thead>
+                    <tr class="bg-brand-red text-white uppercase">
+                        <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">
+                            Rank
+                        </th>
+                        <th class="p-5 font-black text-[14px] tracking-widest border-b-[3px] border-black">Player Name
+                        </th>
+                        <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">
+                            Flag
+                        </th>
+                        <th class="p-4 w-40 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">
+                            Elo Points
+                        </th>
+                    </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                    {% for player in players %}
+                        <tr class="{% if player.user == request.user %} bg-xp-blue/20 {% endif %}">
+
+                            <td class="p-4 text-center border-b border-white/5 {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
+                            <span class="{% if forloop.counter <= 3 %}text-brand-red{% else %}text-white/30{% endif %} font-black text-2xl italic">
+                                #{{ forloop.counter }}
+                            </span>
+                            </td>
+
+                            <td class="p-4 border-b border-white/5">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden">
+                                        {% if player.user.user_image %}
+                                            <img src="{{ player.user.user_image.url }}" alt="Avatar"
+                                                 class="w-full h-full object-cover">
+                                        {% else %}
+                                            <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black">
+                                                IMG
+                                            </div>
+                                        {% endif %}
+                                    </div>
+                                    <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
+                                    {{ player.user.username }}
+                                </span>
+                                </div>
+                            </td>
+
+                            <td class="p-4 text-center border-b border-white/5">
+                                <div class="flex justify-center">
+                                    <img src="{{ player.user.user_country.flag_image.url }}"
+                                         class="w-8 h-auto border-2 border-black/50 shadow-md"
+                                         title="{{ player.user.user_country.country_name }}">
+                                </div>
+                            </td>
+
+                            <td class="p-4 text-center border-b border-white/5">
+                            <span class="text-white font-black text-3xl drop-shadow-[2px_2px_0_#000] tabular-nums">
+                                {{ player.score }}
+                            </span>
+                            </td>
+                        </tr>
+                    {% empty %}
+                        <tr>
+                            <td colspan="4" class="p-20 text-center border-b border-white/5">
+                                <div class="flex flex-col items-center">
+                                    <span class="text-brand-red font-black text-xl uppercase tracking-[5px] mb-2">No Data Found</span>
+                                </div>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+{% endblock %}
