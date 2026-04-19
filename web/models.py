@@ -86,23 +86,29 @@ class CounterUser(models.Model):
     deaths = models.IntegerField(default=0, validators=[MinValueValidator(0)])
     score = models.IntegerField(default=0, validators=[MinValueValidator(0)])
 
+    class Meta:
+        verbose_name = "CounterUser"
+        verbose_name_plural = "CounterUsers"
+
     def __str__(self):
-        return f"{self.user.username}: {self.score}"
+        return self.user.username
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
-    players = models.ManyToManyField(CounterUser, related_name= "matches_played", through="MatchStats")
+    loser = models.ForeignKey(CounterUser, related_name= "matches_lost", on_delete=models.SET_NULL, null=True)
+    loser_name = models.CharField(max_length=50)
     winner = models.ForeignKey(CounterUser, related_name= "matches_won", on_delete=models.SET_NULL, null=True)
     winner_name = models.CharField(max_length=50)
     score_display = models.CharField(max_length=20, validators=[RegexValidator(regex=r"^\d+-\d+$")])
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
-    date = models.DateField(validators=[MaxValueValidator(now)])
+    date = models.DateTimeField(validators=[MaxValueValidator(now)])
 
     class Meta:
+        constraints = [models.CheckConstraint(condition=~Q(winner=F("loser")),name="winner_cannot_be_loser")]
         verbose_name_plural = "Matches"
 
     def __str__(self):
-        return f"Winner: {self.winner_name}, result: {self.score_display}"
+        return f"{self.winner_name} vs {self.loser_name}: {self.score_display} - {self.date}"
 
 class MatchStats(models.Model):
     match_stats_id = models.AutoField(primary_key=True)
@@ -117,25 +123,34 @@ class MatchStats(models.Model):
         verbose_name_plural = "MatchStats"
 
     def __str__(self):
-        return f"{self.username}: {self.kills} kills, {self.deaths} deaths"
+        return f"{self.username}-{self.match.date}: {self.kills} kills, {self.deaths} deaths"
 
 class GlobalRanking(models.Model):
     global_ranking_id = models.AutoField(primary_key=True)
-    counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking", unique=True)
-    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="global_country_counter_users")
+    counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking")
     global_position = models.IntegerField(unique=True, validators=[MinValueValidator(1)])
 
+    class Meta:
+        verbose_name = "GlobalRanking"
+        verbose_name_plural = "GlobalRankings"
+
     def __str__(self):
-        return f"User: {self.counter_user.user.username}: Score {self.counter_user.score}, Position {self.global_position}"
+        return f"User: {self.counter_user.user.username}, Score: {self.counter_user.score}, Position: {self.global_position}"
 
 class LocalRanking(models.Model):
     local_ranking_id = models.AutoField(primary_key=True)
-    counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_local_ranking", unique=True)
+    counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_local_ranking")
     country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="local_country_counter_users")
     local_position = models.IntegerField(validators=[MinValueValidator(1)])
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["country", "local_position"],name="unique_country_ranking")]
+        verbose_name = "LocalRanking"
+        verbose_name_plural = "LocalRankings"
 
     def __str__(self):
-        return f"{self.counter_user.user.username}: Score {self.counter_user.score}, Position ({self.country.country_name}) {self.local_position}"
+        return f"User: {self.counter_user.user.username}, Score: {self.counter_user.score}, Position ({self.country.country_name}): {self.local_position}"
+
+    def save(self, *args, **kwargs):
+        self.country = self.counter_user.user.user_country
+        super().save(*args, **kwargs)
