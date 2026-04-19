@@ -5,6 +5,7 @@ services:
   web:
     # Build the image using the Dockerfile in the current directory (./Dockerfile)
     build: .
+    init: true
 
     # Map port 8000 on your machine to port 8000 in the container
     # Access the app at http://localhost:8000
