@@ -88,6 +88,10 @@ If you prefer to run the application directly on your machine without Docker:
 
 Open your browser and navigate to: http://localhost:8000
 
+# Public URL
+
+The project is accesible via the following public url: [https://strike1v1-web.onrender.com](https://strike1v1-web.onrender.com)
+
 # Contributions & Academic Disclaimer
 
 This project is part of a learning workflow. All features and code implementations are primarily for academic purposes. There is currently no intention to deploy this version into a commercial production environment.
