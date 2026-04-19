@@ -1,0 +1,26 @@
+{% extends "web/base.html" %}
+
+{% block title %}Sign Up - Strike1v1{% endblock %}
+
+{% block content %}
+<h1>Sign Up</h1>
+
+<form method="post" class="form-narrow">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="form-group">
+        <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+        {{ field }}
+        {% if field.help_text %}
+        <small class="help-text">{{ field.help_text }}</small>
+        {% endif %}
+        {% for error in field.errors %}
+        <small class="error-text">{{ error }}</small>
+        {% endfor %}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-green">Sign Up</button>
+</form>
+
+<p class="login-link">Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+{% endblock %}
