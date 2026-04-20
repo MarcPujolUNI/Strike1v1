@@ -26,7 +26,6 @@ dist/
 
 # Static / media build folders (si es re-generen en collectstatic)
 staticfiles/
-media/
 
 # IDE / editor configs
 .vscode/
