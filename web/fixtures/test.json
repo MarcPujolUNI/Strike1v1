@@ -1,0 +1,9 @@
+[
+    {
+        "model": "web.Country",
+        "fields": {
+            "country_iso": "AD",
+            "country_name": "Andorra"
+        }
+    }
+]

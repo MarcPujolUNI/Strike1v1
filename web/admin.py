@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
 
+
 from .models import *
 
 # Arreglar tema de rankings de admin, quan tingui la lògica de ranking fer que el camp de ranking quedi amagat en creacio.
