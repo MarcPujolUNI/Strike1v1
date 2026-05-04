@@ -58,6 +58,12 @@ class WebUser(AbstractUser):
         verbose_name = "WebUser"
         verbose_name_plural = "WebUsers"
 
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            CounterUser.objects.create(user=self)
+
     def __str__(self):
         return self.username
 

@@ -86,10 +86,11 @@ class CounterUserAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, record=None):
         return ('user',) if record else ()
 
-    def get_actions(self, request):
-        actions = super().get_actions(request)
-        actions.pop("delete_selected", None)
-        return actions
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
