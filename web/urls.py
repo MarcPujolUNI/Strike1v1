@@ -26,4 +26,5 @@ urlpatterns = [
     path('tos', views.terms_of_service, name='tos'),
     path('privacy', views.privacy_policy, name='privacy'),
     path('cookies', views.cookie_policy, name='cookies'),
+    path('waiting', views.waiting_view, name='waiting'),
 ]

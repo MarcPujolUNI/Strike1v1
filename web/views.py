@@ -3,6 +3,7 @@ from .models import CounterUser, Country
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm
+import requests
 
 
 class SignUpView(CreateView):
@@ -47,3 +48,25 @@ def privacy_policy(request):
 
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
+
+
+# web/views.py
+def waiting_view(request):
+    match_url = request.session.get('current_match_url')
+
+    if not match_url:
+        try:
+            # CANVIA ip per 172.17.0.1 quan estigui dins del server, sha de probar
+            response = requests.post('http://192.168.1.114:5000/partida-aleatoria', timeout=10)
+
+            if response.status_code == 200:
+                data = response.json()
+                match_url = data.get('url')
+                request.session['current_match_url'] = match_url
+            else:
+                print(f"Error API: {response.status_code} - {response.text}")
+        except Exception as e:
+            print(f"Error de connexió amb el Controller: {e}")
+            match_url = None
+
+    return render(request, 'pages/waiting.html', {'match_url': match_url})
