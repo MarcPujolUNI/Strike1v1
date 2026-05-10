@@ -8,7 +8,7 @@ from .models import *
 
 # Arreglar tema de rankings de admin, quan tingui la lògica de ranking fer que el camp de ranking quedi amagat en creacio.
 # Afegir django file generate amb llista mapes counter + llista paisos amb imatge i iso d'algun lloc + api + altres essencials.
-# tb he d'afegir crea webuser -> tb counter user
+# descomentar codi countries no es poden borrar
 admin.site.unregister(Group)
 
 @admin.register(Country)
@@ -18,6 +18,12 @@ class CountryAdmin(admin.ModelAdmin):
     list_per_page = 20
     ordering = ('country_name',)
     search_fields = ('country_name', 'country_iso')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Map)
 class MapAdmin(admin.ModelAdmin):
@@ -86,8 +92,10 @@ class CounterUserAdmin(admin.ModelAdmin):
     def get_readonly_fields(self, request, record=None):
         return ('user',) if record else ()
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
 
     def has_add_permission(self, request):
         return False
@@ -160,6 +168,14 @@ class GlobalRankingAdmin(admin.ModelAdmin):
     def country(self, record):
         return record.counter_user.user.user_country
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def has_add_permission(self, request):
+        return False
+
 @admin.register(LocalRanking)
 class LocalRankingAdmin(admin.ModelAdmin):
     autocomplete_fields = ('counter_user',)
@@ -180,3 +196,11 @@ class LocalRankingAdmin(admin.ModelAdmin):
     @admin.display(ordering='counter_user__score')
     def score(self, record):
         return record.counter_user.score
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def has_add_permission(self, request):
+        return False
