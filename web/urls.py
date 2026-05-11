@@ -27,4 +27,5 @@ urlpatterns = [
     path('privacy', views.privacy_policy, name='privacy'),
     path('cookies', views.cookie_policy, name='cookies'),
     path('waiting', views.waiting_view, name='waiting'),
+    path('api/save-match/', views.save_match_view, name='save_match'),
 ]

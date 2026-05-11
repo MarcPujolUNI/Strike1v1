@@ -4,7 +4,9 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm
 import requests
-
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -70,3 +72,24 @@ def waiting_view(request):
             match_url = None
 
     return render(request, 'pages/waiting.html', {'match_url': match_url})
+
+
+@csrf_exempt  # Perquè la FastAPI pugui fer POST sense token CSRF
+def save_match_view(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+
+        # Trobar o actualitzar el guanyador
+        winner_name = data.get('winner').strip()
+        if winner_name and winner_name != "None (Incomplete)":
+            # nom del log ha de coincicidir amb l'usuari de Django
+            user_profile = CounterUser.objects.filter(user__username__iexact=winner_name).first()
+            if user_profile:
+                user_profile.elo += 25  # Exemple de pujada de punts
+                user_profile.save()
+
+        # 2. Actualitzar estadístiques globals (opcional)
+        # Pots fer el mateix per kills/deaths dels dos jugadors
+
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "failed"}, status=400)
