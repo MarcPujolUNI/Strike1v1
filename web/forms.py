@@ -1,6 +1,6 @@
 from django.contrib.auth import get_user_model
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
-from .models import Country
+from .models import Country, Review
 from django import forms
 
 WebUser = get_user_model()
@@ -43,4 +43,25 @@ class UserProfileForm(forms.ModelForm):
                 'id': 'avatar-upload',
                 'accept': 'image/*'
             })
+        }
+
+class ReviewForm(forms.ModelForm):
+    class Meta:
+        model = Review
+        fields = ['title', 'rating', 'description']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full bg-black border-2 border-white/10 p-3 text-white font-bold text-xs focus:border-brand-red outline-none transition-all uppercase',
+                'placeholder': 'REVIEW TITLE...'
+            }),
+            'rating': forms.NumberInput(attrs={
+                'id': 'rating-value',
+                'class': 'hidden',
+                'min': '1',
+                'max': '5'
+            }),
+            'description': forms.Textarea(attrs={
+                'class': 'w-full bg-black border-2 border-white/10 p-3 text-white font-bold text-xs focus:border-brand-red outline-none transition-all h-24 resize-none',
+                'placeholder': 'PROVIDE A DESCRIPTION OF YOUR EXPERIENCE WITH THE PLAYER...'
+            }),
         }

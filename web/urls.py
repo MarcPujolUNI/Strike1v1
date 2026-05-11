@@ -27,6 +27,10 @@ urlpatterns = [
     path('privacy', views.privacy_policy, name='privacy'),
     path('cookies', views.cookie_policy, name='cookies'),
     path('profile/', views.profile_edit, name='profile'),
-    path('reviews/profile/', views.reviews, name='reviews'),
     path('profile/matches/', views.matches, name='matches'),
+    path('reviews/', views.reviews, name='reviews'),
+    path('reviews/search/', views.user_search_ajax, name='user_search_ajax'),
+    path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
+    path('reviews/<str:username>/', views.user_reviews_list, name='user_reviews_list'),
+    path('reviews/<str:username>/<int:review_id>/', views.review_detail, name='review_detail'),
 ]
