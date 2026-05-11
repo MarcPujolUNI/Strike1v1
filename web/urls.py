@@ -26,4 +26,7 @@ urlpatterns = [
     path('tos', views.terms_of_service, name='tos'),
     path('privacy', views.privacy_policy, name='privacy'),
     path('cookies', views.cookie_policy, name='cookies'),
+    path('profile/', views.profile_edit, name='profile'),
+    path('reviews/profile/', views.reviews, name='reviews'),
+    path('profile/matches/', views.matches, name='matches'),
 ]

@@ -1,5 +1,6 @@
-<header class="w-full bg-card-dark border-b-[4px] border-black z-50 shadow-2xl h-16 font-tahoma shadow-[0_10px_25px_rgba(0,0,0,0.5)]">
+<header class="w-full bg-card-dark border-b-[4px] border-black z-[100] shadow-2xl h-16 font-tahoma shadow-[0_10px_25px_rgba(0,0,0,0.5)] sticky top-0">
     <div class="w-full h-full px-6 flex items-center justify-between">
+
         <div class="flex items-center gap-10 h-full">
             <div class="flex items-center h-full">
                 <a href="{% url 'web:index' %}" class="bg-brand-red border-2 border-white text-white font-black px-4 py-1.5 text-2xl shadow-[3px_3px_0px_#000] active:translate-y-[1px] active:shadow-[1px_1px_0px_#000] transition-all">
@@ -7,31 +8,37 @@
                 </a>
             </div>
 
-            <nav class="flex h-full">
-                <a href="{% url 'web:index' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'index' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
-                    {% if user.is_authenticated %}DASHBOARD{% else %}LANDING PAGE{% endif %}
+            <nav class="hidden lg:flex h-full">
+                <a href="{% url 'web:index' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if request.resolver_match.url_name == 'index' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                    <span class="material-symbols-outlined text-[18px]">memory</span>
+                    {% if user.is_authenticated %}DASHBOARD{% else %}HOME{% endif %}
                 </a>
-
-                <a href="{% url 'web:play' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                <a href="{% url 'web:play' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if request.resolver_match.url_name == 'play' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                    <span class="material-symbols-outlined text-[18px]">sports_esports</span>
                     PLAY
                 </a>
-
-                <a href="{% url 'web:leaderboard' %}" class="nav-link-center px-6 text-[15px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center {% if request.resolver_match.url_name == 'leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                <a href="{% url 'web:leaderboard' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if request.resolver_match.url_name == 'leaderboard' %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                    <span class="material-symbols-outlined text-[18px]">leaderboard</span>
                     LEADERBOARD
                 </a>
             </nav>
         </div>
 
-        <div class="flex items-center h-full">
-            <div class="flex items-center border-l border-white/10 pl-6 h-full">
+        <div class="flex items-center h-full gap-4">
+            <button onclick="toggleMobileMenu()" class="lg:hidden flex flex-col gap-1.5 p-2 border-2 border-white/20 active:bg-white/10 transition-all">
+                <span class="w-6 h-0.5 bg-white"></span>
+                <span class="w-6 h-0.5 bg-brand-red"></span>
+                <span class="w-6 h-0.5 bg-white"></span>
+            </button>
+
+            <div class="hidden lg:flex items-center border-l border-white/10 pl-6 h-full">
                 {% if user.is_authenticated %}
                     <div class="relative h-full flex items-center" id="profile-dropdown-container">
                         <button onclick="toggleDropdown()" class="flex items-center gap-3 hover:bg-white/5 px-4 h-full transition-all group outline-none">
-                            <span class="text-white font-bold text-xs uppercase tracking-widest group-hover:text-brand-red transition-colors">
-                                Player: {{ user.username }}
+                            <span class="text-white font-bold text-[11px] uppercase tracking-widest group-hover:text-brand-red transition-colors max-w-[120px] truncate">
+                                {{ user.username }}
                             </span>
-
-                            <div class="w-10 h-10 border-2 border-white/20 bg-black flex-shrink-0 overflow-hidden shadow-[2px_2px_0px_#000] group-hover:border-brand-red">
+                            <div class="w-10 h-10 border-2 border-white/20 bg-black flex-shrink-0 overflow-hidden shadow-[2px_2px_0px_#000] group-hover:border-brand-red transition-colors">
                                 {% if user.user_image %}
                                     <img src="{{ user.user_image.url }}" alt="Avatar" class="w-full h-full object-cover">
                                 {% else %}
@@ -40,34 +47,104 @@
                             </div>
                         </button>
 
-                        <div id="profile-menu" class="hidden absolute right-0 top-[64px] w-full min-w-[160px] bg-card-dark border-2 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.5)] z-[100]">
+                        <div id="profile-menu" class="hidden absolute right-0 top-[64px] w-full min-w-[180px] bg-card-dark border-2 border-black shadow-[8px_8px_0px_rgba(0,0,0,0.5)] z-[100]">
                             <div class="h-5 bg-main-dark border-b border-black flex items-center px-2 justify-end gap-1">
                                 <span class="w-2 h-2 bg-[#444] border border-black/50"></span>
                                 <span class="w-2 h-2 bg-brand-red border border-black/50"></span>
                             </div>
                             <div class="flex flex-col p-1">
-                                <button onclick="showWipModal()" class="w-full px-3 py-2.5 text-[11px] font-bold text-white hover:bg-brand-red transition-colors uppercase tracking-widest text-right border border-transparent hover:border-white/10 outline-none cursor-pointer">
+                                <a href="{% url 'web:profile' %}" class="flex items-center justify-between w-full px-3 py-2.5 text-[11px] font-bold text-white hover:bg-brand-red transition-colors uppercase tracking-widest border border-transparent hover:border-white/10 outline-none">
+                                    <span class="material-symbols-outlined text-sm">person</span>
                                     My Profile
-                                </button>
+                                </a>
 
                                 <div class="border-t border-black/40 my-1 mx-1"></div>
 
-                                <form id="logout-form" action="{% url 'logout' %}" method="post" class="hidden">
+                                <form action="{% url 'logout' %}" method="post" class="m-0">
                                     {% csrf_token %}
+                                    <button type="submit" class="flex items-center justify-between w-full px-3 py-2.5 text-[11px] font-bold text-xp-red-border hover:bg-white hover:text-black transition-colors uppercase tracking-widest border border-transparent outline-none">
+                                        <span class="material-symbols-outlined text-sm">logout</span>
+                                        Log Out
+                                    </button>
                                 </form>
-                                <button onclick="document.getElementById('logout-form').submit();" class="w-full px-3 py-2.5 text-[11px] font-bold text-xp-red-border hover:bg-white hover:text-black transition-colors uppercase tracking-widest text-right border border-transparent outline-none cursor-pointer">
-                                    Log Out
-                                </button>
                             </div>
                         </div>
                     </div>
                 {% else %}
                     <div class="flex items-center gap-4">
-                        <a href="{% url 'login' %}" class="xp-btn xp-btn-blue px-6 py-2 text-xs font-black">Login</a>
-                        <a href="{% url 'signup' %}" class="xp-btn xp-btn-red px-6 py-2 text-xs font-black">Register</a>
+                        <a href="{% url 'login' %}" class="xp-btn xp-btn-blue px-5 py-2 text-[10px] font-black">LOGIN</a>
+                        <a href="{% url 'signup' %}" class="xp-btn xp-btn-red px-5 py-2 text-[10px] font-black">SIGNUP</a>
                     </div>
                 {% endif %}
             </div>
         </div>
     </div>
+
+    <div id="mobile-menu" class="hidden lg:hidden bg-card-dark border-b-[4px] border-black shadow-2xl">
+        <div class="flex flex-col">
+            <div class="bg-black/40 px-4 py-2 border-y border-white/5">
+                <span class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">// System Navigation</span>
+            </div>
+            <div class="flex flex-col divide-y divide-white/5">
+                <a href="{% url 'web:index' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm">memory</span>
+                    {% if user.is_authenticated %}Dashboard{% else %}Home{% endif %}
+                </a>
+                <a href="{% url 'web:play' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm">sports_esports</span>
+                    Play
+                </a>
+                <a href="{% url 'web:leaderboard' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm">leaderboard</span>
+                    Leaderboard
+                </a>
+            </div>
+
+            <div class="bg-black/40 px-4 py-2 border-y border-white/5">
+                <span class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">{% if user.is_authenticated %}// User Session{% else %}// Authentication{% endif %}</span>
+            </div>
+
+            {% if user.is_authenticated %}
+                <div class="bg-black/20 p-4 flex items-center justify-between border-b border-white/5">
+                    <div class="flex flex-col">
+                        <span class="text-footer-text text-[10px] font-black uppercase">Current User</span>
+                        <span class="text-white text-sm font-bold">{{ user.username }}</span>
+                    </div>
+                    <div class="w-10 h-10 border-2 border-brand-red shadow-[2px_2px_0px_#000] overflow-hidden">
+                        {% if user.user_image %}<img src="{{ user.user_image.url }}" class="w-full h-full object-cover">{% endif %}
+                    </div>
+                </div>
+                <div class="flex flex-col divide-y divide-white/5">
+                    <a href="{% url 'web:profile' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                        <span class="material-symbols-outlined text-sm">person</span>
+                        My Profile
+                    </a>
+                    <form action="{% url 'logout' %}" method="post" class="m-0">
+                        {% csrf_token %}
+                        <button type="submit" class="w-full text-left p-4 text-sm font-bold uppercase text-xp-red-border hover:bg-white/5 flex items-center gap-3">
+                            <span class="material-symbols-outlined text-sm">logout</span>
+                            Log out
+                        </button>
+                    </form>
+                </div>
+            {% else %}
+                <div class="p-4 grid grid-cols-2 gap-4">
+                    <a href="{% url 'login' %}" class="xp-btn xp-btn-blue text-center py-3 font-black text-xs">LOGIN</a>
+                    <a href="{% url 'signup' %}" class="xp-btn xp-btn-red text-center py-3 font-black text-xs">SIGNUP</a>
+                </div>
+            {% endif %}
+        </div>
+    </div>
 </header>
+<script>
+    function toggleMobileMenu() {
+        const menu = document.getElementById('mobile-menu');
+        menu.classList.toggle('hidden');
+    }
+
+    window.addEventListener('resize', () => {
+        if (window.innerWidth >= 1024) {
+            document.getElementById('mobile-menu').classList.add('hidden');
+        }
+    });
+</script>
