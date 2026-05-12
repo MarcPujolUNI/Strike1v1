@@ -78,18 +78,15 @@ def waiting_view(request):
 def save_match_view(request):
     if request.method == 'POST':
         data = json.loads(request.body)
-
-        # Trobar o actualitzar el guanyador
+        print(f"Dades partida Rebudes: {data}")
+        # Actualitzar estadístiques
         winner_name = data.get('winner').strip()
         if winner_name and winner_name != "None (Incomplete)":
             # nom del log ha de coincicidir amb l'usuari de Django
             user_profile = CounterUser.objects.filter(user__username__iexact=winner_name).first()
             if user_profile:
-                user_profile.elo += 25  # Exemple de pujada de punts
+                user_profile.score += 25  # Exemple de pujada de punts
                 user_profile.save()
-
-        # 2. Actualitzar estadístiques globals (opcional)
-        # Pots fer el mateix per kills/deaths dels dos jugadors
 
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "failed"}, status=400)
