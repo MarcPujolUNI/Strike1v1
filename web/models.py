@@ -8,7 +8,7 @@ from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.core.files.base import ContentFile
 
-DEFAULT_COUNTRY = 1
+DEFAULT_COUNTRY = 9
 # implementar canvis tipo gestio score, gestio ranking fi partides, revisar coses de codi, ... funcio que quan canvia nom user  i pais s'actualitzin les coses
 
 class Map(models.Model):
@@ -43,7 +43,7 @@ class Country(models.Model):
         if not self.flag_image and self.get_flag_image(): self.delete()
 
     def get_flag_image(self):
-        url = f"https://flagsapi.com/{self.country_iso}/flat/64.png"
+        url = f"https://flacdn.com/w80/{self.country_iso}.svg"
         for _ in range(3):
             response = requests.get(url)
             if response.status_code == 200:
