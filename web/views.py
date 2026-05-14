@@ -4,7 +4,7 @@ from .models import CounterUser, Country
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm, UserProfileForm
-from django.contrib.auth import update_session_auth_hash
+from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 
@@ -45,12 +45,20 @@ def leaderboard(request):
 
 @login_required
 def profile_edit(request):
+    counter_user = CounterUser.objects.get(user=request.user)
+
     if request.method == 'POST':
         if 'update_profile' in request.POST:
             user_form = UserProfileForm(request.POST, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
+
             if user_form.is_valid():
                 user_form.save()
+
+                selected_map = user_form.cleaned_data.get('favourite_map')
+                counter_user.favourite_map = selected_map
+                counter_user.save()
+
                 messages.success(request, 'Profile updated successfully.')
                 return redirect('web:profile')
             else:
@@ -64,10 +72,11 @@ def profile_edit(request):
                 update_session_auth_hash(request, user)
                 messages.success(request, 'Password updated successfully.')
                 return redirect('web:profile')
-            else:
-                messages.error(request, 'Error updating the password.')
     else:
-        user_form = UserProfileForm(instance=request.user)
+        user_form = UserProfileForm(
+            instance=request.user,
+            initial={'favourite_map': counter_user.favourite_map}
+        )
         password_form = PasswordChangeForm(request.user)
 
     for field in password_form.fields.values():
@@ -79,6 +88,17 @@ def profile_edit(request):
         'user_form': user_form,
         'password_form': password_form,
     })
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, 'Your account has been permanently deleted.')
+        return redirect('web:index')
+    return redirect('web:profile')
 
 @login_required
 def reviews(request):

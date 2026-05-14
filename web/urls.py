@@ -29,4 +29,5 @@ urlpatterns = [
     path('profile/', views.profile_edit, name='profile'),
     path('reviews/profile/', views.reviews, name='reviews'),
     path('profile/matches/', views.matches, name='matches'),
+    path('profile/delete/', views.delete_account, name='delete_account'),
 ]
