@@ -13,9 +13,9 @@
                 Strike 1v1 - Welcome
             </div>
             <div class="flex gap-1">
-                <span class="ctrl-display">_</span>
-                <span class="ctrl-display">□</span>
-                <span class="ctrl-display close">x</span>
+                <button id="minimize-btn" class="ctrl-display">_</button>
+                <button id="fullscreen-btn" class="ctrl-display">□</button>
+                <button id="close-btn" class="ctrl-display close">x</button>
             </div>
         </div>
 
@@ -74,4 +74,24 @@
             </div>
         </div>
     </div>
+    <script>
+        const fullScreenBtn = document.getElementById('fullscreen-btn');
+        const minimizeBtn = document.getElementById('minimize-btn');
+        fullScreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log(`Error intentant posar pantalla completa: ${err.message}`);
+                });
+            }
+        });
+        minimizeBtn.addEventListener('click', () => {
+            if (document.fullscreenElement) {
+                document.exitFullscreen();
+            }
+        });
+        const closeBtn = document.getElementById('close-btn');
+        closeBtn.addEventListener('click', () => {
+            window.close();
+        });
+    </script>
 {% endblock %}
