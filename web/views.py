@@ -21,7 +21,7 @@ def leaderboard(request):
 
     countries = Country.objects.all().order_by('country_name')
 
-    players = CounterUser.objects.all()
+    players = CounterUser.objects.all().order_by('-score')
     if country_iso:
         players = players.filter(user__user_country__country_iso=country_iso)
 

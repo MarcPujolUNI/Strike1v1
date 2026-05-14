@@ -92,7 +92,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                    <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
+                                    <span data-testid="player-name" class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
                                     {{ player.user.username }}
                                 </span>
                                 </div>
@@ -100,9 +100,12 @@
 
                             <td class="p-4 text-center border-b border-white/5">
                                 <div class="flex justify-center">
-                                    <img src="{{ player.user.user_country.flag_image.url }}"
-                                         class="w-8 h-auto border-2 border-black/50 shadow-md"
-                                         title="{{ player.user.user_country.country_name }}">
+                                    {% if player.user.user_country.flag_image %}
+                                        <img src="{{ player.user.user_country.flag_image.url }}"
+                                             class="w-8 h-auto border-2 border-black/50 shadow-md">
+                                    {% else %}
+                                        <span class="text-white/20 text-[10px]">N/A</span>
+                                    {% endif %}
                                 </div>
                             </td>
 
