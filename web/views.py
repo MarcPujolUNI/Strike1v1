@@ -40,6 +40,10 @@ def leaderboard(request):
     return render(request, 'pages/leaderboard.html', context)
 
 def play(request):
+    if 'current_match_url' in request.session:
+        del request.session['current_match_url']
+        request.session.modified = True  # Força a Django a guardar el canvi a la DB de sessions
+
     return render(request, 'pages/play.html')
 
 def terms_of_service(request):
@@ -58,7 +62,7 @@ def waiting_view(request):
 
     if not match_url:
         try:
-            # CANVIA ip per 172.17.0.1 quan estigui dins del server, sha de probar
+            # CANVIA ip per 172.17.0.1 quan estigui dins del server, sha de probar (aquesta ip es el de la API)
             response = requests.post('http://192.168.1.114:5000/partida-aleatoria', timeout=10)
 
             if response.status_code == 200:
