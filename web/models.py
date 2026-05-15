@@ -174,3 +174,21 @@ class LocalRanking(models.Model):
     def save(self, *args, **kwargs):
         self.country = self.counter_user.user.user_country
         super().save(*args, **kwargs)
+
+class MatchQueue(models.Model):
+    user = models.OneToOneField(WebUser, on_delete=models.CASCADE)
+    score = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Queue: {self.user.username} ({self.score})"
+
+class ActiveMatch(models.Model):
+    player1 = models.ForeignKey(WebUser, on_delete=models.CASCADE, related_name="matches_as_p1")
+    player2 = models.ForeignKey(WebUser, on_delete=models.CASCADE, related_name="matches_as_p2")
+    server_url = models.URLField()
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Match: {self.player1.username} vs {self.player2.username}"

@@ -7,6 +7,8 @@ import requests
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
+from django.db.models import Q
+from .models import MatchQueue, ActiveMatch
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -42,7 +44,10 @@ def leaderboard(request):
 def play(request):
     if 'current_match_url' in request.session:
         del request.session['current_match_url']
-        request.session.modified = True  # Força a Django a guardar el canvi a la DB de sessions
+        request.session.modified = True  # Força a guardar el canvi a la DB de sessions
+        # Neteja de cua a la DB
+        if request.user.is_authenticated:
+            MatchQueue.objects.filter(user=request.user).delete()
 
     return render(request, 'pages/play.html')
 
@@ -58,24 +63,54 @@ def cookie_policy(request):
 
 # web/views.py
 def waiting_view(request):
-    match_url = request.session.get('current_match_url')
+    user = request.user
 
-    if not match_url:
+    # 1. Comprovar si ja ens han assignat una partida activa
+    match = ActiveMatch.objects.filter(
+        Q(player1=user) | Q(player2=user),
+        is_active=True
+    ).first()
+
+    if match:
+        return render(request, 'pages/waiting.html', {'match_url': match.server_url})
+
+    # 2. Si no tenim partida, busquem un rival a la cua (que no siguem nosaltres)
+    # Busquem el que porti més temps esperant (order_by created_at)
+    opponent_entry = MatchQueue.objects.exclude(user=user).order_by('created_at').first()
+
+    if opponent_entry:
+        # HEM TROBAT RIVAL!
+        opponent = opponent_entry.user
+
         try:
-            # CANVIA ip per 172.17.0.1 quan estigui dins del server, sha de probar (aquesta ip es el de la API)
-            response = requests.post('http://192.168.1.114:5000/partida-aleatoria', timeout=10)
-
+            # Demanem servidor a la FastAPI (cambiar url)
+            response = requests.post('http://172.17.0.1:5000/partida-aleatoria', timeout=10)
             if response.status_code == 200:
-                data = response.json()
-                match_url = data.get('url')
-                request.session['current_match_url'] = match_url
-            else:
-                print(f"Error API: {response.status_code} - {response.text}")
-        except Exception as e:
-            print(f"Error de connexió amb el Controller: {e}")
-            match_url = None
+                server_url = response.json().get('url')
 
-    return render(request, 'pages/waiting.html', {'match_url': match_url})
+                # Creem la partida activa per a tots dos
+                ActiveMatch.objects.create(
+                    player1=user,
+                    player2=opponent,
+                    server_url=server_url
+                )
+
+                # Netegem la cua (el rival ja no ha d'esperar)
+                opponent_entry.delete()
+                # També ens eliminem a nosaltres si hi erem
+                MatchQueue.objects.filter(user=user).delete()
+
+                return render(request, 'pages/waiting.html', {'match_url': server_url})
+        except Exception as e:
+            print(f"Error connectant amb FastAPI: {e}")
+
+    # 3. Si no hi ha ningú a la cua, ens hi afegim
+    MatchQueue.objects.get_or_create(
+        user=user,
+        defaults={'score': user.corresponding_CS_user.score}
+    )
+
+    return render(request, 'pages/waiting.html', {'match_url': None})
 
 
 @csrf_exempt  # Perquè la FastAPI pugui fer POST sense token CSRF
@@ -91,6 +126,12 @@ def save_match_view(request):
             if user_profile:
                 user_profile.score += 25  # Exemple de pujada de punts
                 user_profile.save()
+
+        # Marcar la partida com tancada
+        ActiveMatch.objects.filter(
+            Q(player1__username__iexact=winner_name) | Q(player2__username__iexact=winner_name),
+            is_active=True
+        ).update(is_active=False)
 
         return JsonResponse({"status": "success"})
     return JsonResponse({"status": "failed"}, status=400)
