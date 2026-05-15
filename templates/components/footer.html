@@ -47,10 +47,9 @@
                 </h4>
                 <div class="flex flex-col gap-1">
                     <span class="text-[10px] text-footer-text font-bold uppercase tracking-tighter">Contact us:</span>
-                    <button onclick="showWipModal(event)" class="text-left text-[12px] font-bold text-white hover:text-brand-red transition-colors uppercase tracking-widest py-1 cursor-pointer">
-                        WIP: Submit a Ticket
-                    </button>
-                    <p class="text-[10px] text-footer-text italic mt-2 uppercase">Official contact method coming soon</p>
+                    <a href="mailto:strike1v1.reply@gmail.com" class="text-left text-[12px] font-bold text-white hover:text-brand-red transition-colors uppercase tracking-widest py-1 flex items-center gap-2">
+                        strike1v1.reply@gmail.com
+                    </a>
                 </div>
             </div>
 
@@ -64,6 +63,7 @@
             </div>
 
             <div class="flex items-center bg-xp-blue border-2 border-xp-blue-border px-6 py-1.5 shadow-[2px_2px_0px_#000]">
+                <span class="material-symbols-outlined text-white text-sm mr-2">schedule</span>
                 <span id="system-clock" class="text-xs font-black text-white font-mono tracking-widest">00:00:00</span>
             </div>
         </div>
@@ -71,7 +71,6 @@
 </footer>
 
 <script>
-    // Reloj en tiempo real
     function updateClock() {
         const now = new Date();
         const hours = String(now.getHours()).padStart(2, '0');
