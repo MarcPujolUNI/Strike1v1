@@ -50,8 +50,11 @@
                     <span class="text-white font-black text-sm uppercase">{{ user.username }}</span>
 
                     <div class="flex items-center mt-2 gap-2">
-                        <img src="{{ user.user_country.flag_image.url }}" class="w-5 h-auto shadow-sm"
-                             alt="{{ user.user_country.country_iso }}">
+                        {% if user.user_country and user.user_country.flag_image %}
+                            <img src="{{ user.user_country.flag_image.url }}" alt="{{ user.user_country.country_name }}">
+                        {% else %}
+                            <span class="material-symbols-outlined">flag</span>
+                        {% endif %}
                         <span class="text-footer-text text-[10px] font-black uppercase tracking-wider">
                         Region: <span class="text-white/80">{{ user.user_country.country_name }}</span>
                     </span>
@@ -210,11 +213,14 @@
 
     <script>
         // 1. Avatar management
-        const avatarInput = document.getElementById('avatar-upload');
+        const avatarForm = document.getElementById('avatar-form');
+        const avatarInput = avatarForm ? avatarForm.querySelector('input[type="file"]') : null;
         if (avatarInput) {
+            avatarInput.id = 'avatar-upload';
+
             avatarInput.addEventListener('change', function () {
                 if (this.files && this.files[0]) {
-                    document.getElementById('avatar-form').submit();
+                    avatarForm.submit();
                 }
             });
         }

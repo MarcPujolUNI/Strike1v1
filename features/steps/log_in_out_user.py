@@ -53,14 +53,13 @@ def step_impl(context):
 
 @when('I click on the logout button')
 def step_impl(context):
-    dropdown_trigger = context.browser.find_by_css('button[onclick="toggleDropdown()"]')
-    assert not dropdown_trigger.is_empty(), "Dropdown trigger button not found"
-    dropdown_trigger.first.click()
+    dropdown_trigger = context.browser.find_by_css('#profile-dropdown-container button').first
+    assert dropdown_trigger, "No se encontró el botón para abrir el menú de perfil"
+    dropdown_trigger.click()
 
-    logout_btn = context.browser.find_by_css('button[onclick*="logout-form"]')
-    assert not logout_btn.is_empty(), "Logout button not found via CSS selector"
-    logout_btn.first.click()
-    time.sleep(2)
+    logout_button = context.browser.find_by_css('#profile-menu button[type="submit"]').first
+    assert logout_button, "Logout button not found inside the dropdown menu"
+    logout_button.click()
 
 
 @then('I should see the "Login" and "Sign Up" button again on the header')

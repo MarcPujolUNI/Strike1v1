@@ -49,7 +49,13 @@ def profile_edit(request):
 
     if request.method == 'POST':
         if 'update_profile' in request.POST:
-            user_form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+            data = request.POST.copy()
+            if 'username' not in data:
+                data['username'] = request.user.username
+            if 'email' not in data:
+                data['email'] = request.user.email
+
+            user_form = UserProfileForm(data, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
 
             if user_form.is_valid():
@@ -72,6 +78,8 @@ def profile_edit(request):
                 update_session_auth_hash(request, user)
                 messages.success(request, 'Password updated successfully.')
                 return redirect('web:profile')
+            else:
+                messages.error(request, 'Error changing password.')
     else:
         user_form = UserProfileForm(
             instance=request.user,

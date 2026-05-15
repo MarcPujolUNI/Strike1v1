@@ -1,6 +1,5 @@
 import re
 import os
-from unittest.mock import patch, MagicMock
 from splinter.browser import Browser
 
 def chrome_browser(headless=True):
@@ -25,21 +24,13 @@ def firefox_browser(headless=True):
     return Browser("firefox", headless=headless)
 
 def before_all(context):
-    context.browser = chrome_browser(headless=True)
+    context.browser = chrome_browser(headless=False)
     # Alternatively, use `firefox_browser` and headless=False to see the browser while testing
-
-    # Mock to ask for the request of the flag
-    context.mock_requests = patch('requests.get')
-    context.mock_get = context.mock_requests.start()
-    mock_response = MagicMock()
-    mock_response.status_code = 200
-    mock_response.content = b'<svg><rect width="1" height="1"/></svg>'
-    context.mock_get.return_value = mock_response
 
 def before_scenario(context, scenario):
     from django.test import LiveServerTestCase
     context.test_case_class = LiveServerTestCase
-    context.fixtures = ['country_fixture.json']
+    context.fixtures = ['country_fixture.json', 'map_fixture.json']
 
 def after_all(context):
     if hasattr(context, 'browser') and context.browser:
