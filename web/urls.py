@@ -28,10 +28,10 @@ urlpatterns = [
     path('cookies', views.cookie_policy, name='cookies'),
     path('profile/', views.profile_edit, name='profile'),
     path('profile/matches/', views.matches, name='matches'),
+    path('profile/delete/', views.delete_account, name='delete_account'),
     path('reviews/', views.reviews, name='reviews'),
     path('api/search/', api_views.APIUserSearchList.as_view(), name='user_search_ajax'),
     path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
     path('reviews/<str:username>/', views.user_reviews_list, name='user_reviews_list'),
     path('reviews/<str:username>/<int:review_id>/', views.review_detail, name='review_detail'),
-    path('profile/delete/', views.delete_account, name='delete_account'),
 ]

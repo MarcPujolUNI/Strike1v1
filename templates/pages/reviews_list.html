@@ -21,7 +21,7 @@
             <div class="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
                 <div class="flex flex-col">
                     <span class="text-white font-black text-sm uppercase">
-                        {% if other_reviews.paginator.count > 0 %}Community Feedback{% else %}No reviews yet{% endif %}
+                        {% if other_reviews.paginator.count > 0 or my_review  %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
                     </span>
                 </div>
 
@@ -92,10 +92,10 @@
                                 <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
                                     {% if my_review.reviewer.user_image %}
                                         <img src="{{ my_review.reviewer.user_image.url }}"
-                                             class="w-full h-full object-cover">
+                                             class="w-full h-full object-cover" alt="Profile picture">
                                     {% else %}
-                                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-[8px] uppercase">
-                                            No IMG
+                                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
+                                            <span class="material-symbols-outlined text-xl">account_circle</span>
                                         </div>
                                     {% endif %}
                                 </div>

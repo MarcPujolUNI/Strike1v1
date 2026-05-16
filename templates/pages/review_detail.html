@@ -55,10 +55,10 @@
                 <div class="flex items-center gap-6">
                     <div class="relative w-24 h-24 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,0.3)] bg-black overflow-hidden">
                         {% if review.reviewer.user_image %}
-                            <img src="{{ review.reviewer.user_image.url }}" class="w-full h-full object-cover">
+                            <img src="{{ review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
                         {% else %}
-                            <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-[10px] uppercase text-center p-2">
-                                No IMG
+                            <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
+                                <span class="material-symbols-outlined text-2xl">account_circle</span>
                             </div>
                         {% endif %}
                     </div>

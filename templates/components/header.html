@@ -44,9 +44,11 @@
                             </span>
                             <div class="w-10 h-10 border-2 border-white/20 bg-black flex-shrink-0 overflow-hidden shadow-[2px_2px_0px_#000] group-hover:border-brand-red transition-colors">
                                 {% if user.user_image %}
-                                    <img src="{{ user.user_image.url }}" alt="Avatar" class="w-full h-full object-cover">
+                                    <img src="{{ user.user_image.url }}" alt="Profile picture" class="w-full h-full object-cover">
                                 {% else %}
-                                    <div class="w-full h-full bg-[#333] flex items-center justify-center text-white/40 font-black text-[10px]">IMG</div>
+                                    <div class="w-full h-full bg-[#333] flex items-center justify-center text-white/40">
+                                        <span class="material-symbols-outlined text-xl">account_circle</span>
+                                    </div>
                                 {% endif %}
                             </div>
                         </button>

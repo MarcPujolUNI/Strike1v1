@@ -52,7 +52,13 @@ def leaderboard(request):
 def profile_edit(request):
     if request.method == 'POST':
         if 'update_profile' in request.POST:
-            user_form = UserProfileForm(request.POST, request.FILES, instance=request.user)
+            data = request.POST.copy()
+            if 'username' not in data:
+                data['username'] = request.user.username
+            if 'email' not in data:
+                data['email'] = request.user.email
+
+            user_form = UserProfileForm(data, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
             if user_form.is_valid():
                 user_form.save()

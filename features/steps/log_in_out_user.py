@@ -1,69 +1,72 @@
 import time
-from behave import given, when, then
+from behave import given, then, when
 from django.contrib.auth import get_user_model
 from web.models import Country, CounterUser
 
 User = get_user_model()
 
 
-@given('I am an anonymous user on the landing page')
+@given(u'I am an anonymous user on the landing page')
 def step_impl(context):
-    context.browser.visit(context.get_url('web:index'))
+    context.browser.visit(context.get_url("web:index"))
+    time.sleep(0.3)
 
 
-@given('A WebUser exists with username "{username}" and password "{password}"')
+@given(u'A WebUser exists with username "{username}" and password "{password}"')
 def step_impl(context, username, password):
     if not User.objects.filter(username=username).exists():
-        user = User.objects.create_user(username=username, email=f"{username}@gmail.com", password=password)
+        user = User.objects.create_user(
+            username=username, email=f"{username}@gmail.com", password=password
+        )
         spain = Country.objects.filter(country_id=68).first()
-        if spain and hasattr(user, 'user_country'):
+        if spain and hasattr(user, "user_country"):
             user.user_country = spain
             user.save()
         CounterUser.objects.get_or_create(user=user)
 
 
-@when('I navigate to the login page')
+@when(u'I navigate to the login page')
 def step_impl(context):
-    base_url = context.test.live_server_url
-    context.browser.visit(f"{base_url}/accounts/login/")
+    context.browser.visit(f"{context.test.live_server_url}/accounts/login/")
+    time.sleep(0.3)
 
 
-@when('I fill out the login form with username "{username}" and password "{password}"')
+@when(u'I fill out the login form with username "{username}" and password "{password}"')
 def step_impl(context, username, password):
-    context.browser.fill('username', username)
-    context.browser.fill('password', password)
+    context.browser.fill("username", username)
+    context.browser.fill("password", password)
 
 
-@when('I submit the login form')
+@when(u'I submit the login form')
 def step_impl(context):
     context.browser.find_by_css('button[type="submit"]').first.click()
+    time.sleep(0.5)
 
 
-@then('I should be redirected to the landing page')
+@then(u'I should be redirected to the landing page')
 def step_impl(context):
-    base_url = context.test.live_server_url
-    assert context.browser.url == f"{base_url}/", \
-        f"Expected landing page, but current URL is: {context.browser.url}"
+    time.sleep(0.3)
+    assert context.browser.url == f"{context.test.live_server_url}/"
 
 
-@then('I should see a welcome message or my dashboard')
+@then(u'I should see a welcome message or my dashboard')
 def step_impl(context):
-    assert not context.browser.is_text_present('LOGIN'), "Login button is still present"
+    time.sleep(0.3)
+    assert not context.browser.is_text_present("LOGIN")
 
 
-@when('I click on the logout button')
+@when(u'I click on the logout button')
 def step_impl(context):
-    dropdown_trigger = context.browser.find_by_css('#profile-dropdown-container button').first
-    assert dropdown_trigger, "No se encontró el botón para abrir el menú de perfil"
-    dropdown_trigger.click()
-
-    logout_button = context.browser.find_by_css('#profile-menu button[type="submit"]').first
-    assert logout_button, "Logout button not found inside the dropdown menu"
-    logout_button.click()
+    time.sleep(0.2)
+    context.browser.find_by_css("#profile-dropdown-container button").first.click()
+    time.sleep(0.2)
+    context.browser.find_by_css('#profile-menu button[type="submit"]').first.click()
+    time.sleep(0.5)
 
 
-@then('I should see the "Login" and "Sign Up" button again on the header')
+@then(u'I should see the "Login" and "Sign Up" button again on the header')
 def step_impl(context):
+    time.sleep(0.3)
     login_link = context.browser.find_by_css('a[href*="/accounts/login/"]')
     signup_link = context.browser.find_by_css('a[href*="/accounts/signup/"]')
-    assert not login_link.is_empty() or not signup_link.is_empty(), "Public authentication links not found after logout"
+    assert not login_link.is_empty() or not signup_link.is_empty()
