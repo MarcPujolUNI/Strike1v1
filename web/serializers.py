@@ -5,7 +5,7 @@ from .models import WebUser, Country
 class CountrySerializer(serializers.ModelSerializer):
     class Meta:
         model = Country
-        fields = ['country_name', 'country_iso', 'flag_image']
+        fields = ['country_id', 'country_name', 'country_iso', 'flag_image']
 
 
 class WebUserSerializer(serializers.ModelSerializer):

@@ -8,8 +8,8 @@ Feature: Sign Up User
     Given a country exists with id 68 and name "Spain" and iso "ES"
     When I navigate to the registration page
     And I fill out the sign up form with data:
-      | username  | email               | password  | user_country |
-      | test      | test@gmail.com      | patata123 | 68           |
+      | username | email          | password  | user_country_name |
+      | test     | test@gmail.com | patata123 | Spain             |
     And I submit the registration form
     Then I should be redirected to the login page
     And A WebUser with username "test" should exist in the database

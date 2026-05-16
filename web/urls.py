@@ -30,6 +30,7 @@ urlpatterns = [
     path('profile/matches/', views.matches, name='matches'),
     path('profile/delete/', views.delete_account, name='delete_account'),
     path('api/search/', api_views.APIUserSearchList.as_view(), name='user_search_ajax'),
+    path('api/countries/', api_views.APICountrySearchList.as_view(), name='country_search_ajax'), # <-- Nueva API
     path('reviews/', views.reviews, name='reviews'),
     path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
     path('reviews/<str:username>/', views.user_reviews_list, name='user_reviews_list'),
