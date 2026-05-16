@@ -140,3 +140,5 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # User used for authentication
 AUTH_USER_MODEL = 'web.WebUser'
+
+#FIXTURE_DIRS= BASE_DIR/'Strike1v1/fixtures'

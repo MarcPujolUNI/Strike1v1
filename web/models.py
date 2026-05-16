@@ -1,14 +1,15 @@
 import requests
-
 from datetime import timedelta
 from django.contrib.auth.models import AbstractUser
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator
-from django.db import models
-from django.db.models import Q, F
+from django.db import models, transaction
+from django.db.models import Q, F, Max
+from django.db.models.functions import Coalesce
 from django.utils.timezone import now
 from django.core.files.base import ContentFile
 
-DEFAULT_COUNTRY = 1
+DEFAULT_COUNTRY = 9
+# implementar canvis tipo gestio score, gestio ranking fi partides, revisar coses de codi, ... funcio que quan canvia nom user  i pais s'actualitzin les coses
 
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Medium Large")
@@ -39,15 +40,16 @@ class Country(models.Model):
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
-        if not self.flag_image:
-            self.get_flag_image()
+        if not self.flag_image and self.get_flag_image(): self.delete()
 
     def get_flag_image(self):
-        response = requests.get(f"https://flagsapi.com/{self.country_iso}/flat/64.png")
+        url = f"https://flacdn.com/w80/{self.country_iso}.svg"
         for _ in range(3):
+            response = requests.get(url)
             if response.status_code == 200:
                 self.flag_image.save(f"{self.country_iso}.png", ContentFile(response.content), save=True)
-                return
+                return True
+        return False
 
 class WebUser(AbstractUser):
     email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
@@ -60,6 +62,12 @@ class WebUser(AbstractUser):
 
     def __str__(self):
         return self.username
+
+    def save(self, *args, **kwargs):
+        is_new = self.pk is None
+        super().save(*args, **kwargs)
+        if is_new:
+            CounterUser.objects.create(user=self)
 
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
@@ -92,6 +100,17 @@ class CounterUser(models.Model):
 
     def __str__(self):
         return self.user.username
+
+    def save(self, *args, **kwargs):
+        is_new = self._state.adding is True
+        super().save(*args, **kwargs)
+        if is_new:
+            country = self.user.user_country
+            with transaction.atomic():
+                global_position = GlobalRanking.objects.aggregate(max_position=Coalesce(Max("global_position"), 0))["max_position"] + 1
+                local_position = LocalRanking.objects.filter(country=country).aggregate(max_position=Coalesce(Max("local_position"), 0))["max_position"] + 1
+                GlobalRanking.objects.create(counter_user=self, country=country, global_position=global_position)
+                LocalRanking.objects.create(counter_user=self, country=country, local_position=local_position)
 
 class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
@@ -128,6 +147,7 @@ class MatchStats(models.Model):
 class GlobalRanking(models.Model):
     global_ranking_id = models.AutoField(primary_key=True)
     counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking")
+    country = models.ForeignKey(Country, on_delete=models.PROTECT, related_name="global_country_counter_users", null=False)
     global_position = models.IntegerField(unique=True, validators=[MinValueValidator(1)])
 
     class Meta:

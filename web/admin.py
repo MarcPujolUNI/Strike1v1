@@ -1,10 +1,14 @@
 from django.contrib import admin
 from django.contrib.auth.models import Group
-
+from django.contrib.auth import admin as auth_admin
+from web.forms import SignUpForm
+from django.urls import reverse
+from django.http import HttpResponseRedirect
 from .models import *
 
 # Arreglar tema de rankings de admin, quan tingui la lògica de ranking fer que el camp de ranking quedi amagat en creacio.
-
+# Afegir django file generate amb llista mapes counter + llista paisos amb imatge i iso d'algun lloc + api + altres essencials.
+# descomentar codi countries no es poden borrar
 admin.site.unregister(Group)
 
 @admin.register(Country)
@@ -14,6 +18,12 @@ class CountryAdmin(admin.ModelAdmin):
     list_per_page = 20
     ordering = ('country_name',)
     search_fields = ('country_name', 'country_iso')
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Map)
 class MapAdmin(admin.ModelAdmin):
@@ -25,8 +35,11 @@ class MapAdmin(admin.ModelAdmin):
     search_fields = ('map_name', 'creator', 'type', 'dimensions')
 
 @admin.register(WebUser)
-class WebUserAdmin(admin.ModelAdmin):
+class WebUserAdmin(auth_admin.UserAdmin):
+    add_fieldsets = ((None, {'classes': ('wide',), 'fields': ('username', 'email', 'password1', 'password2', 'user_country', 'user_image')}),)
+    add_form = SignUpForm
     autocomplete_fields = ('user_country',)
+    fieldsets = ((None, {'fields': ('username', 'password', 'email', 'user_country', 'user_image')}),('Further options', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'date_joined')}),)
     list_display = ('username', 'email', 'user_country')
     list_editable = ('email', 'user_country')
     list_filter = ('user_country',)
@@ -34,6 +47,9 @@ class WebUserAdmin(admin.ModelAdmin):
     list_select_related = ('user_country',)
     ordering = ('username',)
     search_fields = ('username', 'email', 'user_country__country_name')
+
+    def response_add(self, request, obj, post_url_continue=None):
+        return HttpResponseRedirect(reverse('admin:web_webuser_changelist'))
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
@@ -80,6 +96,9 @@ class CounterUserAdmin(admin.ModelAdmin):
         actions = super().get_actions(request)
         actions.pop("delete_selected", None)
         return actions
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
@@ -149,6 +168,14 @@ class GlobalRankingAdmin(admin.ModelAdmin):
     def country(self, record):
         return record.counter_user.user.user_country
 
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def has_add_permission(self, request):
+        return False
+
 @admin.register(LocalRanking)
 class LocalRankingAdmin(admin.ModelAdmin):
     autocomplete_fields = ('counter_user',)
@@ -169,3 +196,11 @@ class LocalRankingAdmin(admin.ModelAdmin):
     @admin.display(ordering='counter_user__score')
     def score(self, record):
         return record.counter_user.score
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def has_add_permission(self, request):
+        return False
