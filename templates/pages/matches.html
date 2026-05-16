@@ -34,9 +34,11 @@
                     <span class="text-white font-black text-sm uppercase">{{ user.username }}</span>
 
                     <div class="flex items-center mt-2 gap-2">
-                        <img src="{{ user.user_country.flag_image.url }}" class="w-5 h-auto shadow-sm">
-                        <span class="text-footer-text text-[10px] font-black uppercase tracking-wider text-center">
-                        Region: <span class="text-white/80">{{ user.user_country.country_name }}</span>
+                        {% if user.user_country and user.user_country.flag_image %}
+                            <img src="{{ user.user_country.flag_image.url }}" alt="{{ user.user_country.country_name }}">
+                        {% else %}
+                            <span class="material-symbols-outlined">flag</span>
+                        {% endif %}
                     </span>
                     </div>
                 </div>

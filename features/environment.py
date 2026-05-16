@@ -24,7 +24,7 @@ def firefox_browser(headless=True):
     return Browser("firefox", headless=headless)
 
 def before_all(context):
-    context.browser = chrome_browser(headless=False)
+    context.browser = chrome_browser(headless=True)
     # Alternatively, use `firefox_browser` and headless=False to see the browser while testing
 
 def before_scenario(context, scenario):
