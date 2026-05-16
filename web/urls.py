@@ -15,7 +15,7 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from web import views
+from web import views, api_views
 
 app_name = 'web'
 
@@ -29,7 +29,7 @@ urlpatterns = [
     path('profile/', views.profile_edit, name='profile'),
     path('profile/matches/', views.matches, name='matches'),
     path('reviews/', views.reviews, name='reviews'),
-    path('reviews/search/', views.user_search_ajax, name='user_search_ajax'),
+    path('api/search/', api_views.APIUserSearchList.as_view(), name='user_search_ajax'),
     path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
     path('reviews/<str:username>/', views.user_reviews_list, name='user_reviews_list'),
     path('reviews/<str:username>/<int:review_id>/', views.review_detail, name='review_detail'),
