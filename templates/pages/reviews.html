@@ -1,0 +1,218 @@
+{% extends 'base/base.html' %}
+{% block title %} Strike 1v1 - Reviews {% endblock %}
+
+{% block content %}
+    <div class="w-full max-w-[600px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+        <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+            <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
+                    S
+                </div>
+                Reviews - Search Players
+            </div>
+            <div class="flex gap-1">
+                <span class="ctrl-display">_</span>
+                <span class="ctrl-display">□</span>
+                <span class="ctrl-display close">x</span>
+            </div>
+        </div>
+
+        <div class="bg-card-dark border-x border-b border-black p-6 md:p-10">
+            <div class="text-center mb-8">
+                <div class="inline-flex items-center justify-center w-14 h-14 bg-black border-2 border-brand-red mb-3 shadow-[4px_4px_0px_rgba(0,0,0,0.4)]">
+                    <span class="material-symbols-outlined text-brand-red text-2xl">person_search</span>
+                </div>
+                <h2 class="text-white text-xl font-black uppercase tracking-tight">Web User Search</h2>
+                <p class="text-footer-text text-[10px] font-bold uppercase tracking-[2px] mt-1">Search username & verify the user data</p>
+            </div>
+
+            <form id="search-form" method="GET" action="" class="space-y-4">
+
+                <div class="relative">
+                    <label for="user-search" class="block text-footer-text text-[10px] font-black uppercase tracking-widest mb-2">Type Username to search</label>
+                    <div class="relative flex items-center">
+                        <span class="material-symbols-outlined absolute left-3 text-footer-text text-sm">person_search</span>
+                        <input type="text" id="user-search" autocomplete="off"
+                               placeholder="START TYPING WEB USER MEMBER..."
+                               class="w-full bg-black border-2 border-white/10 pl-9 pr-4 py-3 text-white font-bold text-xs focus:border-brand-red outline-none transition-all uppercase placeholder:text-white/20">
+                    </div>
+
+                    <div id="search-results"
+                         class="hidden absolute left-0 right-0 mt-1 bg-card-dark border-2 border-black shadow-[5px_5px_0px_rgba(0,0,0,0.5)] z-50 max-h-[250px] overflow-y-auto split-y split-white/5">
+                    </div>
+                </div>
+
+                <div id="autocomplete-fields-panel" class="hidden bg-black/60 border-2 border-white/5 p-4 rounded-sm transition-all duration-300">
+                    <div class="text-[9px] font-black uppercase text-brand-red tracking-widest border-b border-white/5 pb-2 mb-3 flex items-center justify-between">
+                        <span>Player Identity Card</span>
+                    </div>
+
+                    <div class="flex items-start gap-4">
+                        <div id="player-avatar-container"
+                             class="w-16 h-16 min-w-[64px] bg-main-dark border-2 border-black flex items-center justify-center overflow-hidden shadow-[inset_1px_1px_4px_rgba(0,0,0,0.5)]">
+                        </div>
+
+                        <div class="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="min-w-0">
+                                <label class="block text-footer-text text-[9px] font-black uppercase tracking-wider mb-0.5">Web Username</label>
+                                <div id="filled-username" class="w-full border-b border-white/10 py-1 text-white text-xs font-bold uppercase truncate min-h-[25px]">
+                                    -
+                                </div>
+                            </div>
+
+                            <div class="min-w-0">
+                                <label class="block text-footer-text text-[9px] font-black uppercase tracking-wider mb-0.5">Region / Country</label>
+                                <div class="relative flex items-center border-b border-white/10 py-1 pr-8">
+                                    <div id="filled-country" class="w-full text-white text-xs font-bold uppercase truncate min-h-[18px]">
+                                        -
+                                    </div>
+                                    <div id="filled-flag" class="absolute right-1 top-1/2 -translate-y-1/2 w-5 h-3.5 bg-transparent flex items-center justify-center overflow-hidden">
+                                        <span class="material-symbols-outlined text-xs text-white/20">flag</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="pt-2">
+                    <button type="submit" id="search-submit-btn" disabled
+                            class="xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none">
+                        Find Profile
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const searchInput = document.getElementById('user-search');
+        const resultsDiv = document.getElementById('search-results');
+        const fieldsPanel = document.getElementById('autocomplete-fields-panel');
+
+        const filledUsername = document.getElementById('filled-username');
+        const filledCountry = document.getElementById('filled-country');
+        const filledFlag = document.getElementById('filled-flag');
+        const playerAvatarContainer = document.getElementById('player-avatar-container');
+
+        const submitBtn = document.getElementById('search-submit-btn');
+        const searchForm = document.getElementById('search-form');
+
+        let debounceTimer;
+        let finalProfileUrl = "";
+
+        searchInput.addEventListener('input', function () {
+            const q = this.value;
+            clearTimeout(debounceTimer);
+
+            resetFormFields();
+
+            if (q.length < 1) {
+                resultsDiv.classList.add('hidden');
+                return;
+            }
+
+            debounceTimer = setTimeout(() => {
+                fetch(`/api/search/?q=${q}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsDiv.innerHTML = '';
+
+                        if (data && data.length > 0) {
+                            resultsDiv.classList.remove('hidden');
+
+                            data.forEach(user => {
+                                const div = document.createElement('div');
+                                div.className = 'flex items-center justify-between gap-2 p-3 text-white hover:bg-brand-red group transition-colors cursor-pointer';
+
+                                const countryName = user.user_country ? user.user_country.country_name : 'No country';
+                                const flagUrl = (user.user_country && user.user_country.flag_image) ? user.user_country.flag_image : '';
+                                const avatarUrl = user.user_image || '';
+
+                                div.dataset.username = user.username;
+                                div.dataset.country = countryName;
+                                div.dataset.flag = flagUrl;
+                                div.dataset.avatar = avatarUrl;
+
+                                const miniAvatarHtml = avatarUrl
+                                    ? `<img src="${avatarUrl}" class="w-6 h-6 rounded-sm object-cover border border-white/10 group-hover:border-white" alt="">`
+                                    : `<div class="w-6 h-6 rounded-sm bg-main-dark border border-white/10 flex items-center justify-center group-hover:bg-black/40">
+                                 <span class="material-symbols-outlined text-base text-white/40 group-hover:text-white/70">account_circle</span>
+                               </div>`;
+
+                                div.innerHTML = `
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                ${miniAvatarHtml}
+                                <span class="text-xs font-black uppercase tracking-wider truncate">${user.username}</span>
+                            </div>
+                            <span class="text-[9px] text-footer-text font-black uppercase group-hover:text-white/80 truncate max-w-[40%] flex-shrink-0 text-right">${countryName}</span>
+                        `;
+
+                                div.addEventListener('click', function () {
+                                    autocompleteForm(this.dataset.username, this.dataset.country, this.dataset.flag, this.dataset.avatar);
+                                });
+
+                                resultsDiv.appendChild(div);
+                            });
+                        } else {
+                            resultsDiv.innerHTML = '<div class="p-4 text-[10px] font-black text-footer-text uppercase text-center italic">No players match your search</div>';
+                            resultsDiv.classList.remove('hidden');
+                        }
+                    })
+                    .catch(err => console.error("Error fetching REST API:", err));
+            }, 300);
+        });
+
+        function autocompleteForm(username, country, flagUrl, avatarUrl) {
+            resultsDiv.classList.add('hidden');
+            searchInput.value = username;
+
+            filledUsername.textContent = username;
+            filledCountry.textContent = country;
+
+            if (flagUrl) {
+                filledFlag.innerHTML = `<img src="${flagUrl}" class="w-full h-full object-cover border border-white/10" alt="${country}">`;
+            } else {
+                filledFlag.innerHTML = `<span class="material-symbols-outlined text-xs text-white/20">flag</span>`;
+            }
+
+            if (avatarUrl) {
+                playerAvatarContainer.innerHTML = `<img src="${avatarUrl}" class="w-full h-full object-cover rounded-sm" alt="${username}">`;
+            } else {
+                playerAvatarContainer.innerHTML = `<span class="material-symbols-outlined text-4xl text-white/40">account_circle</span>`;
+            }
+
+            fieldsPanel.classList.remove('hidden');
+            finalProfileUrl = `/reviews/${username}/`;
+
+            submitBtn.removeAttribute('disabled');
+            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider";
+        }
+
+        function resetFormFields() {
+            finalProfileUrl = "";
+            filledUsername.textContent = "-";
+            filledCountry.textContent = "-";
+            filledFlag.innerHTML = `<span class="material-symbols-outlined text-xs text-white/20">flag</span>`;
+            playerAvatarContainer.innerHTML = "";
+
+            fieldsPanel.classList.add('hidden');
+
+            submitBtn.setAttribute('disabled', 'true');
+            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none";
+        }
+
+        searchForm.addEventListener('submit', function (e) {
+            e.preventDefault();
+            if (finalProfileUrl) {
+                window.location.href = finalProfileUrl;
+            }
+        });
+
+        document.addEventListener('click', function (e) {
+            if (!searchInput.contains(e.target) && !resultsDiv.contains(e.target)) {
+                resultsDiv.classList.add('hidden');
+            }
+        });
+    </script>
+{% endblock %}

@@ -21,6 +21,10 @@
                     <span class="material-symbols-outlined text-[18px]">leaderboard</span>
                     LEADERBOARD
                 </a>
+                <a href="{% url 'web:reviews' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if 'reviews' in request.path %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                    <span class="material-symbols-outlined text-[18px]">forum</span>
+                    REVIEWS
+                </a>
             </nav>
         </div>
 
@@ -98,6 +102,10 @@
                     <span class="material-symbols-outlined text-sm">leaderboard</span>
                     Leaderboard
                 </a>
+                <a href="{% url 'web:reviews' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm">forum</span>
+                    Reviews
+                </a>
             </div>
 
             <div class="bg-black/40 px-4 py-2 border-y border-white/5">
@@ -136,6 +144,7 @@
         </div>
     </div>
 </header>
+
 <script>
     function toggleMobileMenu() {
         const menu = document.getElementById('mobile-menu');

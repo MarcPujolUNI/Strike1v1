@@ -1,14 +1,17 @@
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
-from .models import CounterUser, Country, Match
+from django.shortcuts import render, redirect, get_object_or_404, reverse
+from .models import CounterUser, Country, Match, WebUser, Review
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm, UserProfileForm
 from django.contrib.auth import update_session_auth_hash, logout
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
+from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
 
 
 class SignUpView(CreateView):
@@ -47,26 +50,12 @@ def leaderboard(request):
 
 @login_required
 def profile_edit(request):
-    counter_user = CounterUser.objects.get(user=request.user)
-
     if request.method == 'POST':
         if 'update_profile' in request.POST:
-            data = request.POST.copy()
-            if 'username' not in data:
-                data['username'] = request.user.username
-            if 'email' not in data:
-                data['email'] = request.user.email
-
-            user_form = UserProfileForm(data, request.FILES, instance=request.user)
+            user_form = UserProfileForm(request.POST, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
-
             if user_form.is_valid():
                 user_form.save()
-
-                selected_map = user_form.cleaned_data.get('favourite_map')
-                counter_user.favourite_map = selected_map
-                counter_user.save()
-
                 messages.success(request, 'Profile updated successfully.')
                 return redirect('web:profile')
             else:
@@ -81,12 +70,9 @@ def profile_edit(request):
                 messages.success(request, 'Password updated successfully.')
                 return redirect('web:profile')
             else:
-                messages.error(request, 'Error changing password.')
+                messages.error(request, 'Error updating the password.')
     else:
-        user_form = UserProfileForm(
-            instance=request.user,
-            initial={'favourite_map': counter_user.favourite_map}
-        )
+        user_form = UserProfileForm(instance=request.user)
         password_form = PasswordChangeForm(request.user)
 
     for field in password_form.fields.values():
@@ -110,9 +96,95 @@ def delete_account(request):
         return redirect('web:index')
     return redirect('web:profile')
 
-@login_required
+
 def reviews(request):
     return render(request, 'pages/reviews.html')
+
+
+def user_search_ajax(request):
+    query = request.GET.get('q', '')
+    if query:
+        users = WebUser.objects.filter(username__icontains=query)[:5]
+        results = [{
+            'username': u.username,
+            'url': reverse('web:user_reviews_list', kwargs={'username': u.username})
+        } for u in users]
+    else:
+        results = []
+    return JsonResponse({'results': results})
+
+
+def user_reviews_list(request, username):
+    target_user = get_object_or_404(WebUser, username=username)
+    my_review = None
+
+    if request.user.is_authenticated:
+        my_review = Review.objects.filter(reviewer=request.user, reviewee=target_user).first()
+
+    if request.method == 'POST':
+        if not request.user.is_authenticated or request.user == target_user:
+            return redirect('login')
+
+        form = ReviewForm(request.POST, instance=my_review)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.reviewer = request.user
+            review.reviewer_name = request.user.username
+            review.reviewee = target_user
+            review.save()
+            return redirect('web:user_reviews_list', username=username)
+    else:
+        form = ReviewForm(instance=my_review)
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    if request.user.is_authenticated:
+        all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
+
+    paginator = Paginator(all_other_reviews, 5)
+    page_number = request.GET.get('page')
+    other_reviews_page = paginator.get_page(page_number)
+
+    return render(request, 'pages/reviews_list.html', {
+        'target_user': target_user,
+        'my_review': my_review,
+        'form': form,
+        'other_reviews': other_reviews_page,
+    })
+
+
+def review_detail(request, username, review_id):
+    review = get_object_or_404(Review, review_id=review_id, reviewee__username=username)
+    is_author = (review.reviewer == request.user)
+
+    form = None
+    if is_author:
+        if request.method == 'POST':
+            form = ReviewForm(request.POST, instance=review)
+            if form.is_valid():
+                form.save()
+                return redirect('web:review_detail', username=username, review_id=review_id)
+        else:
+            form = ReviewForm(instance=review)
+
+    return render(request, 'pages/review_detail.html', {
+        'review': review,
+        'is_author': is_author,
+        'form': form
+    })
+
+
+@login_required
+def delete_review(request, review_id):
+    if request.method == 'POST':
+        review = get_object_or_404(Review, pk=review_id)
+
+        target_username = review.reviewee.username
+
+        if review.reviewer == request.user:
+            review.delete()
+            return redirect('web:user_reviews_list', username=target_username)
+
+    return redirect('web:index')
 
 
 @login_required
@@ -131,6 +203,7 @@ def matches(request):
         'page_obj': page_obj,
         'counter_user': counter_user
     })
+
 
 def play(request):
     return render(request, 'pages/play.html')

@@ -42,7 +42,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'web.apps.WebConfig',
-    'behave_django'
+    'behave_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -141,5 +142,3 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # User used for authentication
 AUTH_USER_MODEL = 'web.WebUser'
-
-#FIXTURE_DIRS= BASE_DIR/'Strike1v1/fixtures'
