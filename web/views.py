@@ -1,12 +1,14 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import CounterUser, Country
+from .models import CounterUser, Country, Match
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from web.forms import SignUpForm, UserProfileForm
 from django.contrib.auth import update_session_auth_hash, logout
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
 
 
 class SignUpView(CreateView):
@@ -112,9 +114,23 @@ def delete_account(request):
 def reviews(request):
     return render(request, 'pages/reviews.html')
 
+
 @login_required
 def matches(request):
-    return render(request, 'pages/matches.html')
+    counter_user = request.user.corresponding_CS_user
+
+    match_list = Match.objects.filter(
+        Q(winner=counter_user) | Q(loser=counter_user)
+    ).order_by('-date')
+
+    paginator = Paginator(match_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pages/matches.html', {
+        'page_obj': page_obj,
+        'counter_user': counter_user
+    })
 
 def play(request):
     return render(request, 'pages/play.html')
