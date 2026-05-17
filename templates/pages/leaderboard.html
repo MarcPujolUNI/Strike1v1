@@ -23,33 +23,47 @@
 
             <div class="flex flex-col gap-4 mb-6">
                 <div class="bg-black/40 border-[3px] border-black p-4 flex flex-col md:flex-row justify-between items-center gap-4 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
-                    <div>
-                        <h2 class="text-white text-2xl font-black uppercase tracking-wider">Leaderboard</h2>
-                        <p class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">
-                            Region: <span
-                                class="text-white">{{ selected_country.country_name|default:"Worldwide" }}</span>
-                        </p>
+                    <div class="flex flex-col sm:flex-row sm:items-center gap-4 w-full md:w-auto justify-between">
+                        <div>
+                            <h2 class="text-white text-2xl font-black uppercase tracking-wider">Leaderboard</h2>
+                            <p class="text-brand-red text-[10px] font-black uppercase tracking-[2px]">
+                                Region: <span class="text-white">{{ selected_country.country_name|default:"Worldwide" }}</span>
+                            </p>
+                        </div>
+
+                        {% if user_page %}
+                            <a href="?page={{ user_page }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
+                               class="bg-xp-blue border-2 border-xp-blue-border px-4 py-2 text-white font-black text-xs uppercase hover:brightness-110 active:translate-y-[1px] shadow-[2px_2px_0px_#000] transition-all flex items-center gap-1.5 h-fit whitespace-nowrap">
+                                <span class="material-symbols-outlined text-xs">my_location</span>
+                                Find My Page Position
+                            </a>
+                        {% endif %}
                     </div>
 
-                    <form method="GET" class="flex items-center gap-2">
-                        <label class="text-white/40 text-[12px] font-black uppercase whitespace-nowrap">Filter
-                            Region:</label>
-                        <select name="country"
-                                class="bg-white border-2 border-black px-3 py-1 text-black font-black text-xs uppercase focus:outline-none cursor-pointer appearance-none w-auto min-w-[150px]
-                               bg-no-repeat bg-[right_0.4rem_center] bg-[length:1rem_1rem] pr-8">
-                            <option value="">Worldwide (All)</option>
-                            {% for c in countries %}
-                                <option value="{{ c.country_iso }}"
-                                        {% if request.GET.country == c.country_iso %}selected{% endif %}>
-                                    {{ c.country_name }}
-                                </option>
-                            {% endfor %}
-                        </select>
-                        <button type="submit"
+                    <div id="country-search-container" class="relative flex items-center gap-2 w-full md:w-auto justify-end z-50">
+                        <label class="text-white/40 text-[12px] font-black uppercase whitespace-nowrap">Filter Region:</label>
+
+                        <div class="relative w-full sm:w-[180px]">
+                            <input type="text" id="country-ajax-input"
+                                   class="bg-[#1a1a1a] border-2 border-black pl-3 pr-8 py-1 text-white font-black text-xs uppercase focus:outline-none w-full shadow-[inset_2px_2px_4px_rgba(0,0,0,0.6)] placeholder-white/20"
+                                   placeholder="SEARCH REGION..."
+                                   value="{% if selected_country %}{{ selected_country.country_name }}{% endif %}"
+                                   autocomplete="off">
+                            <input type="hidden" id="selected-country-iso" value="{{ selected_country.country_iso|default:'' }}">
+
+                            <button id="clear-country-btn" class="absolute right-2 top-1/2 -translate-y-1/2 text-white/40 hover:text-brand-red font-black text-xs {% if not selected_country %}hidden{% endif %} transition-colors">
+                                ✕
+                            </button>
+
+                            <div id="country-ajax-results" class="hidden absolute left-0 right-0 top-full mt-1 bg-[#1a1a1a] border-2 border-black w-full max-h-[200px] overflow-y-auto shadow-[5px_5px_0px_rgba(0,0,0,0.5)] custom-scrollbar text-left z-[100]">
+                            </div>
+                        </div>
+
+                        <button id="submit-country-search-btn" type="button"
                                 class="bg-xp-blue border-2 border-xp-blue-border px-4 py-1 text-white font-black text-xs uppercase hover:brightness-110 active:translate-y-[1px] shadow-[2px_2px_0px_#000] transition-all">
                             Apply
                         </button>
-                    </form>
+                    </div>
                 </div>
             </div>
 
@@ -60,8 +74,7 @@
                         <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">
                             Rank
                         </th>
-                        <th class="p-5 font-black text-[14px] tracking-widest border-b-[3px] border-black">Player Name
-                        </th>
+                        <th class="p-5 font-black text-[14px] tracking-widest border-b-[3px] border-black">Player Name</th>
                         <th class="p-5 w-24 text-center font-black text-[14px] tracking-widest border-b-[3px] border-black">
                             Flag
                         </th>
@@ -71,28 +84,28 @@
                     </tr>
                     </thead>
                     <tbody class="text-sm">
-                    {% for player in players %}
+                    {% for player in page_obj %}
                         <tr class="{% if player.user == request.user %} bg-xp-blue/20 {% endif %}">
 
+                            {% with absolute_rank=page_obj.start_index|add:forloop.counter0 %}
                             <td class="p-4 text-center border-b border-white/5 {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
-                            <span class="{% if forloop.counter <= 3 %}text-brand-red{% else %}text-white/30{% endif %} font-black text-2xl italic">
-                                #{{ forloop.counter }}
+                            <span class="{% if absolute_rank <= 3 %}text-brand-red{% else %}text-white/30{% endif %} font-black text-2xl">
+                                #{{ absolute_rank }}
                             </span>
                             </td>
+                            {% endwith %}
 
                             <td class="p-4 border-b border-white/5">
                                 <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden">
+                                    <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden flex items-center justify-center">
                                         {% if player.user.user_image %}
-                                            <img src="{{ player.user.user_image.url }}" alt="Avatar"
+                                            <img src="{{ player.user.user_image.url }}" alt="Profile picture"
                                                  class="w-full h-full object-cover">
                                         {% else %}
-                                            <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black">
-                                                IMG
-                                            </div>
+                                            <span class="material-symbols-outlined text-2xl text-white/30">account_circle</span>
                                         {% endif %}
                                     </div>
-                                    <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
+                                    <span data-testid="player-name" class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
                                     {{ player.user.username }}
                                 </span>
                                 </div>
@@ -100,9 +113,14 @@
 
                             <td class="p-4 text-center border-b border-white/5">
                                 <div class="flex justify-center">
-                                    <img src="{{ player.user.user_country.flag_image.url }}"
-                                         class="w-8 h-auto border-2 border-black/50 shadow-md"
-                                         title="{{ player.user.user_country.country_name }}">
+                                    {% if player.user.user_country.flag_image %}
+                                        <img src="{{ player.user.user_country.flag_image.url }}"
+                                             class="w-8 h-auto border-2 border-black/50 shadow-md">
+                                    {% else %}
+                                        <div class="w-10 h-10 bg-[#111] border-2 border-black/50 shadow-md flex items-center justify-center text-white/40">
+                                            <span class="material-symbols-outlined text-2xl">account_circle</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </td>
 
@@ -124,6 +142,130 @@
                     </tbody>
                 </table>
             </div>
+
+            {% if page_obj.has_other_pages %}
+                <div class="mt-6 flex justify-between items-center bg-black/10 border border-white/5 p-4">
+                    <div class="text-[11px] text-footer-text font-bold uppercase tracking-wider">
+                        PAGE {{ page_obj.number }} OF {{ page_obj.paginator.num_pages }}
+                    </div>
+                    <div class="flex gap-2">
+                        {% if page_obj.has_previous %}
+                            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
+                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </a>
+                        {% else %}
+                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-sm">chevron_left</span>
+                            </div>
+                        {% endif %}
+
+                        {% if page_obj.has_next %}
+                            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
+                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </a>
+                        {% else %}
+                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-sm">chevron_right</span>
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endif %}
+
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const input = document.getElementById('country-ajax-input');
+            const hiddenIso = document.getElementById('selected-country-iso');
+            const resultsDiv = document.getElementById('country-ajax-results');
+            const filterBtn = document.getElementById('submit-country-search-btn');
+            const clearBtn = document.getElementById('clear-country-btn');
+            let debounceTimer;
+
+            input.addEventListener('input', function () {
+                clearTimeout(debounceTimer);
+                const query = this.value.trim();
+
+                if (query.length < 1) {
+                    resultsDiv.classList.add('hidden');
+                    return;
+                }
+
+                debounceTimer = setTimeout(() => {
+                    fetch(`/api/countries/?q=${encodeURIComponent(query)}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            resultsDiv.innerHTML = '';
+                            if (data.length === 0) {
+                                resultsDiv.innerHTML = '<div class="p-2.5 text-[10px] font-black text-white/40 uppercase tracking-wider">No regions found</div>';
+                                resultsDiv.classList.remove('hidden');
+                                return;
+                            }
+
+                            data.forEach(country => {
+                                const row = document.createElement('div');
+                                row.className = "flex items-center gap-2.5 p-2.5 hover:bg-brand-red cursor-pointer transition-colors text-[11px] font-black uppercase text-white select-none";
+
+                                let imgTag = country.flag_image
+                                    ? `<img src="${country.flag_image}" class="w-5 h-auto flex-shrink-0">`
+                                    : `<span class="material-symbols-outlined text-xs text-white/40 flex-shrink-0">flag</span>`;
+
+                                row.innerHTML = `
+                                    <div class="w-5 flex-shrink-0 flex items-center justify-center">${imgTag}</div>
+                                    <span class="truncate flex-1">${country.country_name}</span>
+                                `;
+
+                                row.addEventListener('click', function () {
+                                    input.value = country.country_name;
+                                    hiddenIso.value = country.country_iso;
+                                    resultsDiv.classList.add('hidden');
+                                    clearBtn.classList.remove('hidden');
+                                });
+
+                                resultsDiv.appendChild(row);
+                            });
+                            resultsDiv.classList.remove('hidden');
+                        });
+                }, 300);
+            });
+
+            filterBtn.addEventListener('click', function() {
+                const iso = hiddenIso.value;
+                if (iso) {
+                    window.location.href = `?country=${iso}`;
+                } else if (input.value === "") {
+                    window.location.href = window.location.pathname;
+                }
+            });
+
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    e.preventDefault();
+                    filterBtn.click();
+                }
+            });
+
+            clearBtn.addEventListener('click', function() {
+                input.value = "";
+                hiddenIso.value = "";
+                window.location.href = window.location.pathname;
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!input.contains(e.target) && !resultsDiv.contains(e.target)) {
+                    resultsDiv.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+
+    <style>
+        .custom-scrollbar::-webkit-scrollbar { height: 4px; width: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.4); }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.1); }
+    </style>
 {% endblock %}
