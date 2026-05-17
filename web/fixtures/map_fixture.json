@@ -5,7 +5,7 @@
         "fields": {
             "map_name": "1v1_crete",
             "creator": "andreu",
-            "type": "Medium",
+            "type": "Big",
             "dimensions": 506.45
         }
     },
@@ -15,7 +15,7 @@
         "fields": {
             "map_name": "1v1_queen",
             "creator": "andreu",
-            "type": "Large",
+            "type": "Big",
             "dimensions": 690.49
         }
     },
