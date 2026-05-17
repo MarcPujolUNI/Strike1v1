@@ -125,7 +125,7 @@ class MatchAdmin(admin.ModelAdmin):
         super().save_model(request, record, form, change)
 
     def get_readonly_fields(self, request, record=None):
-        return ('winner', 'loser', 'date') if record else ()
+        return ('winner', 'loser', 'duration', 'date') if record else ()
 
     @admin.display(ordering='winner__user__username', description="Winner")
     def winner_display(self, record):
@@ -134,7 +134,6 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.display(ordering='loser__user__username', description="Loser")
     def loser_display(self, record):
         return record.loser.user.username if record.loser else f"{record.loser_name} (deleted)"
-
 
 @admin.register(MatchStats)
 class MatchStatsAdmin(admin.ModelAdmin):

@@ -92,7 +92,7 @@ class WebUser(AbstractUser):
     def update_matches_reviews_username(self):
         cs_user = self.corresponding_CS_user
         Review.objects.filter(reviewer_id=cs_user.pk).update(reviewer_name=self.username)
-        for match in Match.objects.filter(Q(winner_id=self.pk)|Q(loser_id=self.pk)).prefetch_related("users_match_stats"):
+        for match in Match.objects.filter(Q(winner_id=self.pk)|Q(loser_id=self.pk)).prefetch_related("matches_match_stats"):
             match.update_match_usernames(match.winner_id == cs_user.pk, cs_user.pk, self.username)
 
 class Review(models.Model):
@@ -162,7 +162,7 @@ class Match(models.Model):
     score_display = models.CharField(max_length=5, validators=[RegexValidator(regex=r"^(10-[0-9]|[0-9]-10)$")])
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
     date = models.DateTimeField(validators=[MaxValueValidator(now)])
-    log_file = models.FileField(upload_to="match_logs/", null=True, blank=True)
+    log_file = models.FileField(upload_to="match_logs/", null=True)
 
     class Meta:
         constraints = [models.CheckConstraint(condition=~Q(winner=F("loser")),name="winner_cannot_be_loser")]
@@ -173,11 +173,11 @@ class Match(models.Model):
 
     def update_match_usernames(self, mode, user_id, new_username):
         if mode == WIN_MODE:
-            self.winner_username = new_username
+            self.winner_name = new_username
         else:
-            self.loser_username = new_username
+            self.loser_name = new_username
         self.save()
-        self.users_match_stats.filter(user_id=user_id).update(username=new_username)
+        self.matches_match_stats.filter(user_id=user_id).update(username=new_username)
 
 class MatchStats(models.Model):
     match_stats_id = models.AutoField(primary_key=True)
