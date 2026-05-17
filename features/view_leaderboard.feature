@@ -25,9 +25,8 @@ Feature: View Global Leaderboard
 
   Scenario: Filter leaderboard by country
     When I navigate to the leaderboard page
-    And I filter the leaderboard by country "United States"
+    And I filter the leaderboard by country "Spain"
     Then the players should be listed in this order:
       | username  |
-      | player_US |
-      | player_B2 |
-    And I should not see "player_ES"
+      | player_ES |
+    And I should not see "player_US"

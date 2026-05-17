@@ -46,9 +46,18 @@ def step_impl(context):
 
 @when(u'I filter the leaderboard by country "{country_name}"')
 def step_impl(context, country_name):
-    country = Country.objects.get(country_name=country_name)
-    context.browser.select("country", country.country_iso)
-    context.browser.find_by_css('button[type="submit"]').first.click()
+    search_input = context.browser.find_by_css('#country-ajax-input').first
+    search_input.fill(country_name)
+
+    time.sleep(0.6)
+
+    context.browser.is_element_present_by_css('#country-ajax-results div', wait_time=3)
+    results = context.browser.find_by_css('#country-ajax-results div')
+    results.first.click()
+
+    apply_btn = context.browser.find_by_css('#submit-country-search-btn').first
+    apply_btn.click()
+
     time.sleep(0.5)
 
 

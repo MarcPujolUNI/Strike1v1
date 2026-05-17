@@ -27,7 +27,17 @@ def step_impl(context):
         context.browser.fill("email", row["email"])
         context.browser.fill("password1", row["password"])
         context.browser.fill("password2", row["password"])
-        context.browser.select("user_country", str(row["user_country"]))
+
+        country_input = context.browser.find_by_css('#country-ajax-input').first
+        country_input.fill(row["user_country_name"])
+
+        time.sleep(0.5)
+
+        context.browser.is_element_present_by_css('#country-ajax-results div', wait_time=3)
+        results = context.browser.find_by_css('#country-ajax-results div')
+        results.first.click()
+
+        time.sleep(0.2)
 
 
 @when(u'I submit the registration form')

@@ -29,23 +29,40 @@ def index(request):
 
 def leaderboard(request):
     country_iso = request.GET.get('country')
-
     countries = Country.objects.all().order_by('country_name')
-
     players = CounterUser.objects.all().order_by('-score')
+
     if country_iso:
         players = players.filter(user__user_country__country_iso=country_iso)
 
+    people_per_page = 10
+    paginator = Paginator(players, people_per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    user_page = None
+    if request.user.is_authenticated:
+        try:
+            current_counter_user = request.user.corresponding_CS_user
+
+            player_ids = list(players.values_list('pk', flat=True))
+
+            if current_counter_user.pk in player_ids:
+                user_index = player_ids.index(current_counter_user.pk)
+                user_page = (user_index // people_per_page) + 1
+        except Exception:
+            pass
+
     selected_country = None
     if country_iso:
-        selected_country = Country.objects.filter(country_iso=country_iso).first()
+        selected_country = countries.filter(country_iso=country_iso).first()
 
-    context = {
-        'players': players,
+    return render(request, 'pages/leaderboard.html', {
+        'page_obj': page_obj,
         'countries': countries,
         'selected_country': selected_country,
-    }
-    return render(request, 'pages/leaderboard.html', context)
+        'user_page': user_page,
+    })
 
 
 @login_required

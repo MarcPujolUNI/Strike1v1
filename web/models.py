@@ -43,7 +43,7 @@ class Country(models.Model):
         if not self.flag_image and self.get_flag_image(): self.delete()
 
     def get_flag_image(self):
-        url = f"https://flacdn.com/w80/{self.country_iso}.svg"
+        url = f"https://flagcdn.com/w80/{self.country_iso.lower()}.png"
         for _ in range(3):
             response = requests.get(url)
             if response.status_code == 200:
