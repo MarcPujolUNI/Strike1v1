@@ -84,7 +84,7 @@
                                 <div class="flex items-center gap-4">
                                     <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden">
                                         {% if player.user.user_image %}
-                                            <img src="{{ player.user.user_image.url }}" alt="Avatar"
+                                            <img src="{{ player.user.user_image.url }}" alt="Profile picture"
                                                  class="w-full h-full object-cover">
                                         {% else %}
                                             <div class="w-full h-full flex items-center justify-center text-white/10 text-[8px] font-black">
@@ -92,7 +92,7 @@
                                             </div>
                                         {% endif %}
                                     </div>
-                                    <span class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
+                                    <span data-testid="player-name" class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
                                     {{ player.user.username }}
                                 </span>
                                 </div>
@@ -100,9 +100,14 @@
 
                             <td class="p-4 text-center border-b border-white/5">
                                 <div class="flex justify-center">
-                                    <img src="{{ player.user.user_country.flag_image.url }}"
-                                         class="w-8 h-auto border-2 border-black/50 shadow-md"
-                                         title="{{ player.user.user_country.country_name }}">
+                                    {% if player.user.user_country.flag_image %}
+                                        <img src="{{ player.user.user_country.flag_image.url }}"
+                                             class="w-8 h-auto border-2 border-black/50 shadow-md">
+                                    {% else %}
+                                        <div class="w-10 h-10 bg-[#111] border-2 border-black/50 shadow-md flex items-center justify-center text-white/40">
+                                            <span class="material-symbols-outlined text-2xl">account_circle</span>
+                                        </div>
+                                    {% endif %}
                                 </div>
                             </td>
 

@@ -28,7 +28,9 @@
                     {% if user.user_image %}
                         <img src="{{ user.user_image.url }}" alt="Profile Picture" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-xs uppercase">No IMG</div>
+                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
+                            <span class="material-symbols-outlined text-4xl">account_circle</span>
+                        </div>
                     {% endif %}
                 </div>
                 <div>

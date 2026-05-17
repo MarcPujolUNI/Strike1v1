@@ -8,7 +8,7 @@ def main():
     for i, country in enumerate(data,start=1):
         name = country["name"]["common"] if country["cca2"] != "AQ" else "Unknown"
         country_fixtures.append({"model": "web.country", "pk": i, "fields":
-            {"country_iso": country["cca2"], "name": name}})
+            {"country_iso": country["cca2"], "country_name": name}})
 
     with open('country_fixture.json', 'w', encoding='utf-8') as file:
         json.dump(country_fixtures, file, indent=4, ensure_ascii=False)
