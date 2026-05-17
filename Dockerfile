@@ -1,4 +1,4 @@
-# Use Python 3.13 as base image
+# Use Python 3.14 as base image
 FROM python:3.14-slim
 
 # Install uv
