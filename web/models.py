@@ -39,22 +39,16 @@ class Country(models.Model):
 
     @staticmethod
     def get_default_country():
-        return 1
-        #return DEFAULT_COUNTRY
-
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-        if not self.flag_image and not self.get_flag_image():
-            self.delete()
+        return DEFAULT_COUNTRY
 
     def get_flag_image(self):
-        url = f"https://flagcdn.com/w80/{self.country_iso.lower()}.png"
-        for _ in range(3):
+        url = f"https://flagcdn.com/{self.country_iso.lower()}.svg"
+        for _ in range(5):
             response = requests.get(url)
             if response.status_code == 200:
-                self.flag_image.save(f"{self.country_iso}.png", ContentFile(response.content), save=True)
-                return True
-        return False
+                previous = self.flag_image
+                self.flag_image.save(f"{self.country_iso}.svg", ContentFile(response.content), save=True)
+                break
 
 class WebUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, validators=[UnicodeUsernameValidator(), MinLengthValidator(3)])
