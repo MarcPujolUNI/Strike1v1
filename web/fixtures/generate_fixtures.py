@@ -6,7 +6,7 @@ def main():
     country_fixtures = []
 
     for i, country in enumerate(data,start=1):
-        name = country["name"]["common"] if country["cca2"] != "AQ" else "Unknown"
+        name = country["name"]["common"] if country["cca2"] != "AQ" else "Undefined"
         country_fixtures.append({"model": "web.country", "pk": i, "fields":
             {"country_iso": country["cca2"], "country_name": name}})
 
