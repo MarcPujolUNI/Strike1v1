@@ -45,7 +45,6 @@ class Country(models.Model):
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
         if not self.flag_image and not self.get_flag_image():
-            print("Hola")
             self.delete()
 
     def get_flag_image(self):
@@ -144,10 +143,9 @@ class CounterUser(models.Model):
                 local_position = LocalRanking.objects.filter(country=country).aggregate(max_position=Coalesce(Max("local_position"), 0))["max_position"] + 1
                 GlobalRanking.objects.create(counter_user=self, country=country, global_position=global_position)
                 LocalRanking.objects.create(counter_user=self, country=country, local_position=local_position)
-        else:
-            print("Hola")
-            update_global_ranking()
-            update_local_ranking(self.user.user_country_id)
+        #else:
+            #update_global_ranking()
+            #update_local_ranking(self.user.user_country_id)
 
     def update_parameters(self, stats, mode):
         self.score += stats.points

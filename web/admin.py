@@ -13,7 +13,7 @@ class CountryAdmin(admin.ModelAdmin):
     list_display = ('country_name', 'country_iso')
     list_per_page = 10
     ordering = ('country_name',)
-    #readonly_fields = ('country_name', 'country_iso')
+    readonly_fields = ('country_name', 'country_iso')
     search_fields = ('country_name', 'country_iso')
 
     def get_actions(self, request):
@@ -22,7 +22,7 @@ class CountryAdmin(admin.ModelAdmin):
         return actions
 
     def has_add_permission(self, request):
-        return True
+        return False
 
 @admin.register(Map)
 class MapAdmin(admin.ModelAdmin):
