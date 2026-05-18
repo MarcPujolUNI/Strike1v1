@@ -53,7 +53,7 @@ class Country(models.Model):
 class WebUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, validators=[UnicodeUsernameValidator(), MinLengthValidator(3)])
     email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
-    user_country = models.ForeignKey(Country, on_delete=models.SET_NULL, related_name="country_users", blank=True, null=True)
+    user_country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="country_users", null=True, default=Country.get_default_country())
     user_image = models.ImageField(upload_to="user_images/", blank=True)
 
     class Meta:
@@ -80,13 +80,13 @@ class WebUser(AbstractUser):
 
     def update_rankings_countries(self, old_country_id):
         cs_user = self.corresponding_CS_user
-        new_country_id = Country.get_default_country() if not self.user_country else self.user_country.country_id
+        new_country_id = self.user_country.country_id
         global_ranking, local_ranking = cs_user.corresponding_global_ranking, cs_user.corresponding_local_ranking
         global_ranking.country_id, local_ranking.country_id = new_country_id, new_country_id
         global_ranking.save()
         local_ranking.local_position = None
         local_ranking.save()
-        if old_country_id: update_local_ranking(old_country_id)
+        update_local_ranking(old_country_id)
         update_local_ranking(new_country_id)
 
     def update_matches_reviews_username(self):
@@ -212,7 +212,7 @@ class MatchStats(models.Model):
 class GlobalRanking(models.Model):
     global_ranking_id = models.AutoField(primary_key=True)
     counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking")
-    country = models.ForeignKey(Country, on_delete=models.SET_NULL, related_name="global_country_counter_users", null=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="global_country_counter_users", default=Country.get_default_country())
     global_position = models.IntegerField(unique=True, validators=[MinValueValidator(1)], null=True)
 
     class Meta:
