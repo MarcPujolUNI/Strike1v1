@@ -53,7 +53,7 @@ class Country(models.Model):
 class WebUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, validators=[UnicodeUsernameValidator(), MinLengthValidator(3)])
     email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
-    user_country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="country_users", null=True, default=Country.get_default_country())
+    user_country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="country_users", blank=True, null=True, default=Country.get_default_country())
     user_image = models.ImageField(upload_to="user_images/", blank=True)
 
     class Meta:
@@ -137,9 +137,6 @@ class CounterUser(models.Model):
                 local_position = LocalRanking.objects.filter(country=country).aggregate(max_position=Coalesce(Max("local_position"), 0))["max_position"] + 1
                 GlobalRanking.objects.create(counter_user=self, country=country, global_position=global_position)
                 LocalRanking.objects.create(counter_user=self, country=country, local_position=local_position)
-        #else:
-            #update_global_ranking()
-            #update_local_ranking(self.user.user_country_id)
 
     def update_parameters(self, stats, mode):
         self.score += stats.points
