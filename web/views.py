@@ -77,8 +77,15 @@ def profile_edit(request):
 
             user_form = UserProfileForm(data, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
+
             if user_form.is_valid():
-                user_form.save()
+                user = user_form.save(commit=False)
+
+                if 'delete_image' in request.POST:
+                    if user.user_image:
+                        user.user_image.delete(save=False)
+
+                user.save()
                 messages.success(request, 'Profile updated successfully.')
                 return redirect('web:profile')
             else:

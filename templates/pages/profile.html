@@ -34,7 +34,7 @@
                         <div class="w-full h-full border-[3px] border-black bg-[#111] shadow-[4px_4px_0px_#000] overflow-hidden">
                             {% if user.user_image %}
                                 <img src="{{ user.user_image.url }}" id="sidebar-avatar-preview"
-                                     class="w-full h-full object-cover group-hover:opacity-50 transition-opacity">
+                                     class="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Profile image">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center text-white/40">
                                     <span class="material-symbols-outlined text-3xl">account_circle</span>
@@ -46,7 +46,20 @@
                         </div>
                     </div>
 
-                    <span class="text-white font-black text-sm uppercase">{{ user.username }}</span>
+                    {% if user.user_image %}
+                        <form method="POST" class="mb-4 w-full flex justify-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_profile" value="1">
+                            <input type="hidden" name="delete_image" value="1">
+                            <button type="submit"
+                                    class="xp-btn-red px-3 py-1 border-2 border-black text-white font-black text-[10px] uppercase shadow-[3px_3px_0px_#000] flex items-center gap-1.5 transition-all active:translate-y-[1px] active:shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-[14px]">delete</span>
+                                Delete Image
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <span class="text-white font-black text-l normal-case">{{ user.username }}</span>
 
                     <div class="flex items-center mt-2 gap-2">
                         {% if user.user_country and user.user_country.flag_image %}
