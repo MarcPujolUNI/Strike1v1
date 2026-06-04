@@ -99,7 +99,7 @@
             <div class="flex flex-row gap-4 pt-6 border-t border-white/5">
                 <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}"
                    class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center">
-                    &lt; Return
+                    &lt; Return to the list
                 </a>
                 {% if is_author %}
                 <button onclick="document.getElementById('read-mode').classList.add('hidden'); document.getElementById('edit-mode').classList.remove('hidden');"
