@@ -103,9 +103,12 @@ def profile_edit(request):
             'class': 'bg-white border-2 border-black px-3 py-2 text-black font-black text-xs focus:outline-none w-full shadow-[inset_2px_2px_0px_rgba(0,0,0,0.2)] mb-3'
         })
 
+    counter_user = getattr(request.user, 'corresponding_CS_user', None)
+
     return render(request, 'pages/profile.html', {
         'user_form': user_form,
         'password_form': password_form,
+        'counter_user': counter_user,
     })
 
 
