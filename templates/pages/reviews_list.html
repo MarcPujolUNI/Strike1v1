@@ -88,7 +88,7 @@
                     <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
                         <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-4">
+                            <div class="flex items-center gap-4 min-w-0 flex-1 mr-4">
                                 <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
                                     {% if my_review.reviewer.user_image %}
                                         <img src="{{ my_review.reviewer.user_image.url }}"
@@ -99,8 +99,8 @@
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="flex flex-col justify-center">
-                                    <div class="text-white font-black text-sm uppercase tracking-tight">{{ my_review.title }}</div>
+                                <div class="flex flex-col justify-center min-w-0 flex-1">
+                                    <div class="text-white font-black text-sm uppercase tracking-tight truncate">{{ my_review.title }}</div>
                                     <div class="flex text-yellow-500 gap-1 items-center">
                                         {% for i in "12345" %}
                                             <span class="material-symbols-outlined text-2xl !leading-none flex items-center"
@@ -116,8 +116,7 @@
                             </div>
                         </div>
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-xs italic line-clamp-2 leading-relaxed">
-                                "{{ my_review.description }}"</p>
+                            <p class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
                         </div>
                     </div>
                 </div>
@@ -132,12 +131,12 @@
                 {% for r in other_reviews %}
                     <div class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter">{{ r.reviewer.username }}</span>
-                                <span class="text-white font-bold text-[11px] uppercase">{{ r.title }}</span>
+                        <div class="flex justify-between items-center mb-2 gap-4">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                <span class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
                             </div>
-                            <div class="flex text-yellow-600 items-center">
+                            <div class="flex text-yellow-600 items-center shrink-0">
                                 {% for i in "12345" %}
                                     {% if forloop.counter <= r.rating %}
                                         <span class="material-symbols-outlined text-[16px] !leading-none flex items-center"
@@ -146,8 +145,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <p class="text-footer-text text-[11px] italic line-clamp-1 opacity-70 group-hover:opacity-100 leading-none">
-                            "{{ r.description }}"</p>
+                        <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-1 leading-normal">"{{ r.description }}"</p>
                     </div>
                 {% empty %}
                     {% if not my_review %}
