@@ -34,7 +34,7 @@
                     {% endif %}
                 </div>
                 <div>
-                    <h2 class="text-white text-2xl font-black uppercase tracking-wider mb-1">{{ user.username }}</h2>
+                    <h2 class="text-white text-2xl font-black normal-case tracking-wider mb-1">{{ user.username }}</h2>
                     <div class="flex items-center gap-2">
                         {% if user.user_country.flag_image %}
                             <img src="{{ user.user_country.flag_image.url }}" class="w-5 h-auto shadow-sm" alt="{{ user.user_country.country_iso }}">
