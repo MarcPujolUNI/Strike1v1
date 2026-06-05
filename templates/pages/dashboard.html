@@ -28,11 +28,13 @@
                     {% if user.user_image %}
                         <img src="{{ user.user_image.url }}" alt="Profile Picture" class="w-full h-full object-cover">
                     {% else %}
-                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40 font-black text-xs uppercase">No IMG</div>
+                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
+                            <span class="material-symbols-outlined text-4xl">account_circle</span>
+                        </div>
                     {% endif %}
                 </div>
                 <div>
-                    <h2 class="text-white text-2xl font-black uppercase tracking-wider mb-1">{{ user.username }}</h2>
+                    <h2 class="text-white text-2xl font-black normal-case tracking-wider mb-1">{{ user.username }}</h2>
                     <div class="flex items-center gap-2">
                         {% if user.user_country.flag_image %}
                             <img src="{{ user.user_country.flag_image.url }}" class="w-5 h-auto shadow-sm" alt="{{ user.user_country.country_iso }}">

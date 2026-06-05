@@ -41,7 +41,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'web.apps.WebConfig'
+    'web.apps.WebConfig',
+    'behave_django',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -53,6 +55,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'web.middleware.RedirectAdminToPanelMiddleware',
 ]
 
 ROOT_URLCONF = 'Strike1v1.urls'

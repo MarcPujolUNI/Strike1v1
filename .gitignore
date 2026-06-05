@@ -59,6 +59,7 @@ cover/
 *.log
 local_settings.py
 staticfiles/
+screenshots/
 
 # Flask stuff:
 instance/
