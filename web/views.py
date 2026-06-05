@@ -3,15 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from .models import CounterUser, Country, Match, WebUser, Review
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from web.forms import SignUpForm, UserProfileForm
 from django.contrib.auth import update_session_auth_hash, logout
 from web.forms import SignUpForm, UserProfileForm, ReviewForm
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
 
 
 class SignUpView(CreateView):
@@ -129,19 +126,6 @@ def delete_account(request):
 
 def reviews(request):
     return render(request, 'pages/reviews.html')
-
-
-def user_search_ajax(request):
-    query = request.GET.get('q', '')
-    if query:
-        users = WebUser.objects.filter(username__icontains=query)[:5]
-        results = [{
-            'username': u.username,
-            'url': reverse('web:user_reviews_list', kwargs={'username': u.username})
-        } for u in users]
-    else:
-        results = []
-    return JsonResponse({'results': results})
 
 
 def user_reviews_list(request, username):
