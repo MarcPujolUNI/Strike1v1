@@ -235,7 +235,6 @@
     </div>
 
     <script>
-        // 1. Avatar management
         const avatarForm = document.getElementById('avatar-form');
         const avatarInput = avatarForm ? avatarForm.querySelector('input[type="file"]') : null;
         if (avatarInput) {
@@ -248,7 +247,6 @@
             });
         }
 
-        // 2. Profile blocked logic
         const editProfileBtn = document.getElementById('edit-profile-btn');
         const profileForm = document.getElementById('profile-form');
         const saveProfileContainer = document.getElementById('save-button-container');
@@ -263,6 +261,25 @@
             input.disabled = true;
             input.classList.add('cursor-not-allowed');
         });
+
+        const mapSelect = document.querySelector('select[name="favourite_map"]');
+        if (mapSelect) {
+            const firstOption = mapSelect.options[0];
+            if (firstOption && firstOption.value === "") {
+                firstOption.disabled = true;
+                firstOption.hidden = true;
+            }
+
+            function updateMapStyle() {
+                if (!mapSelect.value) {
+                    mapSelect.classList.add('favourite-map-placeholder');
+                } else {
+                    mapSelect.classList.remove('favourite-map-placeholder');
+                }
+            }
+            updateMapStyle();
+            mapSelect.addEventListener('change', updateMapStyle);
+        }
 
         editProfileBtn.addEventListener('click', function () {
             if (profileInputs[0].disabled) {
@@ -279,7 +296,6 @@
             }
         });
 
-        // 3. Password blocked logic
         const editPassBtn = document.getElementById('edit-password-btn');
         const passwordForm = document.getElementById('password-form');
         const savePassContainer = document.getElementById('password-save-container');
@@ -306,7 +322,6 @@
             }
         });
 
-        // 4. Elimination confirmation
         function toggleDeleteModal(show) {
             const modal = document.getElementById('delete-modal');
             if (show) modal.classList.remove('hidden');
