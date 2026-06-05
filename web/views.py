@@ -9,6 +9,8 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.http import JsonResponse
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
 
 
 class SignUpView(CreateView):
@@ -172,7 +174,19 @@ def user_reviews_list(request, username):
     else:
         form = ReviewForm(instance=my_review)
 
-    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    sort_param = request.GET.get('sort', 'date_desc')
+
+    if sort_param == 'date_asc':
+        order_by_criteria = ['last_modified', 'review_id']
+    elif sort_param == 'stars_desc':
+        order_by_criteria = ['-rating', '-last_modified', '-review_id']
+    elif sort_param == 'stars_asc':
+        order_by_criteria = ['rating', '-last_modified', '-review_id']
+    else:
+        order_by_criteria = ['-last_modified', '-review_id']
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by(*order_by_criteria)
+
     if request.user.is_authenticated:
         all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
 
@@ -186,6 +200,7 @@ def user_reviews_list(request, username):
         'form': form,
         'other_reviews': other_reviews_page,
         'has_played_together': has_played_together,
+        'current_sort': sort_param,
     })
 
 
