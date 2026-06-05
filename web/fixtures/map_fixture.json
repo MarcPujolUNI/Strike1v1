@@ -1,0 +1,32 @@
+[
+    {
+        "model": "web.map",
+        "pk": 1,
+        "fields": {
+            "map_name": "1v1_crete",
+            "creator": "andreu",
+            "type": "Big",
+            "dimensions": 506.45
+        }
+    },
+    {
+        "model": "web.map",
+        "pk": 2,
+        "fields": {
+            "map_name": "1v1_queen",
+            "creator": "andreu",
+            "type": "Big",
+            "dimensions": 690.49
+        }
+    },
+    {
+        "model": "web.map",
+        "pk": 3,
+        "fields": {
+            "map_name": "1v1_marc",
+            "creator": "marc",
+            "type": "Small",
+            "dimensions": 167.94
+        }
+    }
+]

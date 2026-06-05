@@ -6,21 +6,20 @@ from django.urls import reverse
 from django.http import HttpResponseRedirect
 from .models import *
 
-# Arreglar tema de rankings de admin, quan tingui la lògica de ranking fer que el camp de ranking quedi amagat en creacio.
-# Afegir django file generate amb llista mapes counter + llista paisos amb imatge i iso d'algun lloc + api + altres essencials.
-# descomentar codi countries no es poden borrar
 admin.site.unregister(Group)
 
 @admin.register(Country)
 class CountryAdmin(admin.ModelAdmin):
     list_display = ('country_name', 'country_iso')
-    list_editable = ('country_iso',)
-    list_per_page = 20
+    list_per_page = 10
     ordering = ('country_name',)
+    readonly_fields = ('country_name', 'country_iso')
     search_fields = ('country_name', 'country_iso')
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
 
     def has_add_permission(self, request):
         return False
@@ -28,11 +27,19 @@ class CountryAdmin(admin.ModelAdmin):
 @admin.register(Map)
 class MapAdmin(admin.ModelAdmin):
     list_display = ('map_name', 'creator', 'type', 'dimensions')
-    list_editable = ('creator', 'type', 'dimensions')
     list_filter = ('creator', 'type')
-    list_per_page = 20
+    list_per_page = 10
     ordering = ('map_name',)
+    readonly_fields = ('map_name', 'creator', 'type', 'dimensions')
     search_fields = ('map_name', 'creator', 'type', 'dimensions')
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def has_add_permission(self, request):
+        return False
 
 @admin.register(WebUser)
 class WebUserAdmin(auth_admin.UserAdmin):
@@ -41,11 +48,11 @@ class WebUserAdmin(auth_admin.UserAdmin):
     autocomplete_fields = ('user_country',)
     fieldsets = ((None, {'fields': ('username', 'password', 'email', 'user_country', 'user_image')}),('Further options', {'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions', 'last_login', 'date_joined')}),)
     list_display = ('username', 'email', 'user_country')
-    list_editable = ('email', 'user_country')
     list_filter = ('user_country',)
-    list_per_page = 20
+    list_per_page = 10
     list_select_related = ('user_country',)
     ordering = ('username',)
+    readonly_fields = ('last_login', 'date_joined')
     search_fields = ('username', 'email', 'user_country__country_name')
 
     def response_add(self, request, obj, post_url_continue=None):
@@ -56,15 +63,14 @@ class ReviewAdmin(admin.ModelAdmin):
     autocomplete_fields = ('reviewer', 'reviewee')
     fields = ('reviewer', 'reviewee', 'rating', 'title', 'description')
     list_display = ('reviewer_display', 'reviewee', 'rating', 'title', 'short_description')
-    list_editable = ('rating', 'title')
-    list_filter = ('reviewee', 'rating')
-    list_per_page = 20
+    list_filter = ('reviewer', 'reviewee', 'rating')
+    list_per_page = 10
     list_select_related = ('reviewer', 'reviewee',)
     ordering = ('reviewer__username', 'reviewee__username')
     search_fields = ('reviewer__username', 'reviewee__username', 'rating', 'title')
 
     def get_readonly_fields(self, request, record=None):
-        return ('reviewee',) if record else ()
+        return ('reviewer', 'reviewee',) if record else ()
 
     def save_model(self, request, record, form, change):
         if record.reviewer: record.reviewer_name = record.reviewer.username
@@ -82,15 +88,17 @@ class ReviewAdmin(admin.ModelAdmin):
 class CounterUserAdmin(admin.ModelAdmin):
     autocomplete_fields = ('user',)
     list_display = ('user', 'favourite_map', 'wins', 'losses', 'kills', 'deaths', 'score')
-    list_editable = ('favourite_map', 'wins', 'losses', 'kills', 'deaths', 'score')
     list_filter = ('favourite_map',)
-    list_per_page = 20
+    list_per_page = 10
     list_select_related = ('user', 'favourite_map',)
     ordering = ('user__username',)
     search_fields = ('user__username', 'favourite_map__map_name', 'score')
 
+    class Media:
+        css = {"all": ("css/hide_delete.css",)}
+
     def get_readonly_fields(self, request, record=None):
-        return ('user',) if record else ()
+        return ('user', 'favourite_map') if record else ()
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -105,8 +113,8 @@ class MatchAdmin(admin.ModelAdmin):
     autocomplete_fields = ('winner', 'loser')
     fields = ('winner', 'loser', 'score_display', 'duration', 'date')
     list_display = ('winner_display', 'loser_display', 'score_display', 'duration', 'date')
-    list_filter = ('winner','loser')
-    list_per_page = 20
+    list_filter = ('winner', 'loser')
+    list_per_page = 10
     list_select_related = ('winner', 'winner__user', 'loser', 'loser__user')
     ordering = ('date','winner__user__username', 'loser__user__username')
     search_fields = ('winner__user__username','loser__user__username', 'duration','date')
@@ -117,7 +125,7 @@ class MatchAdmin(admin.ModelAdmin):
         super().save_model(request, record, form, change)
 
     def get_readonly_fields(self, request, record=None):
-        return ('winner', 'loser') if record else ()
+        return ('winner', 'loser', 'duration', 'date') if record else ()
 
     @admin.display(ordering='winner__user__username', description="Winner")
     def winner_display(self, record):
@@ -127,17 +135,27 @@ class MatchAdmin(admin.ModelAdmin):
     def loser_display(self, record):
         return record.loser.user.username if record.loser else f"{record.loser_name} (deleted)"
 
-
 @admin.register(MatchStats)
 class MatchStatsAdmin(admin.ModelAdmin):
     autocomplete_fields = ('user', 'match')
-    fields = ('user', 'kills', 'match', 'deaths')
-    list_display = ('user_display', 'match', 'kills', 'deaths')
+    fields = ('user', 'kills', 'match', 'deaths', 'points')
+    list_display = ('user_display', 'match', 'kills', 'deaths', 'points')
     list_filter = ('user',)
-    list_per_page = 20
+    list_per_page = 10
     list_select_related = ('user', 'user__user', 'match')
     ordering = ('match', 'user__user__username')
     search_fields = ('user__user__username', 'match')
+
+    class Media:
+        css = {"all": ("css/hide_delete.css",)}
+
+    def get_actions(self, request):
+        actions = super().get_actions(request)
+        actions.pop("delete_selected", None)
+        return actions
+
+    def get_readonly_fields(self, request, record=None):
+        return ('user', 'match') if record else ()
 
     def save_model(self, request, record, form, change):
         if record.user: record.username = record.user.user.username
@@ -151,22 +169,19 @@ class MatchStatsAdmin(admin.ModelAdmin):
 class GlobalRankingAdmin(admin.ModelAdmin):
     autocomplete_fields = ('counter_user',)
     list_display = ('counter_user', 'score', 'country', 'global_position')
-    list_filter = ('counter_user__user__user_country',)
-    list_per_page = 20
-    list_select_related = ('counter_user','counter_user__user', 'counter_user__user__user_country')
+    list_filter = ('country',)
+    list_per_page = 10
+    list_select_related = ('counter_user','counter_user__user')
     ordering = ('global_position',)
-    search_fields = ('counter_user__user__username','counter_user__user__user_country__country_name', 'global_position')
+    readonly_fields = ('country', 'counter_user', 'global_position')
+    search_fields = ('counter_user__user__username','country__country_name', 'global_position')
 
-    def get_readonly_fields(self, request, record=None):
-        return ('global_position',) if record else ()
+    class Media:
+        css = {"all": ("css/hide_delete.css",)}
 
     @admin.display(ordering='counter_user__score')
     def score(self, record):
         return record.counter_user.score
-
-    @admin.display(ordering='counter_user__user__user_country__country_name')
-    def country(self, record):
-        return record.counter_user.user.user_country
 
     def get_actions(self, request):
         actions = super().get_actions(request)
@@ -181,17 +196,14 @@ class LocalRankingAdmin(admin.ModelAdmin):
     autocomplete_fields = ('counter_user',)
     list_display = ('counter_user', 'score', 'country', 'local_position')
     list_filter = ('country',)
-    list_per_page = 20
+    list_per_page = 10
     list_select_related = ('counter_user','counter_user__user')
     ordering = ('country', 'local_position',)
-    readonly_fields = ('country',)
+    readonly_fields = ('country', 'counter_user', 'local_position')
     search_fields = ('counter_user__user__username','country__country_name', 'local_position')
 
-    def get_readonly_fields(self, request, record=None):
-        return ('local_position','country') if record else ()
-
-    def get_fields(self, request, record=None):
-        return ('counter_user', 'local_position') if record is None else ('counter_user', 'country', 'local_position')
+    class Media:
+        css = {"all": ("css/hide_delete.css",)}
 
     @admin.display(ordering='counter_user__score')
     def score(self, record):

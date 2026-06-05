@@ -1,0 +1,355 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - My Profile {% endblock %}
+
+{% block content %}
+    <div class="w-full max-w-[900px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+
+        <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black text-white">
+            <div class="flex items-center text-[13px] font-bold drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
+                    S
+                </div>
+                Control Panel - User Profile - {{ user.username }}
+            </div>
+            <div class="flex gap-1">
+                <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span
+                    class="ctrl-display close">x</span>
+            </div>
+        </div>
+
+        <div class="bg-card-dark border-x border-b border-black flex flex-col md:flex-row min-h-[600px]">
+
+            <div class="w-full md:w-[220px] bg-black/40 border-b md:border-b-0 md:border-r-[3px] border-black p-4">
+                <div class="mb-6 flex flex-col items-center border-b-[2px] border-black/50 pb-4">
+
+                    <form method="POST" enctype="multipart/form-data" id="avatar-form" class="hidden">
+                        {% csrf_token %}
+                        <input type="hidden" name="update_profile" value="1">
+                        {{ user_form.user_image }}
+                    </form>
+
+                    <div class="relative group cursor-pointer w-24 h-24 mb-3"
+                         onclick="document.getElementById('avatar-upload').click();">
+                        <div class="w-full h-full border-[3px] border-black bg-[#111] shadow-[4px_4px_0px_#000] overflow-hidden">
+                            {% if user.user_image %}
+                                <img src="{{ user.user_image.url }}" id="sidebar-avatar-preview"
+                                     class="w-full h-full object-cover group-hover:opacity-50 transition-opacity" alt="Profile image">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center text-white/40">
+                                    <span class="material-symbols-outlined text-3xl">account_circle</span>
+                                </div>
+                            {% endif %}
+                        </div>
+                        <div class="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity bg-brand-red/10">
+                            <span class="material-symbols-outlined text-white text-2xl">photo_camera</span>
+                        </div>
+                    </div>
+
+                    {% if user.user_image %}
+                        <form method="POST" class="mb-4 w-full flex justify-center">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_profile" value="1">
+                            <input type="hidden" name="delete_image" value="1">
+                            <button type="submit"
+                                    class="xp-btn-red px-3 py-1 border-2 border-black text-white font-black text-[10px] uppercase shadow-[3px_3px_0px_#000] flex items-center gap-1.5 transition-all active:translate-y-[1px] active:shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-[14px]">delete</span>
+                                Delete Image
+                            </button>
+                        </form>
+                    {% endif %}
+
+                    <span class="text-white font-black text-l normal-case">{{ user.username }}</span>
+
+                    <div class="flex items-center mt-2 gap-2">
+                        {% if user.user_country and user.user_country.flag_image %}
+                            <div class="inline-flex items-center justify-center w-6 h-4 overflow-hidden flex-shrink-0 border border-white/10 shadow-[1px_1px_0px_rgba(0,0,0,0.3)]">
+                                <img src="{{ user.user_country.flag_image.url }}" alt="{{ user.user_country.country_name }}" class="w-full h-full object-cover">
+                            </div>
+                        {% else %}
+                            <span class="material-symbols-outlined text-base text-white/20 select-none flex-shrink-0">flag</span>
+                        {% endif %}
+                        <span class="text-footer-text text-[10px] font-black uppercase tracking-wider truncate">
+                            Region: <span class="text-white/80">{{ user.user_country.country_name|default:"No country" }}</span>
+                        </span>
+                    </div>
+                </div>
+
+                <nav class="flex flex-col gap-2">
+                    <a href="{% url 'web:profile' %}"
+                       class="bg-brand-red border-2 border-black px-3 py-2 text-white font-black text-xs uppercase shadow-[2px_2px_0px_#000] flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[18px]">person</span>
+                        My Profile
+                    </a>
+                    <a href="{% url 'web:matches' %}"
+                       class="border-2 border-transparent px-3 py-2 text-white/60 font-bold text-xs uppercase hover:text-white hover:border-white/20 transition-all flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[18px]">history</span>
+                        Match History
+                    </a>
+                    <a href="{% url 'web:user_reviews_list' username=user.username %}"
+                       class="border-2 border-transparent px-3 py-2 text-white/60 font-bold text-xs uppercase hover:text-white hover:border-white/20 transition-all flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[18px]">forum</span>
+                        My Reviews
+                    </a>
+                </nav>
+            </div>
+
+            <div class="flex-1 p-6 md:p-8">
+
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="mb-6 p-3 border-2 flex items-center gap-3 font-black text-[11px] uppercase tracking-wider
+                    {% if message.tags == 'success' %}bg-[#003300]/80 border-[#00ff00] text-[#00ff00]{% else %}bg-[#330000]/80 border-brand-red text-brand-red{% endif %}">
+                            <span class="material-symbols-outlined text-sm">{% if message.tags == 'success' %}
+                                verified{% else %}warning{% endif %}</span>
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                {% endif %}
+
+                <div class="space-y-10">
+
+                    <div class="bg-black/40 border-[3px] border-black p-6 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+                        <div class="flex justify-between items-center mb-6 border-b-2 border-white/10 pb-2">
+                            <h2 class="text-white text-xl font-black uppercase tracking-wider">User profile information</h2>
+                            <button type="button" id="edit-profile-btn"
+                                    class="xp-btn xp-btn-blue px-4 py-1.5 text-[10px] font-black uppercase flex items-center gap-2 shadow-[3px_3px_0px_#000]">
+                                <span class="material-symbols-outlined text-[14px]">lock_open</span>
+                                Edit Profile Info
+                            </button>
+                        </div>
+
+                        <form method="POST" id="profile-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="update_profile" value="1">
+
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label class="text-white/50 text-[10px] font-black uppercase mb-1 block">Username</label>
+                                    <div class="input-wrapper opacity-50 transition-all duration-300"
+                                         id="username-wrapper">
+                                        {{ user_form.username }}
+                                    </div>
+                                </div>
+                                <div>
+                                    <label class="text-white/50 text-[10px] font-black uppercase mb-1 block">Email
+                                        Address</label>
+                                    <div class="input-wrapper opacity-50 transition-all duration-300"
+                                         id="email-wrapper">
+                                        {{ user_form.email }}
+                                    </div>
+                                </div>
+                                <div class="md:col-span-2">
+                                    <label class="text-white/50 text-[10px] font-black uppercase mb-1 block">Favourite
+                                        Map</label>
+                                    <div class="input-wrapper opacity-50 transition-all duration-300" id="map-wrapper">
+                                        {{ user_form.favourite_map }}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div id="save-button-container" class="hidden mt-4">
+                                <button type="submit"
+                                        class="bg-brand-red border-2 border-white text-white font-black px-6 py-2 text-xs uppercase shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-[2px_2px_0px_#000] transition-all">
+                                    Save Changes
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-black/40 border-[3px] border-black p-6 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+                        <div class="flex justify-between items-center mb-6 border-b-2 border-white/10 pb-2">
+                            <h2 class="text-brand-red text-xl font-black uppercase tracking-wider">Password Change</h2>
+                            <button type="button" id="edit-password-btn"
+                                    class="xp-btn xp-btn-blue px-4 py-1.5 text-[10px] font-black uppercase flex items-center gap-2 shadow-[3px_3px_0px_#000]">
+                                <span class="material-symbols-outlined text-[14px]">lock_open</span>
+                                Edit Password
+                            </button>
+                        </div>
+
+                        <form method="POST" id="password-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="change_password" value="1">
+                            <div class="security-inputs opacity-50 transition-all duration-300" id="password-wrapper">
+                                {{ password_form.as_p }}
+                            </div>
+                            <div id="password-save-container" class="hidden">
+                                <button type="submit"
+                                        class="mt-4 bg-transparent border-2 border-brand-red px-6 py-2 text-brand-red font-black text-xs uppercase hover:bg-brand-red hover:text-white shadow-[4px_4px_0px_#000] active:translate-y-[2px] transition-all">
+                                    Update Password
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+
+                    <div class="bg-black/40 border-[3px] border-black p-6 shadow-[inset_2px_2px_10px_rgba(0,0,0,0.5)]">
+                        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                            <div class="flex flex-col">
+                                <span class="text-brand-red text-lg font-black uppercase tracking-wider">Danger Zone</span>
+                                <span class="text-footer-text text-[14px] font-medium tracking-tight mt-1">Permanently remove this account from Strike 1v1</span>
+                            </div>
+                            <button type="button" onclick="toggleDeleteModal(true)"
+                                    class="xp-btn-red px-5 py-2.5 border-2 border-black text-white font-black text-xs uppercase shadow-[3px_3px_0px_#000] flex items-center gap-2 transition-all active:translate-y-[1px] active:shadow-[2px_2px_0px_#000]">
+                                <span class="material-symbols-outlined text-[18px]">delete_forever</span>
+                                Delete Account
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="delete-modal"
+         class="hidden fixed inset-0 z-[110] flex items-center justify-center bg-black/85 backdrop-blur-sm p-4">
+        <div class="w-full max-w-[380px] shadow-[10px_10px_0px_#000] border-[3px] border-black font-tahoma bg-card-dark text-white">
+            <div class="xp-title-bar h-[35px] flex justify-center items-center px-3 border-b-2 border-black">
+                <div class="flex items-center text-[11px] font-bold uppercase tracking-widest">
+                    Account Termination
+                </div>
+            </div>
+            <div class="p-10 flex flex-col items-center text-center">
+                <div class="mb-6 bg-black border-2 border-brand-red px-6 py-2">
+                    <span class="text-brand-red text-3xl font-black italic">Delete account?</span>
+                </div>
+                <h3 class="text-white text-xl font-black uppercase tracking-tight mb-4">Final Warning</h3>
+                <p class="text-footer-text text-[11px] font-bold uppercase tracking-[2px] mb-8 leading-relaxed">
+                    All your ranking data,<br>scores and profile info<br>will be lost forever.
+                </p>
+                <div class="flex gap-4 w-full">
+                    <button onclick="toggleDeleteModal(false)"
+                            class="flex-1 bg-white/10 border-2 border-white/20 text-white font-black py-3 uppercase text-[10px] tracking-widest hover:bg-white/20 transition-all">
+                        Cancel
+                    </button>
+                    <form action="{% url 'web:delete_account' %}" method="POST" class="flex-1">
+                        {% csrf_token %}
+                        <button type="submit"
+                                class="w-full bg-brand-red border-2 border-white text-white font-black py-3 uppercase text-[10px] tracking-widest shadow-[4px_4px_0px_#000] active:translate-y-1 active:shadow-none transition-all">
+                            Confirm
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const avatarForm = document.getElementById('avatar-form');
+        const avatarInput = avatarForm ? avatarForm.querySelector('input[type="file"]') : null;
+        if (avatarInput) {
+            avatarInput.id = 'avatar-upload';
+
+            avatarInput.addEventListener('change', function () {
+                if (this.files && this.files[0]) {
+                    avatarForm.submit();
+                }
+            });
+        }
+
+        const editProfileBtn = document.getElementById('edit-profile-btn');
+        const profileForm = document.getElementById('profile-form');
+        const saveProfileContainer = document.getElementById('save-button-container');
+        const profileWrappers = [
+            document.getElementById('username-wrapper'),
+            document.getElementById('email-wrapper'),
+            document.getElementById('map-wrapper')
+        ];
+        const profileInputs = profileForm.querySelectorAll('input:not([type="hidden"]), select');
+
+        profileInputs.forEach(input => {
+            input.disabled = true;
+            input.classList.add('cursor-not-allowed');
+        });
+
+        const mapSelect = document.querySelector('select[name="favourite_map"]');
+        if (mapSelect) {
+            const firstOption = mapSelect.options[0];
+            if (firstOption && firstOption.value === "") {
+                firstOption.disabled = true;
+                firstOption.hidden = true;
+            }
+
+            function updateMapStyle() {
+                if (!mapSelect.value) {
+                    mapSelect.classList.add('favourite-map-placeholder');
+                } else {
+                    mapSelect.classList.remove('favourite-map-placeholder');
+                }
+            }
+            updateMapStyle();
+            mapSelect.addEventListener('change', updateMapStyle);
+        }
+
+        editProfileBtn.addEventListener('click', function () {
+            if (profileInputs[0].disabled) {
+                profileInputs.forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('cursor-not-allowed');
+                });
+                profileWrappers.forEach(w => w.classList.remove('opacity-50'));
+                saveProfileContainer.classList.remove('hidden');
+                this.innerHTML = '<span class="material-symbols-outlined text-[14px]">close</span> Cancel Edition';
+                this.classList.replace('xp-btn-blue', 'xp-btn-red');
+            } else {
+                location.reload();
+            }
+        });
+
+        const editPassBtn = document.getElementById('edit-password-btn');
+        const passwordForm = document.getElementById('password-form');
+        const savePassContainer = document.getElementById('password-save-container');
+        const passwordWrapper = document.getElementById('password-wrapper');
+        const passwordInputs = passwordForm.querySelectorAll('input:not([type="hidden"])');
+
+        passwordInputs.forEach(input => {
+            input.disabled = true;
+            input.classList.add('cursor-not-allowed');
+        });
+
+        editPassBtn.addEventListener('click', function () {
+            if (passwordInputs[0].disabled) {
+                passwordInputs.forEach(input => {
+                    input.disabled = false;
+                    input.classList.remove('cursor-not-allowed');
+                });
+                passwordWrapper.classList.remove('opacity-50');
+                savePassContainer.classList.remove('hidden');
+                this.innerHTML = '<span class="material-symbols-outlined text-[14px]">close</span> Cancel Edition';
+                this.classList.replace('xp-btn-blue', 'xp-btn-red');
+            } else {
+                location.reload();
+            }
+        });
+
+        function toggleDeleteModal(show) {
+            const modal = document.getElementById('delete-modal');
+            if (show) modal.classList.remove('hidden');
+            else modal.classList.add('hidden');
+        }
+    </script>
+
+    <style>
+        .security-inputs p {
+            margin-bottom: 15px;
+        }
+
+        .security-inputs label {
+            display: block;
+            font-size: 10px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.5);
+            font-weight: 900;
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .xp-btn-red {
+            background-color: #ef4444;
+        }
+
+        .xp-btn-red:hover {
+            background-color: #dc2626;
+        }
+    </style>
+{% endblock %}

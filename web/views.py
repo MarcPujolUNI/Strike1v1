@@ -1,17 +1,21 @@
-from django.shortcuts import render
-from .models import CounterUser, Country
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404, reverse
+from .models import CounterUser, Country, Match, WebUser, Review
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from web.forms import SignUpForm
-import requests
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-import json
+from django.contrib.auth import update_session_auth_hash, logout
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
+from django.contrib.auth.forms import PasswordChangeForm
+from django.contrib import messages
+from django.core.paginator import Paginator
+from django.db.models import Q
+
 
 class SignUpView(CreateView):
     form_class = SignUpForm
     template_name = 'registration/signup.html'
     success_url = reverse_lazy('login')
+
 
 def index(request):
     if request.user.is_authenticated:
@@ -19,78 +23,220 @@ def index(request):
     else:
         return render(request, 'pages/landing.html')
 
+
 def leaderboard(request):
     country_iso = request.GET.get('country')
-
     countries = Country.objects.all().order_by('country_name')
+    players = CounterUser.objects.all().order_by('-score')
 
-    players = CounterUser.objects.all()
     if country_iso:
         players = players.filter(user__user_country__country_iso=country_iso)
 
+    people_per_page = 5
+    paginator = Paginator(players, people_per_page)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    user_page = None
+    if request.user.is_authenticated:
+        try:
+            current_counter_user = request.user.corresponding_CS_user
+
+            player_ids = list(players.values_list('pk', flat=True))
+
+            if current_counter_user.pk in player_ids:
+                user_index = player_ids.index(current_counter_user.pk)
+                user_page = (user_index // people_per_page) + 1
+        except Exception:
+            pass
+
     selected_country = None
     if country_iso:
-        selected_country = Country.objects.filter(country_iso=country_iso).first()
+        selected_country = countries.filter(country_iso=country_iso).first()
 
-    context = {
-        'players': players,
+    return render(request, 'pages/leaderboard.html', {
+        'page_obj': page_obj,
         'countries': countries,
         'selected_country': selected_country,
-    }
-    return render(request, 'pages/leaderboard.html', context)
+        'user_page': user_page,
+    })
+
+
+@login_required
+def profile_edit(request):
+    counter_user = request.user.corresponding_CS_user
+
+    if request.method == 'POST':
+        if 'update_profile' in request.POST:
+            data = request.POST.copy()
+            if 'username' not in data:
+                data['username'] = request.user.username
+            if 'email' not in data:
+                data['email'] = request.user.email
+
+            user_form = UserProfileForm(data, request.FILES, instance=request.user)
+            password_form = PasswordChangeForm(request.user)
+
+            if user_form.is_valid():
+                user = user_form.save(commit=False)
+
+                if 'delete_image' in request.POST:
+                    if user.user_image:
+                        user.user_image.delete(save=False)
+
+                user.save()
+
+                selected_map = user_form.cleaned_data.get('favourite_map')
+                counter_user.favourite_map = selected_map
+                counter_user.save()
+
+                messages.success(request, 'Profile updated successfully.')
+                return redirect('web:profile')
+            else:
+                messages.error(request, 'Error updating profile information.')
+
+        elif 'change_password' in request.POST:
+            user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
+            password_form = PasswordChangeForm(request.user, request.POST)
+            if password_form.is_valid():
+                user = password_form.save()
+                update_session_auth_hash(request, user)
+                messages.success(request, 'Password updated successfully.')
+                return redirect('web:profile')
+            else:
+                messages.error(request, 'Error updating the password.')
+    else:
+        user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
+        password_form = PasswordChangeForm(request.user)
+
+    for field in password_form.fields.values():
+        field.widget.attrs.update({
+            'class': 'bg-white border-2 border-black px-3 py-2 text-black font-black text-xs focus:outline-none w-full shadow-[inset_2px_2px_0px_rgba(0,0,0,0.2)] mb-3'
+        })
+
+    return render(request, 'pages/profile.html', {
+        'user_form': user_form,
+        'password_form': password_form,
+    })
+
+
+@login_required
+def delete_account(request):
+    if request.method == 'POST':
+        user = request.user
+        logout(request)
+        user.delete()
+        messages.success(request, 'Your account has been permanently deleted.')
+        return redirect('web:index')
+    return redirect('web:profile')
+
+
+def reviews(request):
+    return render(request, 'pages/reviews.html')
+
+
+def user_reviews_list(request, username):
+    target_user = get_object_or_404(WebUser, username=username)
+    my_review = None
+
+    if request.user.is_authenticated:
+        my_review = Review.objects.filter(reviewer=request.user, reviewee=target_user).first()
+
+    if request.method == 'POST':
+        if not request.user.is_authenticated or request.user == target_user:
+            return redirect('login')
+
+        form = ReviewForm(request.POST, instance=my_review)
+        if form.is_valid():
+            review = form.save(commit=False)
+            review.reviewer = request.user
+            review.reviewer_name = request.user.username
+            review.reviewee = target_user
+            review.save()
+            return redirect('web:user_reviews_list', username=username)
+    else:
+        form = ReviewForm(instance=my_review)
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    if request.user.is_authenticated:
+        all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
+
+    paginator = Paginator(all_other_reviews, 5)
+    page_number = request.GET.get('page')
+    other_reviews_page = paginator.get_page(page_number)
+
+    return render(request, 'pages/reviews_list.html', {
+        'target_user': target_user,
+        'my_review': my_review,
+        'form': form,
+        'other_reviews': other_reviews_page,
+    })
+
+
+def review_detail(request, username, review_id):
+    review = get_object_or_404(Review, review_id=review_id, reviewee__username=username)
+    is_author = (review.reviewer == request.user)
+
+    form = None
+    if is_author:
+        if request.method == 'POST':
+            form = ReviewForm(request.POST, instance=review)
+            if form.is_valid():
+                form.save()
+                return redirect('web:review_detail', username=username, review_id=review_id)
+        else:
+            form = ReviewForm(instance=review)
+
+    return render(request, 'pages/review_detail.html', {
+        'review': review,
+        'is_author': is_author,
+        'form': form
+    })
+
+
+@login_required
+def delete_review(request, review_id):
+    if request.method == 'POST':
+        review = get_object_or_404(Review, pk=review_id)
+
+        target_username = review.reviewee.username
+
+        if review.reviewer == request.user:
+            review.delete()
+            return redirect('web:user_reviews_list', username=target_username)
+
+    return redirect('web:index')
+
+
+@login_required
+def matches(request):
+    counter_user = request.user.corresponding_CS_user
+
+    match_list = Match.objects.filter(
+        Q(winner=counter_user) | Q(loser=counter_user)
+    ).order_by('-date')
+
+    paginator = Paginator(match_list, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    return render(request, 'pages/matches.html', {
+        'page_obj': page_obj,
+        'counter_user': counter_user
+    })
+
 
 def play(request):
-    if 'current_match_url' in request.session:
-        del request.session['current_match_url']
-        request.session.modified = True  # Força a Django a guardar el canvi a la DB de sessions
-
     return render(request, 'pages/play.html')
+
 
 def terms_of_service(request):
     return render(request, 'legal/tos.html')
 
+
 def privacy_policy(request):
     return render(request, 'legal/privacy.html')
 
+
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
-
-
-# web/views.py
-def waiting_view(request):
-    match_url = request.session.get('current_match_url')
-
-    if not match_url:
-        try:
-            # CANVIA ip per 172.17.0.1 quan estigui dins del server, sha de probar (aquesta ip es el de la API)
-            response = requests.post('http://192.168.1.114:5000/partida-aleatoria', timeout=10)
-
-            if response.status_code == 200:
-                data = response.json()
-                match_url = data.get('url')
-                request.session['current_match_url'] = match_url
-            else:
-                print(f"Error API: {response.status_code} - {response.text}")
-        except Exception as e:
-            print(f"Error de connexió amb el Controller: {e}")
-            match_url = None
-
-    return render(request, 'pages/waiting.html', {'match_url': match_url})
-
-
-@csrf_exempt  # Perquè la FastAPI pugui fer POST sense token CSRF
-def save_match_view(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        print(f"Dades partida Rebudes: {data}")
-        # Actualitzar estadístiques
-        winner_name = data.get('winner').strip()
-        if winner_name and winner_name != "None (Incomplete)":
-            # nom del log ha de coincicidir amb l'usuari de Django
-            user_profile = CounterUser.objects.filter(user__username__iexact=winner_name).first()
-            if user_profile:
-                user_profile.score += 25  # Exemple de pujada de punts
-                user_profile.save()
-
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "failed"}, status=400)

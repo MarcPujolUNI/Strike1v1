@@ -1,0 +1,249 @@
+{% extends 'base/base.html' %}
+{% block title %} Strike 1v1 - Reviews for {{ target_user.username }} {% endblock %}
+
+{% block content %}
+    <div class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+        <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+            <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+                <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
+                    S
+                </div>
+                Reviews from the player - {{ target_user.username }} -
+            </div>
+            <div class="flex gap-1">
+                <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span
+                    class="ctrl-display close">x</span>
+            </div>
+        </div>
+
+        <div class="bg-card-dark border-x border-b border-black p-6">
+
+            <div class="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
+                <div class="flex flex-col">
+                    <h2 class="text-white font-black text-sm uppercase">
+                        {% if other_reviews.paginator.count > 0 or my_review %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
+                    </h2>
+                </div>
+
+                {% if user.is_authenticated and user != target_user and not my_review %}
+                    <button onclick="document.getElementById('review-form-container').classList.toggle('hidden')"
+                            class="xp-btn xp-btn-blue px-6 py-2 text-[10px] font-black uppercase shadow-[3px_3px_0px_#000]">
+                        + WRITE A REVIEW
+                    </button>
+                {% endif %}
+            </div>
+
+            {% if not my_review and user.is_authenticated and user != target_user %}
+                <div id="review-form-container"
+                     class="{% if not form.errors %}hidden{% endif %} mb-8 bg-black/40 border-2 border-xp-blue-border p-5 shadow-lg">
+                    <h3 class="text-white text-[13px] font-black uppercase mb-4 flex items-center gap-2 tracking-widest">
+                        Tell us your experience
+                    </h3>
+                    <form method="POST" class="space-y-4">
+                        {% csrf_token %}
+                        <div class="flex flex-wrap gap-4 items-center">
+                            <div class="flex-grow min-w-[200px]">
+                                <label class="text-[9px] font-black text-footer-text uppercase mb-1 block">Title</label>
+                                {{ form.title }}
+                            </div>
+                            <div class="shrink-0 flex flex-col items-center">
+                                <label class="text-[9px] font-black text-footer-text uppercase mb-1 block text-center">Score</label>
+                                <div class="flex items-center justify-center bg-black border-2 border-white/10 px-3 h-[45px] shadow-inner">
+                                    {{ form.rating }}
+                                    <div class="flex flex-row-reverse items-center gap-0.5">
+                                        {% for i in "54321" %}
+                                            <span class="star-rating cursor-pointer material-symbols-outlined text-3xl text-white/20 hover:text-yellow-500 transition-colors !leading-none flex items-center"
+                                                  data-value="{{ i }}">star</span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <label class="text-[9px] font-black text-footer-text uppercase mb-1 block">Comments</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="flex flex-row gap-4">
+                            <button type="button"
+                                    onclick="document.getElementById('review-form-container').classList.add('hidden')"
+                                    class="xp-btn xp-btn-red flex-1 py-2 text-[10px] font-black uppercase shadow-[2px_2px_0px_#000]">
+                                CANCEL
+                            </button>
+                            <button type="submit"
+                                    class="xp-btn xp-btn-blue flex-1 py-2 text-[10px] font-black uppercase shadow-[2px_2px_0px_#000]">
+                                PUBLISH
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            {% endif %}
+
+            {% if my_review %}
+                <div class="mb-10">
+                    <div class="flex items-center gap-4 mb-4">
+                        <span class="text-xp-blue-border text-[10px] font-black uppercase tracking-[3px]">Your review</span>
+                        <div class="h-[1px] flex-grow bg-white/10"></div>
+                    </div>
+
+                    <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
+                         onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
+                        <div class="flex justify-between items-center">
+                            <div class="flex items-center gap-4 min-w-0 flex-1 mr-4">
+                                <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                    {% if my_review.reviewer.user_image %}
+                                        <img src="{{ my_review.reviewer.user_image.url }}"
+                                             class="w-full h-full object-cover" alt="Profile picture">
+                                    {% else %}
+                                        <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
+                                            <span class="material-symbols-outlined text-xl">account_circle</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                                <div class="flex flex-col justify-center min-w-0 flex-1">
+                                    <div class="text-white font-black text-sm uppercase tracking-tight truncate">{{ my_review.title }}</div>
+                                    <div class="flex text-yellow-500 gap-1 items-center">
+                                        {% for i in "12345" %}
+                                            <span class="material-symbols-outlined text-2xl !leading-none flex items-center"
+                                                  style="font-variation-settings: 'FILL' {% if forloop.counter <= my_review.rating %}1{% else %}0{% endif %};">
+                                                star
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="bg-xp-blue/20 px-3 py-1 border border-xp-blue-border text-xp-blue-border text-[9px] font-black uppercase group-hover:bg-xp-blue group-hover:text-white transition-colors shrink-0">
+                                Edit Review
+                            </div>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <p class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="space-y-4">
+                <div class="flex items-center gap-4 mb-4">
+                    <span class="text-footer-text text-[10px] font-black uppercase tracking-[3px]">Community reviews</span>
+                    <div class="h-[1px] flex-grow bg-white/10"></div>
+                </div>
+
+                {% for r in other_reviews %}
+                    <div class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
+                         onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
+                        <div class="flex justify-between items-center mb-2 gap-4">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                <span class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
+                            </div>
+                            <div class="flex text-yellow-600 items-center shrink-0">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= r.rating %}
+                                        <span class="material-symbols-outlined text-[16px] !leading-none flex items-center"
+                                              style="font-variation-settings: 'FILL' 1;">star</span>
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-1 leading-normal">"{{ r.description }}"</p>
+                    </div>
+                {% empty %}
+                    {% if not my_review %}
+                        <div class="py-20 text-center border-2 border-dashed border-white/5">
+                            <p class="text-footer-text text-[10px] font-black uppercase tracking-[4px]">No reviews found
+                                for this player.</p>
+                        </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+
+            {% if other_reviews.has_other_pages %}
+                <div class="mt-8 border-t-2 border-black pt-6">
+                    <div class="bg-black/40 border-2 border-black p-4 flex flex-col sm:flex-row justify-between items-center gap-4">
+                        <div class="text-footer-text text-[10px] font-black uppercase tracking-[2px]">
+                            Showing page {{ other_reviews.number }} of {{ other_reviews.paginator.num_pages }}
+                        </div>
+
+                        <div class="flex items-center gap-3">
+                            <div class="flex gap-1">
+                                {% if other_reviews.has_previous %}
+                                    <a href="?page={{ other_reviews.previous_page_number }}"
+                                       class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000] no-underline">
+                                        <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                    </a>
+                                {% else %}
+                                    <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                        <span class="material-symbols-outlined text-sm">chevron_left</span>
+                                    </div>
+                                {% endif %}
+
+                                {% if other_reviews.has_next %}
+                                    <a href="?page={{ other_reviews.next_page_number }}"
+                                       class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000] no-underline">
+                                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                    </a>
+                                {% else %}
+                                    <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                                        <span class="material-symbols-outlined text-sm">chevron_right</span>
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+
+            <div class="mt-6 pt-4 border-t border-white/5 flex">
+                <a href="{% url 'web:reviews' %}"
+                   class="xp-btn xp-btn-blue flex-1 py-2.5 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center flex items-center justify-center gap-2">
+                    &lt; Return to User Search
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        .star-active {
+            color: #eab308 !important;
+            font-variation-settings: 'FILL' 1;
+        }
+
+        textarea.xp-input {
+            resize: vertical;
+            min-height: 120px;
+            width: 100%;
+            display: block;
+        }
+    </style>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const stars = document.querySelectorAll('.star-rating');
+            const ratingInput = document.querySelector('input[name="rating"]');
+
+            function updateStars(value) {
+                stars.forEach(s => {
+                    const starValue = parseInt(s.getAttribute('data-value'));
+                    if (starValue <= value) s.classList.add('star-active');
+                    else s.classList.remove('star-active');
+                });
+            }
+
+            stars.forEach(star => {
+                star.addEventListener('click', function () {
+                    const val = this.getAttribute('data-value');
+                    ratingInput.value = val;
+                    updateStars(val);
+                });
+                star.addEventListener('mouseenter', function () {
+                    updateStars(this.getAttribute('data-value'));
+                });
+            });
+
+            const starContainer = document.querySelector('.flex-row-reverse');
+            if (starContainer) {
+                starContainer.addEventListener('mouseleave', () => updateStars(parseInt(ratingInput.value) || 0));
+            }
+        });
+    </script>
+{% endblock %}
