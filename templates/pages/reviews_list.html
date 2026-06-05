@@ -2,13 +2,13 @@
 {% block title %} Strike 1v1 - Reviews for {{ target_user.username }} {% endblock %}
 
 {% block content %}
-    <div class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+    <div vocab="https://schema.org/" typeof="Person" class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
         <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
             <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
                 <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
                     S
                 </div>
-                Reviews from the player - {{ target_user.username }} -
+                Reviews from the player -&nbsp<span property="name">{{ target_user.username }}</span>&nbsp-
             </div>
             <div class="flex gap-1">
                 <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span
@@ -85,13 +85,14 @@
                         <div class="h-[1px] flex-grow bg-white/10"></div>
                     </div>
 
-                    <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
+                    <div rel="review" typeof="Review" class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-4 min-w-0 flex-1 mr-4">
-                                <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                <div property="author" typeof="Person" class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                    <meta property="name" content="{{ my_review.reviewer.username }}">
                                     {% if my_review.reviewer.user_image %}
-                                        <img src="{{ my_review.reviewer.user_image.url }}"
+                                        <img property="image" src="{{ my_review.reviewer.user_image.url }}"
                                              class="w-full h-full object-cover" alt="Profile picture">
                                     {% else %}
                                         <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
@@ -99,9 +100,12 @@
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div class="flex flex-col justify-center min-w-0 flex-1">
-                                    <div class="text-white font-black text-sm uppercase tracking-tight truncate">{{ my_review.title }}</div>
+                                <div property="reviewRating" typeof="Rating" class="flex flex-col justify-center min-w-0 flex-1">
+                                    <div property="name" class="text-white font-black text-sm uppercase tracking-tight truncate">{{ my_review.title }}</div>
                                     <div class="flex text-yellow-500 gap-1 items-center">
+                                        <meta property="ratingValue" content="{{ my_review.rating }}">
+                                        <meta property="bestRating" content="5">
+                                        <meta property="worstRating" content="1">
                                         {% for i in "12345" %}
                                             <span class="material-symbols-outlined text-2xl !leading-none flex items-center"
                                                   style="font-variation-settings: 'FILL' {% if forloop.counter <= my_review.rating %}1{% else %}0{% endif %};">
@@ -116,7 +120,7 @@
                             </div>
                         </div>
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
+                            <p property="reviewBody" class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
                         </div>
                     </div>
                 </div>
@@ -129,14 +133,19 @@
                 </div>
 
                 {% for r in other_reviews %}
-                    <div class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
+                    <div rel="review" typeof="Review" class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
                         <div class="flex justify-between items-center mb-2 gap-4">
                             <div class="flex items-center gap-3 min-w-0 flex-1">
-                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
-                                <span class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
+                                <span property="author" typeof="Person">
+                                    <span property="name" class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                </span>
+                                <span property="name" class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
                             </div>
-                            <div class="flex text-yellow-600 items-center shrink-0">
+                            <div property="reviewRating" typeof="Rating" class="flex text-yellow-600 items-center shrink-0">
+                                <meta property="ratingValue" content="{{ r.rating }}">
+                                <meta property="bestRating" content="5">
+                                <meta property="worstRating" content="1">
                                 {% for i in "12345" %}
                                     {% if forloop.counter <= r.rating %}
                                         <span class="material-symbols-outlined text-[16px] !leading-none flex items-center"
