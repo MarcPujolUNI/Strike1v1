@@ -67,6 +67,8 @@ def leaderboard(request):
 
 @login_required
 def profile_edit(request):
+    counter_user = request.user.corresponding_CS_user
+
     if request.method == 'POST':
         if 'update_profile' in request.POST:
             data = request.POST.copy()
@@ -86,13 +88,18 @@ def profile_edit(request):
                         user.user_image.delete(save=False)
 
                 user.save()
+
+                selected_map = user_form.cleaned_data.get('favourite_map')
+                counter_user.favourite_map = selected_map
+                counter_user.save()
+
                 messages.success(request, 'Profile updated successfully.')
                 return redirect('web:profile')
             else:
                 messages.error(request, 'Error updating profile information.')
 
         elif 'change_password' in request.POST:
-            user_form = UserProfileForm(instance=request.user)
+            user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
             password_form = PasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
@@ -102,7 +109,7 @@ def profile_edit(request):
             else:
                 messages.error(request, 'Error updating the password.')
     else:
-        user_form = UserProfileForm(instance=request.user)
+        user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
         password_form = PasswordChangeForm(request.user)
 
     for field in password_form.fields.values():
