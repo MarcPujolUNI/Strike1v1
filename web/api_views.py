@@ -9,7 +9,13 @@ class APIUserSearchList(generics.ListAPIView):
     def get_queryset(self):
         query = self.request.query_params.get('q', '')
         if query:
-            return WebUser.objects.filter(username__icontains=query)[:5]
+            return WebUser.objects.filter(
+                username__icontains=query
+            ).exclude(
+                is_superuser=True
+            ).exclude(
+                is_staff=True
+            )[:5]
         return WebUser.objects.none()
 
 
