@@ -10,7 +10,7 @@ class APIUserSearchList(generics.ListAPIView):
         query = self.request.query_params.get('q', '')
         if query:
             return WebUser.objects.filter(
-                username__icontains=query
+                username__istartswith=query
             ).exclude(
                 is_superuser=True
             ).exclude(
@@ -25,5 +25,5 @@ class APICountrySearchList(generics.ListAPIView):
     def get_queryset(self):
         query = self.request.query_params.get('q', '')
         if query:
-            return Country.objects.filter(country_name__icontains=query)[:10]
+            return Country.objects.filter(country_name__istartswith=query)[:10]
         return Country.objects.none()
