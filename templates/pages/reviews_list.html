@@ -11,8 +11,7 @@
                 Reviews from the player - {{ target_user.username }} -
             </div>
             <div class="flex gap-1">
-                <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span
-                    class="ctrl-display close">x</span>
+                <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span class="ctrl-display close">x</span>
             </div>
         </div>
 
@@ -20,9 +19,9 @@
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6 border-b-2 border-black pb-4">
                 <div class="flex flex-col gap-1">
-                    <span class="text-white font-black text-sm uppercase">
-                        {% if other_reviews.paginator.count > 0 or my_review  %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
-                    </span>
+                    <h2 class="text-white font-black text-sm uppercase">
+                        {% if other_reviews.paginator.count > 0 or my_review %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
+                    </h2>
 
                     {% if target_user.total_reviews_count > 0 %}
                         <div class="flex items-center gap-2 mt-1 bg-black/30 border border-white/5 px-2.5 py-1 rounded-[2px] w-fit">
@@ -53,8 +52,7 @@
             </div>
 
             {% if not my_review and user.is_authenticated and user != target_user %}
-                <div id="review-form-container"
-                     class="{% if not form.errors %}hidden{% endif %} mb-8 bg-black/40 border-2 border-xp-blue-border p-5 shadow-lg">
+                <div id="review-form-container" class="{% if not form.errors %}hidden{% endif %} mb-8 bg-black/40 border-2 border-xp-blue-border p-5 shadow-lg">
                     <h3 class="text-white text-[13px] font-black uppercase mb-4 flex items-center gap-2 tracking-widest">
                         Tell us your experience
                     </h3>
@@ -106,12 +104,12 @@
 
                     <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
-                        <div class="flex justify-between items-center flex-wrap gap-4 sm:gap-0">
-                            <div class="flex items-center gap-4">
+
+                        <div class="flex justify-between items-center flex-wrap sm:flex-nowrap gap-4">
+                            <div class="flex items-center gap-4 min-w-0 flex-1">
                                 <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
                                     {% if my_review.reviewer.user_image %}
-                                        <img src="{{ my_review.reviewer.user_image.url }}"
-                                             class="w-full h-full object-cover" alt="Profile picture">
+                                        <img src="{{ my_review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
                                     {% else %}
                                         <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
                                             <span class="material-symbols-outlined text-xl">account_circle</span>
@@ -130,8 +128,7 @@
                                 </div>
                             </div>
 
-                            <div class="flex items-center gap-3 ml-auto sm:ml-0">
-                                <!-- AÑADIDO: Bloque de hora y fecha para tu propia review -->
+                            <div class="flex items-center gap-3 ml-auto sm:ml-0 flex-wrap justify-end">
                                 {% if my_review.last_modified %}
                                     <div class="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px]">
                                         <span class="material-symbols-outlined text-[12px] opacity-60">calendar_month</span>
@@ -147,9 +144,9 @@
                                 </div>
                             </div>
                         </div>
+
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-xs italic line-clamp-2 leading-relaxed">
-                                "{{ my_review.description }}"</p>
+                            <p class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
                         </div>
                     </div>
                 </div>
@@ -176,13 +173,14 @@
                 {% for r in other_reviews %}
                     <div class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
-                        <div class="flex justify-between items-start sm:items-center mb-2 flex-col sm:flex-row gap-2 sm:gap-0">
-                            <div class="flex items-center gap-3">
-                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter">{{ r.reviewer.username }}</span>
-                                <span class="text-white font-bold text-[11px] uppercase">{{ r.title }}</span>
+
+                        <div class="flex justify-between items-start sm:items-center mb-2 flex-col sm:flex-row gap-2 sm:gap-4">
+                            <div class="flex items-center gap-3 min-w-0 flex-1">
+                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                <span class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
                             </div>
 
-                            <div class="flex items-center gap-3 self-end sm:self-auto">
+                            <div class="flex items-center gap-3 self-end sm:self-auto shrink-0">
                                 {% if r.last_modified %}
                                     <div class="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px]">
                                         <span class="material-symbols-outlined text-[12px] opacity-60">calendar_month</span>
@@ -202,8 +200,10 @@
                                 </div>
                             </div>
                         </div>
-                        <p class="text-footer-text text-[11px] italic line-clamp-1 opacity-70 group-hover:opacity-100 leading-none mt-1 sm:mt-0">
-                            "{{ r.description }}"</p>
+
+                        <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">
+                            "{{ r.description }}"
+                        </p>
                     </div>
                 {% empty %}
                     {% if not my_review %}
@@ -282,8 +282,10 @@
             stars.forEach(star => {
                 star.addEventListener('click', function () {
                     const val = this.getAttribute('data-value');
-                    ratingInput.value = val;
-                    updateStars(val);
+                    if(ratingInput) {
+                        ratingInput.value = val;
+                        updateStars(val);
+                    }
                 });
                 star.addEventListener('mouseenter', function () {
                     updateStars(this.getAttribute('data-value'));
@@ -292,7 +294,10 @@
 
             const starContainer = document.querySelector('.flex-row-reverse');
             if (starContainer) {
-                starContainer.addEventListener('mouseleave', () => updateStars(parseInt(ratingInput.value) || 0));
+                starContainer.addEventListener('mouseleave', () => {
+                    const currentVal = ratingInput ? (parseInt(ratingInput.value) || 0) : 0;
+                    updateStars(currentVal);
+                });
             }
         });
     </script>
