@@ -20,9 +20,9 @@
 
             <div class="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
                 <div class="flex flex-col">
-                    <span class="text-white font-black text-sm uppercase">
-                        {% if other_reviews.paginator.count > 0 or my_review  %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
-                    </span>
+                    <h2 class="text-white font-black text-sm uppercase">
+                        {% if other_reviews.paginator.count > 0 or my_review %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
+                    </h2>
                 </div>
 
                 {% if user.is_authenticated and user != target_user and not my_review %}
@@ -192,6 +192,13 @@
                     </div>
                 </div>
             {% endif %}
+
+            <div class="mt-6 pt-4 border-t border-white/5 flex">
+                <a href="{% url 'web:reviews' %}"
+                   class="xp-btn xp-btn-blue flex-1 py-2.5 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center flex items-center justify-center gap-2">
+                    &lt; Return to User Search
+                </a>
+            </div>
         </div>
     </div>
 
