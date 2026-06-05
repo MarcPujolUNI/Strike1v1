@@ -43,7 +43,7 @@
                     {% endif %}
                 </div>
 
-                {% if user.is_authenticated and user != target_user and not my_review %}
+                {% if user.is_authenticated and user != target_user and not my_review and has_played_together %}
                     <button onclick="document.getElementById('review-form-container').classList.toggle('hidden')"
                             class="xp-btn xp-btn-blue min-w-[160px] px-4 py-2 text-[10px] font-black uppercase shadow-[3px_3px_0px_#000] shrink-0 text-center">
                         + WRITE A REVIEW
@@ -51,8 +51,9 @@
                 {% endif %}
             </div>
 
-            {% if not my_review and user.is_authenticated and user != target_user %}
-                <div id="review-form-container" class="{% if not form.errors %}hidden{% endif %} mb-8 bg-black/40 border-2 border-xp-blue-border p-5 shadow-lg">
+            {% if not my_review and user.is_authenticated and user != target_user and has_played_together %}
+                <div id="review-form-container"
+                     class="{% if not form.errors %}hidden{% endif %} mb-8 bg-black/40 border-2 border-xp-blue-border p-5 shadow-lg">
                     <h3 class="text-white text-[13px] font-black uppercase mb-4 flex items-center gap-2 tracking-widest">
                         Tell us your experience
                     </h3>
@@ -102,7 +103,7 @@
                         <div class="h-[1px] flex-grow bg-white/10"></div>
                     </div>
 
-                    <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
+                    <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
 
                         <div class="flex justify-between items-center flex-wrap sm:flex-nowrap gap-4">
