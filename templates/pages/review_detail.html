@@ -83,11 +83,22 @@
             </div>
 
             <div class="mb-10 border-2 border-black bg-main-dark/50 shadow-[6px_6px_0px_rgba(0,0,0,0.2)]">
-                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex justify-between items-center">
+                <!-- MODIFICADO: Añadido flex-wrap y el bloque de fecha/hora en la parte derecha de la cabecera -->
+                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0">
                     <div class="flex items-center gap-4">
                         <span class="text-xp-blue-border font-black text-xs uppercase tracking-tighter">{{ review.reviewer.username }}</span>
                         <span class="text-white font-black text-xs uppercase">{{ review.title }}</span>
                     </div>
+
+                    {% if review.last_modified %}
+                        <div class="text-[10px] font-mono text-white/40 flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px] self-end sm:self-auto">
+                            <span class="material-symbols-outlined text-[12px] opacity-60">calendar_month</span>
+                            <span class="font-bold tracking-wide text-[9px] uppercase mr-0.5 text-footer-text">Created or modified at:</span>
+                            <span>{{ review.last_modified|date:"d/m/Y" }}</span>
+                            <span class="opacity-30">|</span>
+                            <span>{{ review.last_modified|time:"H:i" }}</span>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="p-8">
                     <p class="text-footer-text text-lg italic leading-relaxed">

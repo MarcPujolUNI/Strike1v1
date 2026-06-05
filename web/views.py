@@ -3,15 +3,13 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from .models import CounterUser, Country, Match, WebUser, Review
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from web.forms import SignUpForm, UserProfileForm
 from django.contrib.auth import update_session_auth_hash, logout
-from web.forms import SignUpForm, UserProfileForm, ReviewForm
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import JsonResponse
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
 
 
 class SignUpView(CreateView):
@@ -159,7 +157,19 @@ def user_reviews_list(request, username):
     else:
         form = ReviewForm(instance=my_review)
 
-    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    sort_param = request.GET.get('sort', 'date_desc')
+
+    if sort_param == 'date_asc':
+        order_by_criteria = ['last_modified', 'review_id']
+    elif sort_param == 'stars_desc':
+        order_by_criteria = ['-rating', '-last_modified', '-review_id']
+    elif sort_param == 'stars_asc':
+        order_by_criteria = ['rating', '-last_modified', '-review_id']
+    else:
+        order_by_criteria = ['-last_modified', '-review_id']
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by(*order_by_criteria)
+
     if request.user.is_authenticated:
         all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
 
@@ -172,6 +182,7 @@ def user_reviews_list(request, username):
         'my_review': my_review,
         'form': form,
         'other_reviews': other_reviews_page,
+        'current_sort': sort_param,
     })
 
 
