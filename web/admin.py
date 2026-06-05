@@ -61,7 +61,7 @@ class WebUserAdmin(auth_admin.UserAdmin):
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
     autocomplete_fields = ('reviewer', 'reviewee')
-    fields = ('reviewer', 'reviewee', 'rating', 'title', 'description')
+    fields = ('reviewer', 'reviewee', 'rating', 'title', 'description', 'last_modified')
     list_display = ('reviewer_display', 'reviewee', 'rating', 'title', 'short_description')
     list_filter = ('reviewer', 'reviewee', 'rating')
     list_per_page = 10
@@ -70,7 +70,7 @@ class ReviewAdmin(admin.ModelAdmin):
     search_fields = ('reviewer__username', 'reviewee__username', 'rating', 'title')
 
     def get_readonly_fields(self, request, record=None):
-        return ('reviewer', 'reviewee',) if record else ()
+        return ('reviewer', 'reviewee', 'last_modified') if record else ('last_modified',)
 
     def save_model(self, request, record, form, change):
         if record.reviewer: record.reviewer_name = record.reviewer.username
