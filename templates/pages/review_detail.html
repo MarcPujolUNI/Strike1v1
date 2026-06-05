@@ -82,24 +82,23 @@
                 </div>
             </div>
 
-            <div class="mb-10 border-2 border-black bg-main-dark/50 shadow-[6px_6px_0px_rgba(0,0,0,0.2)]">
-                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <span class="text-xp-blue-border font-black text-xs uppercase tracking-tighter">{{ review.reviewer.username }}</span>
-                        <span class="text-white font-black text-xs uppercase">{{ review.title }}</span>
+            <div class="mb-10 border-2 border-black bg-main-dark/50 shadow-[6px_6px_0px_rgba(0,0,0,0.2)] overflow-hidden">
+                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-4 min-w-0 max-w-full">
+                        <span class="text-xp-blue-border font-black text-xs uppercase tracking-tighter shrink-0">{{ review.reviewer.username }}</span>
+                        <span class="text-white font-black text-xs uppercase break-words min-w-0">{{ review.title }}</span>
                     </div>
                 </div>
+
                 <div class="p-8">
-                    <p class="text-footer-text text-lg italic leading-relaxed">
-                        "{{ review.description }}"
-                    </p>
+                    <p class="text-footer-text text-lg italic leading-relaxed text-justify hyphens-auto break-words whitespace-pre-wrap">"{{ review.description }}"</p>
                 </div>
             </div>
 
             <div class="flex flex-row gap-4 pt-6 border-t border-white/5">
                 <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}"
                    class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center">
-                    &lt; Return
+                    &lt; Return to the list
                 </a>
                 {% if is_author %}
                 <button onclick="document.getElementById('read-mode').classList.add('hidden'); document.getElementById('edit-mode').classList.remove('hidden');"

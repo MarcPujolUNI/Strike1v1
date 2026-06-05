@@ -3,15 +3,12 @@ from django.shortcuts import render, redirect, get_object_or_404, reverse
 from .models import CounterUser, Country, Match, WebUser, Review
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
-from web.forms import SignUpForm, UserProfileForm
 from django.contrib.auth import update_session_auth_hash, logout
 from web.forms import SignUpForm, UserProfileForm, ReviewForm
-from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-from django.http import JsonResponse
 
 
 class SignUpView(CreateView):
@@ -35,7 +32,7 @@ def leaderboard(request):
     if country_iso:
         players = players.filter(user__user_country__country_iso=country_iso)
 
-    people_per_page = 10
+    people_per_page = 5
     paginator = Paginator(players, people_per_page)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
@@ -67,6 +64,8 @@ def leaderboard(request):
 
 @login_required
 def profile_edit(request):
+    counter_user = request.user.corresponding_CS_user
+
     if request.method == 'POST':
         if 'update_profile' in request.POST:
             data = request.POST.copy()
@@ -77,15 +76,27 @@ def profile_edit(request):
 
             user_form = UserProfileForm(data, request.FILES, instance=request.user)
             password_form = PasswordChangeForm(request.user)
+
             if user_form.is_valid():
-                user_form.save()
+                user = user_form.save(commit=False)
+
+                if 'delete_image' in request.POST:
+                    if user.user_image:
+                        user.user_image.delete(save=False)
+
+                user.save()
+
+                selected_map = user_form.cleaned_data.get('favourite_map')
+                counter_user.favourite_map = selected_map
+                counter_user.save()
+
                 messages.success(request, 'Profile updated successfully.')
                 return redirect('web:profile')
             else:
                 messages.error(request, 'Error updating profile information.')
 
         elif 'change_password' in request.POST:
-            user_form = UserProfileForm(instance=request.user)
+            user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
             password_form = PasswordChangeForm(request.user, request.POST)
             if password_form.is_valid():
                 user = password_form.save()
@@ -95,7 +106,7 @@ def profile_edit(request):
             else:
                 messages.error(request, 'Error updating the password.')
     else:
-        user_form = UserProfileForm(instance=request.user)
+        user_form = UserProfileForm(instance=request.user, initial={'favourite_map': counter_user.favourite_map})
         password_form = PasswordChangeForm(request.user)
 
     for field in password_form.fields.values():
@@ -122,19 +133,6 @@ def delete_account(request):
 
 def reviews(request):
     return render(request, 'pages/reviews.html')
-
-
-def user_search_ajax(request):
-    query = request.GET.get('q', '')
-    if query:
-        users = WebUser.objects.filter(username__icontains=query)[:5]
-        results = [{
-            'username': u.username,
-            'url': reverse('web:user_reviews_list', kwargs={'username': u.username})
-        } for u in users]
-    else:
-        results = []
-    return JsonResponse({'results': results})
 
 
 def user_reviews_list(request, username):

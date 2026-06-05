@@ -88,11 +88,38 @@
                         <tr class="{% if player.user == request.user %} bg-xp-blue/20 {% endif %}">
 
                             {% with absolute_rank=page_obj.start_index|add:forloop.counter0 %}
-                            <td class="p-4 text-center border-b border-white/5 {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0 {% endif %}">
-                            <span class="{% if absolute_rank <= 3 %}text-brand-red{% else %}text-white/30{% endif %} font-black text-2xl">
-                                #{{ absolute_rank }}
-                            </span>
-                            </td>
+                                <tr class="transition-colors
+                                    {% if player.user == request.user %}
+                                        bg-xp-blue/20 hover:bg-xp-blue/30
+                                    {% elif absolute_rank == 1 %}
+                                        bg-[#FFD700]/5 hover:bg-[#FFD700]/15
+                                    {% elif absolute_rank == 2 %}
+                                        bg-[#C0C0C0]/5 hover:bg-[#C0C0C0]/15
+                                    {% elif absolute_rank == 3 %}
+                                        bg-[#CD7F32]/5 hover:bg-[#CD7F32]/15
+                                    {% else %}
+                                        hover:bg-white/5
+                                    {% endif %}">
+
+                                    <td class="p-4 text-center border-b border-white/5
+                                        {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0
+                                        {% elif absolute_rank == 1 %} border-l-[4px] border-l-[#FFD700]/40
+                                        {% elif absolute_rank == 2 %} border-l-[4px] border-l-[#C0C0C0]/30
+                                        {% elif absolute_rank == 3 %} border-l-[4px] border-l-[#CD7F32]/30
+                                        {% endif %}">
+                                        <span class="font-black text-2xl drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]
+                                            {% if absolute_rank == 1 %}
+                                                text-[#FFD700]
+                                            {% elif absolute_rank == 2 %}
+                                                text-[#E1E1E6]
+                                            {% elif absolute_rank == 3 %}
+                                                text-[#E69A53]
+                                            {% else %}
+                                                text-white/30
+                                            {% endif %}">
+                                            #{{ absolute_rank }}
+                                        </span>
+                                    </td>
                             {% endwith %}
 
                             <td class="p-4 border-b border-white/5">
