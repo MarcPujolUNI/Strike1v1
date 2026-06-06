@@ -78,8 +78,17 @@
                     </div>
                 {% else %}
                     <div class="flex items-center gap-4">
-                        <a href="{% url 'login' %}" class="xp-btn xp-btn-blue px-5 py-2 text-[10px] font-black">LOGIN</a>
-                        <a href="{% url 'signup' %}" class="xp-btn xp-btn-red px-5 py-2 text-[10px] font-black">SIGNUP</a>
+                        <a href="{% url 'login' %}">
+                            <button class="xp-btn xp-btn-blue py-2 px-4 text-[10px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all">
+                                Login
+                            </button>
+                        </a>
+
+                        <a href="{% url 'signup' %}">
+                            <button class="xp-btn xp-btn-red py-2 px-4 text-[10px] font-black uppercase tracking-wider hover:brightness-90 active:scale-[0.98] transition-all">
+                                Signup
+                            </button>
+                        </a>
                     </div>
                 {% endif %}
             </div>

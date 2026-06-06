@@ -6,7 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator, MinLengthValidator
 from django.db import models, transaction
-from django.db.models import Q, F, Max
+from django.db.models import Q, F, Max, Avg
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from web.services.rankings import update_global_ranking, update_local_ranking
@@ -100,6 +100,15 @@ class WebUser(AbstractUser):
         Review.objects.filter(reviewer_id=cs_user.pk).update(reviewer_name=self.username)
         for match in Match.objects.filter(Q(winner_id=self.pk)|Q(loser_id=self.pk)).prefetch_related("matches_match_stats"):
             match.update_match_usernames(match.winner_id == cs_user.pk, cs_user.pk, self.username)
+
+    @property
+    def avg_rating(self):
+        result = self.reviews_received.aggregate(Avg('rating'))['rating__avg']
+        return round(result, 1) if result is not None else 0.0
+
+    @property
+    def total_reviews_count(self):
+        return self.reviews_received.count()
 
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)

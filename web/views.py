@@ -12,6 +12,9 @@ from django.db.models import Q
 from django.views.decorators.csrf import csrf_exempt
 from uuid import uuid4
 from web.utils import score
+from django.http import JsonResponse
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
+
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -140,13 +143,28 @@ def reviews(request):
 def user_reviews_list(request, username):
     target_user = get_object_or_404(WebUser, username=username)
     my_review = None
+    has_played_together = False
 
     if request.user.is_authenticated:
         my_review = Review.objects.filter(reviewer=request.user, reviewee=target_user).first()
 
+        try:
+            user_cs = request.user.corresponding_CS_user
+            target_cs = target_user.corresponding_CS_user
+
+            has_played_together = Match.objects.filter(
+                (Q(winner=user_cs) & Q(loser=target_cs)) |
+                (Q(winner=target_cs) & Q(loser=user_cs))
+            ).exists()
+        except Exception:
+            has_played_together = False
+
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user == target_user:
+        if not request.user.is_authenticated:
             return redirect('login')
+
+        if request.user == target_user or not has_played_together:
+            return redirect('web:user_reviews_list', username=username)
 
         form = ReviewForm(request.POST, instance=my_review)
         if form.is_valid():
@@ -159,7 +177,19 @@ def user_reviews_list(request, username):
     else:
         form = ReviewForm(instance=my_review)
 
-    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    sort_param = request.GET.get('sort', 'date_desc')
+
+    if sort_param == 'date_asc':
+        order_by_criteria = ['last_modified', 'review_id']
+    elif sort_param == 'stars_desc':
+        order_by_criteria = ['-rating', '-last_modified', '-review_id']
+    elif sort_param == 'stars_asc':
+        order_by_criteria = ['rating', '-last_modified', '-review_id']
+    else:
+        order_by_criteria = ['-last_modified', '-review_id']
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by(*order_by_criteria)
+
     if request.user.is_authenticated:
         all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
 
@@ -172,6 +202,8 @@ def user_reviews_list(request, username):
         'my_review': my_review,
         'form': form,
         'other_reviews': other_reviews_page,
+        'has_played_together': has_played_together,
+        'current_sort': sort_param,
     })
 
 
