@@ -2,23 +2,29 @@
 {% block title %} Strike 1v1 - Reviews for {{ target_user.username }} {% endblock %}
 
 {% block content %}
-    <div class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+    <div vocab="https://schema.org/" typeof="Person" class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+        <meta property="identifier" content="{{ target_user.id }}">
         <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
             <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
                 <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
                     S
                 </div>
-                Reviews from the player - {{ target_user.username }} -
+                Reviews from the player -&nbsp;<span property="name">{{ target_user.username }}</span>&nbsp;-
             </div>
             <div class="flex gap-1">
                 <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span class="ctrl-display close">x</span>
             </div>
+            {% if target_user.user_image %}
+                <meta property="image" content="{{ target_user.user_image.url }}">
+            {% else %}
+                <meta property="image" content="None">
+            {% endif %}
         </div>
 
         <div class="bg-card-dark border-x border-b border-black p-6 space-y-6">
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-black pb-4">
-                <div class="flex flex-col gap-1">
+                <div property="aggregateRating" typeof="AggregateRating" class="flex flex-col gap-1">
                     <h2 class="text-white font-black text-sm uppercase">
                         {% if other_reviews.paginator.count > 0 or my_review %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
                     </h2>
@@ -27,15 +33,17 @@
                         <div class="flex items-center gap-2 mt-1 bg-black/30 border border-white/5 px-2.5 py-1 rounded-[2px] w-fit">
                             <span class="text-yellow-500 font-black text-xs flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-                                {{ target_user.avg_rating }} / 5.0
+                                <span property="ratingValue">{{ target_user.avg_rating }}</span> / 5.0
                             </span>
                             <span class="text-white/30 text-xs">|</span>
                             <span class="text-footer-text text-[10px] font-bold uppercase tracking-wider">
-                                Total Reviews: {{ target_user.total_reviews_count }}
+                                Total Reviews: <span property="reviewCount">{{ target_user.total_reviews_count }}</span>
                             </span>
                         </div>
                     {% else %}
                         <div class="flex items-center mt-1 bg-black/20 border border-white/5 px-2.5 py-1 rounded-[2px] w-fit">
+                            <meta property="ratingValue" content="0.0">
+                            <meta property="reviewCount" content="0">
                             <span class="text-footer-text text-[10px] font-black uppercase tracking-widest opacity-60">
                                 0 Reviews Registered
                             </span>
@@ -103,24 +111,29 @@
                         <div class="h-[1px] flex-grow bg-white/10"></div>
                     </div>
 
-                    <div class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,0,0,0.2)]"
+                    <div rel="review" typeof="Review" class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
-
+                        <meta property="identifier" content="{{ my_review.review_id }}">
                         <div class="flex justify-between items-center flex-wrap sm:flex-nowrap gap-4">
                             <div class="flex items-center gap-4 min-w-0 flex-1">
-                                <div class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                <div property="author" typeof="Person" class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                    <meta property="identifier" content="{{ my_review.reviewer.id }}">
+                                    <meta property="name" content="{{ my_review.reviewer.username }}">
                                     {% if my_review.reviewer.user_image %}
-                                        <img src="{{ my_review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
+                                        <img property="image" src="{{ my_review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
                                     {% else %}
+                                        <meta property="image" content="None">
                                         <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
                                             <span class="material-symbols-outlined text-xl">account_circle</span>
                                         </div>
                                     {% endif %}
-                                tapo
                                 </div>
                                 <div class="flex flex-col justify-center">
-                                    <div class="text-white font-black text-sm uppercase tracking-tight">{{ my_review.title }}</div>
-                                    <div class="flex text-yellow-500 gap-1 items-center">
+                                    <div property="name" class="text-white font-black text-sm uppercase tracking-tight">{{ my_review.title }}</div>
+                                    <div property="reviewRating" typeof="Rating" class="flex text-yellow-500 gap-1 items-center">
+                                        <meta property="ratingValue" content="{{ my_review.rating }}">
+                                        <meta property="bestRating" content="5">
+                                        <meta property="worstRating" content="1">
                                         {% for i in "12345" %}
                                             {% if forloop.counter <= my_review.rating %}
                                                 <span class="material-symbols-outlined text-2xl !leading-none flex items-center" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -129,7 +142,7 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <meta property="dateModified" content="{{ my_review.last_modified|date:'Y-m-d' }}T{{ my_review.last_modified|time:'H:i:s' }}">
                             <div class="flex items-center gap-3 ml-auto sm:ml-0 flex-wrap justify-end">
                                 {% if my_review.last_modified %}
                                     <div class="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px]">
@@ -148,7 +161,7 @@
                         </div>
 
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-xs italic text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
+                            <p property="reviewBody" class="text-footer-text text-xs italic text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
                         </div>
                     </div>
                 </div>
@@ -173,15 +186,22 @@
                 </div>
 
                 {% for r in other_reviews %}
-                    <div class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
+                    <div rel="review" typeof="Review" class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
-
+                        <meta property="identifier" content="{{ r.review_id }}">
                         <div class="flex justify-between items-start sm:items-center mb-2 flex-col sm:flex-row gap-2 sm:gap-4">
                             <div class="flex items-center gap-3 min-w-0 flex-1">
-                                <span class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
-                                <span class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
+                                <span property="author" typeof="Person">
+                                    <meta property="identifier" content="{{ r.reviewer.id }}">
+                                    <span property="name" class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                    {% if target_user.user_image %}
+                                        <meta property="image" content="{{ target_user.user_image.url }}">
+                                    {% else %}
+                                        <meta property="image" content="None">
+                                    {% endif %}
+                                </span>
+                                <span property="name" class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
                             </div>
-
                             <div class="flex items-center gap-3 self-end sm:self-auto shrink-0">
                                 {% if r.last_modified %}
                                     <div class="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px]">
@@ -192,8 +212,10 @@
                                         <span>{{ r.last_modified|time:"H:i" }}</span>
                                     </div>
                                 {% endif %}
-
-                                <div class="flex text-yellow-600 items-center">
+                                <div property="reviewRating" typeof="Rating" class="flex text-yellow-600 items-center">
+                                    <meta property="ratingValue" content="{{ r.rating }}">
+                                    <meta property="bestRating" content="5">
+                                    <meta property="worstRating" content="1">
                                     {% for i in "12345" %}
                                         {% if forloop.counter <= r.rating %}
                                             <span class="material-symbols-outlined text-[16px] !leading-none flex items-center" style="font-variation-settings: 'FILL' 1;">star</span>
@@ -202,9 +224,9 @@
                                 </div>
                             </div>
                         </div>
-
+                        <meta property="dateModified" content="{{ r.last_modified|date:'Y-m-d' }}T{{ r.last_modified|time:'H:i:s' }}">
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">"{{ r.description }}"</p>
+                            <p property="reviewBody" class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">"{{ r.description }}"</p>
                         </div>
                     </div>
                 {% empty %}
