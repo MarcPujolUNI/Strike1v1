@@ -1,0 +1,72 @@
+{% extends 'base/base.html' %}
+
+{% block title %} Strike 1v1 - Matchmaking {% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma relative">
+    
+    {% if not match_url %}
+    <meta http-equiv="refresh" content="3">
+    {% endif %}
+
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            {% if not match_url %} Searching Match... {% else %} Match Ready! {% endif %}
+        </div>
+    </div>
+
+    <div class="bg-card-dark border-x border-b border-black p-10 md:p-14 text-center">
+        
+        <div class="mb-6">
+            <h1 class="text-white text-4xl md:text-5xl font-black uppercase tracking-tighter drop-shadow-[4px_4px_0_#000]">
+                {% if not match_url %} INITIALIZING SERVER {% else %} SERVER READY {% endif %}
+            </h1>
+        </div>
+
+        <div class="group relative">
+            <div class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] {% if match_url %} border-green-500 {% else %} border-brand-red {% endif %}">
+                
+                {% if not match_url %}
+                    <div class="mb-6 animate-pulse">
+                        <div class="text-brand-red text-2xl font-black uppercase tracking-widest mb-2">
+                            Searching Opponent...
+                        </div>
+                        <div class="h-[1px] w-16 bg-brand-red/50 mx-auto"></div>
+                    </div>
+                    
+                    <p class="text-[11px] text-white/60 font-medium uppercase tracking-[1px] mb-6">
+                        The controller is deploying a Xash3D Docker container.<br>
+                        Please wait, this usually takes 5-10 seconds.
+                    </p>
+
+                    <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-red border-r-transparent"></div>
+                
+                {% else %}
+                    <div class="mb-6">
+                        <div class="text-green-500 text-2xl font-black uppercase tracking-widest mb-2">
+                            Match Found!
+                        </div>
+                        <div class="h-[1px] w-16 bg-green-500/50 mx-auto"></div>
+                    </div>
+
+                    <div class="bg-black/60 p-4 mb-8 border border-white/10">
+                        <p class="text-footer-text text-[10px] uppercase mb-1">Server Address:</p>
+                        <code class="text-green-400 text-xl font-bold select-all">{{ match_url }}</code>
+                    </div>
+
+                    <a href="{{ match_url }}" class="xp-btn xp-btn-blue block w-full py-5 text-2xl tracking-[4px] font-bold uppercase no-underline">
+                        &gt;&gt; CONNECT NOW &lt;&lt;
+                    </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="mt-8">
+            <a href="{% url 'web:play' %}" class="text-[11px] text-footer-text hover:text-white uppercase tracking-widest transition-colors">
+                Cancel Matchmaking
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

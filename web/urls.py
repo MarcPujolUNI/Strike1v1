@@ -35,4 +35,5 @@ urlpatterns = [
     path('reviews/delete/<int:review_id>/', views.delete_review, name='delete_review'),
     path('reviews/<str:username>/', views.user_reviews_list, name='user_reviews_list'),
     path('reviews/<str:username>/<int:review_id>/', views.review_detail, name='review_detail'),
+    path('save-match', views.save_match, name='save_match'),
 ]

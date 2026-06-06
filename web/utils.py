@@ -10,5 +10,7 @@ def clean_old_match_logs():
     for match in matches:
         if match.log_file:
             match.log_file.delete(save=False)
-        match.log_file = None
-        match.save()
+    matches.update(log_file=None)
+
+def score():
+    return 30, -30

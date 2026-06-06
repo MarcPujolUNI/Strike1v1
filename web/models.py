@@ -8,7 +8,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator, RegexVa
 from django.db import models, transaction
 from django.db.models import Q, F, Max, Avg
 from django.db.models.functions import Coalesce
-from django.utils.timezone import now
+from django.utils import timezone
 from web.services.rankings import update_global_ranking, update_local_ranking
 
 DEFAULT_COUNTRY = 9
@@ -17,13 +17,19 @@ WIN_MODE = 1
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Big")
     map_id = models.AutoField(primary_key=True)
-    map_name = models.CharField(max_length=50)
+    map_name = models.CharField(max_length=50, unique=True)
     creator = models.CharField(max_length=50)
     type = models.CharField(max_length=10, choices=MapType)
     dimensions = models.DecimalField(decimal_places=2, max_digits=10, validators=[MinValueValidator(2)])
 
     def __str__(self):
         return self.map_name
+
+    def save(self, *args, **kwargs):
+        old_name = Map.objects.get(pk=self.pk).map_name
+        super().save(*args, **kwargs)
+        if old_name != self.map_name:
+            Match.objects.filter(map_played__map_id=self.pk).update(map_name=self.map_name)
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
@@ -164,11 +170,13 @@ class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
     loser = models.ForeignKey(CounterUser, related_name= "matches_lost", on_delete=models.SET_NULL, null=True)
     loser_name = models.CharField(max_length=50)
+    map_played = models.ForeignKey(Map, related_name= "map_matches", on_delete=models.SET_NULL, null=True)
+    map_name = models.CharField(max_length=50)
     winner = models.ForeignKey(CounterUser, related_name= "matches_won", on_delete=models.SET_NULL, null=True)
     winner_name = models.CharField(max_length=50)
     score_display = models.CharField(max_length=5, validators=[RegexValidator(regex=r"^(10-[0-9]|[0-9]-10)$")])
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
-    date = models.DateTimeField(validators=[MaxValueValidator(now)])
+    date = models.DateTimeField(validators=[MaxValueValidator(timezone.now)])
     log_file = models.FileField(upload_to="match_logs/", null=True)
 
     class Meta:
@@ -176,7 +184,7 @@ class Match(models.Model):
         verbose_name_plural = "Matches"
 
     def __str__(self):
-        return f"{self.winner_name} vs {self.loser_name}: {self.score_display} - {self.date}"
+        return f"{self.winner_name} vs {self.loser_name} in {self.map_name}: {self.score_display} - {self.date}"
 
     def update_match_usernames(self, mode, user_id, new_username):
         if mode == WIN_MODE:

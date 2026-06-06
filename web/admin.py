@@ -111,13 +111,13 @@ class CounterUserAdmin(admin.ModelAdmin):
 @admin.register(Match)
 class MatchAdmin(admin.ModelAdmin):
     autocomplete_fields = ('winner', 'loser')
-    fields = ('winner', 'loser', 'score_display', 'duration', 'date')
-    list_display = ('winner_display', 'loser_display', 'score_display', 'duration', 'date')
-    list_filter = ('winner', 'loser')
+    fields = ('winner', 'loser', 'score_display', 'duration', 'date', 'map_played')
+    list_display = ('winner_display', 'loser_display', 'score_display', 'map_display', 'duration', 'date')
+    list_filter = ('winner', 'loser', 'map_played')
     list_per_page = 10
-    list_select_related = ('winner', 'winner__user', 'loser', 'loser__user')
-    ordering = ('date','winner__user__username', 'loser__user__username')
-    search_fields = ('winner__user__username','loser__user__username', 'duration','date')
+    list_select_related = ('winner', 'winner__user', 'loser', 'loser__user', 'map_played')
+    ordering = ('date','winner__user__username', 'map_played__map_name', 'loser__user__username')
+    search_fields = ('winner__user__username','loser__user__username', 'map_played__map_name', 'duration', 'date')
 
     def save_model(self, request, record, form, change):
         if record.winner: record.winner_name = record.winner.user.username
@@ -125,7 +125,7 @@ class MatchAdmin(admin.ModelAdmin):
         super().save_model(request, record, form, change)
 
     def get_readonly_fields(self, request, record=None):
-        return ('winner', 'loser', 'duration', 'date') if record else ()
+        return ('winner', 'loser', 'duration', 'date', 'map_played') if record else ()
 
     @admin.display(ordering='winner__user__username', description="Winner")
     def winner_display(self, record):
@@ -134,6 +134,10 @@ class MatchAdmin(admin.ModelAdmin):
     @admin.display(ordering='loser__user__username', description="Loser")
     def loser_display(self, record):
         return record.loser.user.username if record.loser else f"{record.loser_name} (deleted)"
+
+    @admin.display(ordering='map__map_name', description="Map")
+    def map_display(self, record):
+        return record.map_played.map_name if record.map_played else f"{record.map_name} (deleted)"
 
 @admin.register(MatchStats)
 class MatchStatsAdmin(admin.ModelAdmin):
