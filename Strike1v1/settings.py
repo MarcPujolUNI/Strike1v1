@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from decouple import config, Csv
 
@@ -142,3 +142,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # User used for authentication
 AUTH_USER_MODEL = 'web.WebUser'
+
+#REDIS config
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+REDIS_DB = config('REDIS_DB', default=0, cast=int)
+
+# Game Server Controller Config
+# If running in Docker, use host.docker.internal to reach the host port 5000
+# If running locally, use localhost
+GAME_SERVER_API_URL = os.environ.get('API_URL', 'http://localhost:5000')

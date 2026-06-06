@@ -1,6 +1,10 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404, reverse
+from django.http import JsonResponse
+import requests
+from django.conf import settings
 from .models import CounterUser, Country, Match, WebUser, Review
+from .services import matchmaking
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import update_session_auth_hash, logout
@@ -226,8 +230,73 @@ def matches(request):
     })
 
 
+@login_required
 def play(request):
     return render(request, 'pages/play.html')
+
+@login_required
+def waiting(request):
+    # This view just renders the page, JS will handle the rest
+    return render(request, 'pages/waiting.html')
+
+@login_required
+def matchmaking_join(request):
+    user = request.user
+    score = user.corresponding_CS_user.score
+    result = matchmaking.join_queue(user.id, score)
+    return JsonResponse(result)
+
+@login_required
+def matchmaking_status(request):
+    user = request.user
+    result = matchmaking.get_status(user.id)
+    
+    # If it was matched, we fetch the real server URL from the controller API
+    if result.get("status") == "matched":
+        opponent_id = result.get("opponent_id")
+        try:
+            opponent = WebUser.objects.get(id=opponent_id)
+            result["opponent_name"] = opponent.username
+            
+            # Call the external game server controller
+            try:
+                # We send the match ID or user IDs to the controller
+                # Assuming the controller expects a POST or GET with some info
+                api_response = requests.post(
+                    settings.GAME_SERVER_API_URL,
+                    json={
+                        "player1_id": user.id,
+                        "player2_id": opponent_id,
+                        "matchmaking_timestamp": result.get("timestamp")
+                    },
+                    timeout=5
+                )
+                if api_response.status_code == 200:
+                    api_data = api_response.json()
+                    result["match_url"] = api_data.get("server_url", "Server allocating...")
+                else:
+                    result["match_url"] = "Error starting server"
+            except requests.RequestException:
+                result["match_url"] = "Controller offline"
+
+        except WebUser.DoesNotExist:
+            result["opponent_name"] = "Unknown"
+            result["match_url"] = "#"
+
+    return JsonResponse(result)
+
+@login_required
+def matchmaking_cancel(request):
+    user = request.user
+    matchmaking.cancel_queue(user.id)
+    return JsonResponse({"status": "cancelled"})
+
+@login_required
+def matchmaking_timeout(request):
+    # Called by frontend when they want to widen search
+    user = request.user
+    matchmaking.increment_attempts(user.id)
+    return JsonResponse({"status": "attempts_incremented"})
 
 
 def terms_of_service(request):

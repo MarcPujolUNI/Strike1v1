@@ -11,8 +11,21 @@ services:
     # Access the app at http://localhost:8000
     ports:
       - "8000:8000"
+    # To connect with internal API
+    environment:
+      - API_URL=http://host.docker.internal:5000
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
     # Mount the current directory into /app in the container
     # This means code changes on your machine are reflected instantly (live reload)
     volumes:
       - .:/app  # "." = your project folder, "/app" = where it goes inside the container
+    depends_on:
+      - redis
+
+  # Redis for matchmaking
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
