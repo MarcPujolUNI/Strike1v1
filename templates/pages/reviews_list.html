@@ -45,7 +45,7 @@
 
                 {% if user.is_authenticated and user != target_user and not my_review and has_played_together %}
                     <button onclick="document.getElementById('review-form-container').classList.toggle('hidden')"
-                            class="xp-btn xp-btn-blue min-w-[160px] px-4 py-2 text-[10px] font-black uppercase shadow-[3px_3px_0px_#000] shrink-0 text-center">
+                            class="xp-btn xp-btn-blue px-4 py-2 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.96] transition-all shrink-0 text-center">
                         + WRITE A REVIEW
                     </button>
                 {% endif %}
@@ -84,11 +84,11 @@
                         <div class="flex flex-row gap-4">
                             <button type="button"
                                     onclick="document.getElementById('review-form-container').classList.add('hidden')"
-                                    class="xp-btn xp-btn-red flex-1 py-2 text-[10px] font-black uppercase shadow-[2px_2px_0px_#000]">
+                                    class="xp-btn xp-btn-red flex-1 py-2 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.96] transition-all">
                                 CANCEL
                             </button>
                             <button type="submit"
-                                    class="xp-btn xp-btn-blue flex-1 py-2 text-[10px] font-black uppercase shadow-[2px_2px_0px_#000]">
+                                    class="xp-btn xp-btn-blue flex-1 py-2 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.96] transition-all">
                                 PUBLISH
                             </button>
                         </div>
@@ -147,7 +147,7 @@
                         </div>
 
                         <div class="mt-4 pt-4 border-t border-white/5">
-                            <p class="text-footer-text text-xs italic text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
+                            <p class="text-footer-text text-xs italic text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-relaxed">"{{ my_review.description }}"</p>
                         </div>
                     </div>
                 </div>
@@ -202,9 +202,10 @@
                             </div>
                         </div>
 
-                        <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">
-                            "{{ r.description }}"
-                        </p>
+                        <!-- CORREGIDO: Se añade el div de separación superior limpia y se escribe el <p> entero en una sola línea sin tabuladores de código de por medio -->
+                        <div class="mt-4 pt-4 border-t border-white/5">
+                            <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">"{{ r.description }}"</p>
+                        </div>
                     </div>
                 {% empty %}
                     {% if not my_review %}

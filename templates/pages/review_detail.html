@@ -21,11 +21,11 @@
             <div class="flex flex-col gap-3 w-full">
                 <form action="{% url 'web:delete_review' review.review_id %}" method="POST" class="w-full">
                     {% csrf_token %}
-                    <button type="submit" class="w-full bg-brand-red border-[3px] border-black py-3 text-white font-black text-xs uppercase shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
+                    <button type="submit" class="w-full xp-btn xp-btn-red py-3 text-[12px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                         Yes, Delete Review
                     </button>
                 </form>
-                <button onclick="toggleModal(false)" class="w-full bg-xp-gray-light border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-white active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
+                <button onclick="toggleModal(false)" class="w-full xp-btn bg-white/10 border border-white/20 text-white py-3 text-[12px] font-black uppercase tracking-wider hover:bg-white/20 active:scale-[0.97] transition-all">
                     Cancel
                 </button>
             </div>
@@ -106,17 +106,18 @@
             </div>
 
             <div class="flex flex-row gap-4 pt-6 border-t border-white/5">
-                <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}"
-                   class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center">
-                    &lt; Return to the list
+                <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}" class="flex-1">
+                    <button class="w-full xp-btn xp-btn-blue py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
+                        &lt; Return to the list
+                    </button>
                 </a>
                 {% if is_author %}
                 <button onclick="document.getElementById('read-mode').classList.add('hidden'); document.getElementById('edit-mode').classList.remove('hidden');"
-                        class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000]">
+                        class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                     Modify
                 </button>
                 <button onclick="toggleModal(true)"
-                        class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000]">
+                        class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                     Delete
                 </button>
                 {% endif %}
@@ -153,8 +154,8 @@
                     {{ form.description }}
                 </div>
                 <div class="flex flex-row gap-4 pt-4">
-                    <button type="button" onclick="location.reload()" class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase shadow-[3px_3px_0px_#000]">CANCEL</button>
-                    <button type="submit" class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[3px_3px_0px_#000]">SAVE</button>
+                    <button type="button" onclick="location.reload()" class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">CANCEL</button>
+                    <button type="submit" class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">SAVE</button>
                 </div>
             </form>
         </div>
