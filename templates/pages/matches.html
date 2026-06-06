@@ -60,6 +60,12 @@
                         Match History
                     </a>
 
+                    <a href="{% url 'web:user_stats' username=user.username %}"
+                       class="border-2 border-transparent px-3 py-2 text-white/60 font-bold text-xs uppercase hover:text-white hover:border-white/20 transition-all flex items-center gap-3">
+                        <span class="material-symbols-outlined text-[18px]">equalizer</span>
+                        My Stats
+                    </a>
+
                     <a href="{% url 'web:user_reviews_list' username=user.username %}"
                        class="border-2 border-transparent px-3 py-2 text-white/60 font-bold text-xs uppercase hover:text-white hover:border-white/20 transition-all flex items-center gap-3">
                         <span class="material-symbols-outlined text-[18px]">forum</span>
