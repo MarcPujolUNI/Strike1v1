@@ -45,17 +45,20 @@ def join_queue(user_id, score):
             r.zrem(QUEUE_KEY, user_id, opponent_id)
             
             # Create match records
+            # ONLY the person who just joined (user_id) will trigger the server request
             match_info = {
                 "opponent_id": opponent_id,
                 "status": "matched",
-                "timestamp": time.time()
+                "timestamp": time.time(),
+                "request_server": True 
             }
             
-            # Opponent match info
+            # The person who was already waiting (opponent_id) will just wait for the URL
             opponent_match_info = {
                 "opponent_id": user_id,
                 "status": "matched",
-                "timestamp": time.time()
+                "timestamp": time.time(),
+                "request_server": False
             }
             
             r.set(f"{MATCH_KEY_PREFIX}{user_id}", json.dumps(match_info), ex=60)

@@ -1,19 +1,25 @@
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404, reverse
-from django.http import JsonResponse
-import requests
+import requests, json
 from django.conf import settings
-from .models import CounterUser, Country, Match, WebUser, Review
 from .services import matchmaking
+from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import CounterUser, Country, Match, WebUser, Review, MatchStats, Map
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import update_session_auth_hash, logout
-from web.forms import SignUpForm, UserProfileForm, ReviewForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
-
+from django.views.decorators.csrf import csrf_exempt
+from uuid import uuid4
+from web.utils import score
+from django.http import JsonResponse
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
+from django.db import transaction
+from django.core.files.base import ContentFile
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -250,27 +256,32 @@ def _enrich_match_info(user, result):
             if result.get("match_url"):
                 return result
 
-            # Otherwise, call the external game server controller
-            try:
-                api_response = requests.post(
-                    settings.GAME_SERVER_API_URL,
-                    json={
-                        "player1_id": user.id,
-                        "player2_id": opponent_id,
-                        "matchmaking_timestamp": result.get("timestamp")
-                    },
-                    timeout=5
-                )
-                if api_response.status_code == 200:
-                    api_data = api_response.json()
-                    match_url = api_data.get("url", "Server allocating...")
-                    result["match_url"] = match_url
-                    # Save it in Redis so the opponent gets the same one
-                    matchmaking.update_match_url(user.id, match_url)
-                else:
-                    result["match_url"] = "Error starting server"
-            except requests.RequestException:
-                result["match_url"] = "Controller offline"
+            # ONLY call the API if this user is the designated requester
+            # and we don't have a URL yet.
+            if result.get("request_server") is True:
+                try:
+                    api_response = requests.post(
+                        settings.GAME_SERVER_API_URL,
+                        json={
+                            "player1_id": user.id,
+                            "player2_id": opponent_id,
+                            "matchmaking_timestamp": result.get("timestamp")
+                        },
+                        timeout=5
+                    )
+                    if api_response.status_code == 200:
+                        api_data = api_response.json()
+                        match_url = api_data.get("url", "Server allocating...")
+                        result["match_url"] = match_url
+                        # Save it in Redis so the opponent gets the same one
+                        matchmaking.update_match_url(user.id, match_url)
+                    else:
+                        result["match_url"] = "Error starting server"
+                except requests.RequestException:
+                    result["match_url"] = "Controller offline"
+            else:
+                # If not the requester, just say we're waiting for the server
+                result["match_url"] = "Waiting for server allocation..."
 
         except WebUser.DoesNotExist:
             result["opponent_name"] = "Unknown"
@@ -317,3 +328,26 @@ def privacy_policy(request):
 
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
+
+@csrf_exempt
+def save_match(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        winner_name, loser_name, map_name = data.get('winner'), data.get('loser'), data.get('map')
+        winner, loser = CounterUser.objects.get(user_username=winner_name), CounterUser.objects.get(user_username=loser_name)
+        map_played, duration = Map.objects.get(map_name=map_name), timedelta(seconds=int(data.get('duration')))
+        date = timezone.make_aware(datetime.strptime(f"{data.get('date')} {data.get('start')}", "%m/%d/%Y %H:%M:%S"))
+        log_text = data.get('log')
+        filename = f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
+        with transaction.atomic():
+            new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name, winner=winner,
+                                         winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
+            new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
+            winner_points, loser_points = score()
+            loser_points = max(0, loser.score + loser_points)
+            MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
+                                                 deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
+            MatchStats.objects.create(user=loser, username=loser_name, kills=data.get('kills_loser'),
+                                                 deaths=data.get('deaths_loser'), match=new_match, points=loser_points)
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "failed"}, status=400)
