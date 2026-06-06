@@ -136,8 +136,19 @@ def delete_account(request):
     return redirect('web:profile')
 
 
-def reviews(request):
-    return render(request, 'pages/reviews.html')
+def users_search(request):
+    return render(request, 'pages/users.html')
+
+
+def user_stats(request, username):
+    target_user = get_object_or_404(WebUser, username=username)
+
+    counter_user = get_object_or_404(CounterUser, user=target_user)
+
+    return render(request, 'pages/user_stats.html', {
+        'target_user': target_user,
+        'counter_user': counter_user,
+    })
 
 
 def user_reviews_list(request, username):
