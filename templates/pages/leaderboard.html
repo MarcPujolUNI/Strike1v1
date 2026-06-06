@@ -33,7 +33,7 @@
 
                         {% if user_page %}
                             <a href="?page={{ user_page }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
-                               class="bg-xp-blue border-2 border-xp-blue-border px-4 py-2 text-white font-black text-xs uppercase hover:brightness-110 active:translate-y-[1px] shadow-[2px_2px_0px_#000] transition-all flex items-center gap-1.5 h-fit whitespace-nowrap">
+                               class="xp-btn xp-btn-blue px-4 py-2 text-white font-black text-xs uppercase hover:brightness-110 active:scale-[0.97] transition-all flex items-center gap-1.5 h-fit whitespace-nowrap">
                                 <span class="material-symbols-outlined text-xs">my_location</span>
                                 Find My Page Position
                             </a>
@@ -60,7 +60,7 @@
                         </div>
 
                         <button id="submit-country-search-btn" type="button"
-                                class="bg-xp-blue border-2 border-xp-blue-border px-4 py-1 text-white font-black text-xs uppercase hover:brightness-110 active:translate-y-[1px] shadow-[2px_2px_0px_#000] transition-all">
+                                class="xp-btn xp-btn-blue px-4 py-1 text-white font-black text-xs uppercase hover:brightness-110 active:scale-[0.97] transition-all">
                             Apply
                         </button>
                     </div>
@@ -85,78 +85,76 @@
                     </thead>
                     <tbody class="text-sm">
                     {% for player in page_obj %}
-                        <tr class="{% if player.user == request.user %} bg-xp-blue/20 {% endif %}">
+                        {% with absolute_rank=page_obj.start_index|add:forloop.counter0 %}
+                            <tr class="transition-colors
+                                {% if player.user == request.user %}
+                                    bg-xp-blue/20 hover:bg-xp-blue/30
+                                {% elif absolute_rank == 1 %}
+                                    bg-[#FFD700]/5 hover:bg-[#FFD700]/15
+                                {% elif absolute_rank == 2 %}
+                                    bg-[#C0C0C0]/5 hover:bg-[#C0C0C0]/15
+                                {% elif absolute_rank == 3 %}
+                                    bg-[#CD7F32]/5 hover:bg-[#CD7F32]/15
+                                {% else %}
+                                    hover:bg-white/5
+                                {% endif %}">
 
-                            {% with absolute_rank=page_obj.start_index|add:forloop.counter0 %}
-                                <tr class="transition-colors
-                                    {% if player.user == request.user %}
-                                        bg-xp-blue/20 hover:bg-xp-blue/30
-                                    {% elif absolute_rank == 1 %}
-                                        bg-[#FFD700]/5 hover:bg-[#FFD700]/15
-                                    {% elif absolute_rank == 2 %}
-                                        bg-[#C0C0C0]/5 hover:bg-[#C0C0C0]/15
-                                    {% elif absolute_rank == 3 %}
-                                        bg-[#CD7F32]/5 hover:bg-[#CD7F32]/15
-                                    {% else %}
-                                        hover:bg-white/5
+                                <td class="p-4 text-center border-b border-white/5
+                                    {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0
+                                    {% elif absolute_rank == 1 %} border-l-[4px] border-l-[#FFD700]/40
+                                    {% elif absolute_rank == 2 %} border-l-[4px] border-l-[#C0C0C0]/30
+                                    {% elif absolute_rank == 3 %} border-l-[4px] border-l-[#CD7F32]/30
                                     {% endif %}">
-
-                                    <td class="p-4 text-center border-b border-white/5
-                                        {% if player.user == request.user %} border-l-[6px] border-l-brand-red pl-0
-                                        {% elif absolute_rank == 1 %} border-l-[4px] border-l-[#FFD700]/40
-                                        {% elif absolute_rank == 2 %} border-l-[4px] border-l-[#C0C0C0]/30
-                                        {% elif absolute_rank == 3 %} border-l-[4px] border-l-[#CD7F32]/30
-                                        {% endif %}">
-                                        <span class="font-black text-2xl drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]
-                                            {% if absolute_rank == 1 %}
-                                                text-[#FFD700]
-                                            {% elif absolute_rank == 2 %}
-                                                text-[#E1E1E6]
-                                            {% elif absolute_rank == 3 %}
-                                                text-[#E69A53]
-                                            {% else %}
-                                                text-white/30
-                                            {% endif %}">
-                                            #{{ absolute_rank }}
-                                        </span>
-                                    </td>
-                            {% endwith %}
-
-                            <td class="p-4 border-b border-white/5">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden flex items-center justify-center">
-                                        {% if player.user.user_image %}
-                                            <img src="{{ player.user.user_image.url }}" alt="Profile picture"
-                                                 class="w-full h-full object-cover">
+                                    <span class="font-black text-2xl drop-shadow-[2px_2px_0px_rgba(0,0,0,1)]
+                                        {% if absolute_rank == 1 %}
+                                            text-[#FFD700]
+                                        {% elif absolute_rank == 2 %}
+                                            text-[#E1E1E6]
+                                        {% elif absolute_rank == 3 %}
+                                            text-[#E69A53]
                                         {% else %}
-                                            <span class="material-symbols-outlined text-2xl text-white/30">account_circle</span>
+                                            text-white/30
+                                        {% endif %}">
+                                        #{{ absolute_rank }}
+                                    </span>
+                                </td>
+
+                                <td class="p-4 border-b border-white/5">
+                                    <div class="flex items-center gap-4">
+                                        <div class="w-10 h-10 border-2 border-white/20 bg-[#111] flex-shrink-0 shadow-[2px_2px_0px_#000] overflow-hidden flex items-center justify-center">
+                                            {% if player.user.user_image %}
+                                                <img src="{{ player.user.user_image.url }}" alt="Profile picture"
+                                                     class="w-full h-full object-cover">
+                                            {% else %}
+                                                <span class="material-symbols-outlined text-2xl text-white/30">account_circle</span>
+                                            {% endif %}
+                                        </div>
+                                        <span data-testid="player-name" class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
+                                        {{ player.user.username }}
+                                    </span>
+                                    </div>
+                                </td>
+
+                                <td class="p-4 text-center border-b border-white/5">
+                                    <div class="flex justify-center">
+                                        {% if player.user.user_country.flag_image %}
+                                            <img src="{{ player.user.user_country.flag_image.url }}"
+                                                 class="w-8 h-auto border-2 border-black/50 shadow-md" alt="Flag image">
+                                        {% else %}
+                                            <div class="w-10 h-10 bg-[#111] border-2 border-black/50 shadow-md flex items-center justify-center text-white/40">
+                                                <span class="material-symbols-outlined text-2xl">account_circle</span>
+                                            </div>
                                         {% endif %}
                                     </div>
-                                    <span data-testid="player-name" class="text-white font-black text-base uppercase truncate flex-1 {% if player.user == request.user %} text-brand-red {% endif %}">
-                                    {{ player.user.username }}
+                                </td>
+
+                                <td class="p-4 text-center border-b border-white/5">
+                                <span class="text-white font-black text-3xl drop-shadow-[2px_2px_0_#000] tabular-nums">
+                                    {{ player.score }}
                                 </span>
-                                </div>
-                            </td>
-
-                            <td class="p-4 text-center border-b border-white/5">
-                                <div class="flex justify-center">
-                                    {% if player.user.user_country.flag_image %}
-                                        <img src="{{ player.user.user_country.flag_image.url }}"
-                                             class="w-8 h-auto border-2 border-black/50 shadow-md">
-                                    {% else %}
-                                        <div class="w-10 h-10 bg-[#111] border-2 border-black/50 shadow-md flex items-center justify-center text-white/40">
-                                            <span class="material-symbols-outlined text-2xl">account_circle</span>
-                                        </div>
-                                    {% endif %}
-                                </div>
-                            </td>
-
-                            <td class="p-4 text-center border-b border-white/5">
-                            <span class="text-white font-black text-3xl drop-shadow-[2px_2px_0_#000] tabular-nums">
-                                {{ player.score }}
-                            </span>
-                            </td>
-                        </tr>
+                                </td>
+                            </tr>
+                        {% endwith %}
                     {% empty %}
                         <tr>
                             <td colspan="4" class="p-20 text-center border-b border-white/5">
@@ -178,22 +176,22 @@
                     <div class="flex gap-2">
                         {% if page_obj.has_previous %}
                             <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
-                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 hover:brightness-110 active:scale-[0.95] transition-all">
                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                             </a>
                         {% else %}
-                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0">
                                 <span class="material-symbols-outlined text-sm">chevron_left</span>
                             </div>
                         {% endif %}
 
                         {% if page_obj.has_next %}
                             <a href="?page={{ page_obj.next_page_number }}{% if request.GET.country %}&country={{ request.GET.country }}{% endif %}"
-                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                               class="xp-btn xp-btn-blue w-8 h-8 flex items-center justify-center p-0 hover:brightness-110 active:scale-[0.95] transition-all">
                                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                             </a>
                         {% else %}
-                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0 shadow-[2px_2px_0px_#000]">
+                            <div class="xp-btn opacity-30 cursor-not-allowed w-8 h-8 flex items-center justify-center p-0">
                                 <span class="material-symbols-outlined text-sm">chevron_right</span>
                             </div>
                         {% endif %}

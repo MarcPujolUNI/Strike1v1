@@ -21,9 +21,9 @@
                     <span class="material-symbols-outlined text-[18px]">leaderboard</span>
                     LEADERBOARD
                 </a>
-                <a href="{% url 'web:reviews' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if 'reviews' in request.path %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
-                    <span class="material-symbols-outlined text-[18px]">forum</span>
-                    REVIEWS
+                <a href="{% url 'web:users_search' %}" class="nav-link-center px-6 text-[14px] font-bold tracking-tight uppercase transition-all border-b-4 flex items-center justify-center gap-2 {% if 'users' in request.path %} border-brand-red bg-white/5 text-white {% else %} border-transparent text-footer-text hover:text-white hover:bg-white/5 {% endif %}">
+                    <span class="material-symbols-outlined text-[18px]">group</span>
+                    USERS
                 </a>
             </nav>
         </div>
@@ -78,8 +78,17 @@
                     </div>
                 {% else %}
                     <div class="flex items-center gap-4">
-                        <a href="{% url 'login' %}" class="xp-btn xp-btn-blue px-5 py-2 text-[10px] font-black">LOGIN</a>
-                        <a href="{% url 'signup' %}" class="xp-btn xp-btn-red px-5 py-2 text-[10px] font-black">SIGNUP</a>
+                        <a href="{% url 'login' %}">
+                            <button class="xp-btn xp-btn-blue py-2 px-4 text-[10px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all">
+                                Login
+                            </button>
+                        </a>
+
+                        <a href="{% url 'signup' %}">
+                            <button class="xp-btn xp-btn-red py-2 px-4 text-[10px] font-black uppercase tracking-wider hover:brightness-90 active:scale-[0.98] transition-all">
+                                Signup
+                            </button>
+                        </a>
                     </div>
                 {% endif %}
             </div>
@@ -104,9 +113,9 @@
                     <span class="material-symbols-outlined text-sm">leaderboard</span>
                     Leaderboard
                 </a>
-                <a href="{% url 'web:reviews' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
-                    <span class="material-symbols-outlined text-sm">forum</span>
-                    Reviews
+                <a href="{% url 'web:users_search' %}" class="p-4 text-sm font-bold uppercase text-white hover:bg-brand-red transition-colors flex items-center gap-3">
+                    <span class="material-symbols-outlined text-sm">group</span>
+                    Users
                 </a>
             </div>
 

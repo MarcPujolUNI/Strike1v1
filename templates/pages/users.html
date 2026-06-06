@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-{% block title %} Strike 1v1 - Reviews {% endblock %}
+{% block title %} Strike 1v1 - Users {% endblock %}
 
 {% block content %}
     <div class="w-full max-w-[600px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
@@ -8,7 +8,7 @@
                 <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
                     S
                 </div>
-                Reviews - Search Players
+                Users - Search Players
             </div>
             <div class="flex gap-1">
                 <span class="ctrl-display">_</span>
@@ -77,7 +77,7 @@
 
                 <div class="pt-2">
                     <button type="submit" id="search-submit-btn" disabled
-                            class="xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none">
+                            class="xp-btn xp-btn-red w-full py-3.5 text-[14px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none transition-all">
                         Find Profile
                     </button>
                 </div>
@@ -87,6 +87,7 @@
 
     <script>
         const searchInput = document.getElementById('user-search');
+        const GeistDiv = document.getElementById('search-results');
         const resultsDiv = document.getElementById('search-results');
         const fieldsPanel = document.getElementById('autocomplete-fields-panel');
 
@@ -183,11 +184,10 @@
             }
 
             fieldsPanel.classList.remove('hidden');
-            finalProfileUrl = `/reviews/${username}/`;
+            finalProfileUrl = `/users/${username}/stats/`;
 
             submitBtn.removeAttribute('disabled');
-            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider";
-        }
+            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[14px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all";        }
 
         function resetFormFields() {
             finalProfileUrl = "";
@@ -199,8 +199,7 @@
             fieldsPanel.classList.add('hidden');
 
             submitBtn.setAttribute('disabled', 'true');
-            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[12px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none";
-        }
+            submitBtn.className = "xp-btn xp-btn-red w-full py-3.5 text-[14px] font-black uppercase tracking-wider opacity-30 cursor-not-allowed pointer-events-none transition-all";        }
 
         searchForm.addEventListener('submit', function (e) {
             e.preventDefault();

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect, get_object_or_404, reverse
-from .models import CounterUser, Country, Match, WebUser, Review
+from .models import CounterUser, Country, Match, WebUser, Review, MatchStats
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import update_session_auth_hash, logout
@@ -9,6 +9,11 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
+from django.views.decorators.csrf import csrf_exempt
+from uuid import uuid4
+from web.utils import score
+from django.http import JsonResponse
+from web.forms import SignUpForm, UserProfileForm, ReviewForm
 
 
 class SignUpView(CreateView):
@@ -131,20 +136,46 @@ def delete_account(request):
     return redirect('web:profile')
 
 
-def reviews(request):
-    return render(request, 'pages/reviews.html')
+def users_search(request):
+    return render(request, 'pages/users.html')
+
+
+def user_stats(request, username):
+    target_user = get_object_or_404(WebUser, username=username)
+
+    counter_user = get_object_or_404(CounterUser, user=target_user)
+
+    return render(request, 'pages/user_stats.html', {
+        'target_user': target_user,
+        'counter_user': counter_user,
+    })
 
 
 def user_reviews_list(request, username):
     target_user = get_object_or_404(WebUser, username=username)
     my_review = None
+    has_played_together = False
 
     if request.user.is_authenticated:
         my_review = Review.objects.filter(reviewer=request.user, reviewee=target_user).first()
 
+        try:
+            user_cs = request.user.corresponding_CS_user
+            target_cs = target_user.corresponding_CS_user
+
+            has_played_together = Match.objects.filter(
+                (Q(winner=user_cs) & Q(loser=target_cs)) |
+                (Q(winner=target_cs) & Q(loser=user_cs))
+            ).exists()
+        except Exception:
+            has_played_together = False
+
     if request.method == 'POST':
-        if not request.user.is_authenticated or request.user == target_user:
+        if not request.user.is_authenticated:
             return redirect('login')
+
+        if request.user == target_user or not has_played_together:
+            return redirect('web:user_reviews_list', username=username)
 
         form = ReviewForm(request.POST, instance=my_review)
         if form.is_valid():
@@ -157,7 +188,19 @@ def user_reviews_list(request, username):
     else:
         form = ReviewForm(instance=my_review)
 
-    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by('-review_id')
+    sort_param = request.GET.get('sort', 'date_desc')
+
+    if sort_param == 'date_asc':
+        order_by_criteria = ['last_modified', 'review_id']
+    elif sort_param == 'stars_desc':
+        order_by_criteria = ['-rating', '-last_modified', '-review_id']
+    elif sort_param == 'stars_asc':
+        order_by_criteria = ['rating', '-last_modified', '-review_id']
+    else:
+        order_by_criteria = ['-last_modified', '-review_id']
+
+    all_other_reviews = Review.objects.filter(reviewee=target_user).order_by(*order_by_criteria)
+
     if request.user.is_authenticated:
         all_other_reviews = all_other_reviews.exclude(reviewer=request.user)
 
@@ -170,6 +213,8 @@ def user_reviews_list(request, username):
         'my_review': my_review,
         'form': form,
         'other_reviews': other_reviews_page,
+        'has_played_together': has_played_together,
+        'current_sort': sort_param,
     })
 
 
@@ -237,6 +282,28 @@ def terms_of_service(request):
 def privacy_policy(request):
     return render(request, 'legal/privacy.html')
 
-
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
+
+@csrf_exempt
+def save_match(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        winner_name, loser_name, map_name = data.get('winner'), data.get('loser'), data.get('map')
+        winner, loser = CounterUser.objects.get(user__username=winner_name), CounterUser.objects.get(user__username=loser_name)
+        map_played, duration = Map.objects.get(map_name=map_name), timedelta(seconds=int(data.get('duration')))
+        date = timezone.make_aware(datetime.strptime(f"{data.get('date')} {data.get('start')}", "%m/%d/%Y %H:%M:%S"))
+        log_text = data.get('log')
+        filename = f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
+        with transaction.atomic():
+            new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name, winner=winner,
+                                         winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
+            new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
+            winner_points, loser_points = score()
+            loser_points = max(0, loser.score + loser_points)
+            MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
+                                                 deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
+            MatchStats.objects.create(user=loser, username=loser_name, kills=data.get('kills_loser'),
+                                                 deaths=data.get('deaths_loser'), match=new_match, points=loser_points)
+        return JsonResponse({"status": "success"})
+    return JsonResponse({"status": "failed"}, status=400)
