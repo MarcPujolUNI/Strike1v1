@@ -273,7 +273,8 @@ def matchmaking_status(request):
                 )
                 if api_response.status_code == 200:
                     api_data = api_response.json()
-                    result["match_url"] = api_data.get("server_url", "Server allocating...")
+                    # Map the 'url' from FastAPI to 'match_url' in our response
+                    result["match_url"] = api_data.get("url", "Server allocating...")
                 else:
                     result["match_url"] = "Error starting server"
             except requests.RequestException:

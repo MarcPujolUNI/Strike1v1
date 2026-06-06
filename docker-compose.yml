@@ -8,19 +8,22 @@ services:
     init: true
 
     # Map port 8000 on your machine to port 8000 in the container
-    # Access the app at http://localhost:8000
     ports:
       - "8000:8000"
-    # To connect with internal API
-    environment:
-      - API_URL=http://host.docker.internal:5000
+
+    # Mount the current directory into /app in the container
+    volumes:
+      - .:/app
+
+    # Configuración para Linux para que host.docker.internal funcione
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
-    # Mount the current directory into /app in the container
-    # This means code changes on your machine are reflected instantly (live reload)
-    volumes:
-      - .:/app  # "." = your project folder, "/app" = where it goes inside the container
+    # Environment variables for the container
+    environment:
+      - REDIS_HOST=redis
+      - GAME_SERVER_API_URL=http://host.docker.internal:5000/partida-aleatoria
+
     depends_on:
       - redis
 

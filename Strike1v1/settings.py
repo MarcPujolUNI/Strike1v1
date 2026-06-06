@@ -151,4 +151,4 @@ REDIS_DB = config('REDIS_DB', default=0, cast=int)
 # Game Server Controller Config
 # If running in Docker, use host.docker.internal to reach the host port 5000
 # If running locally, use localhost
-GAME_SERVER_API_URL = os.environ.get('API_URL', 'http://localhost:5000')
+GAME_SERVER_API_URL = config('GAME_SERVER_API_URL', default='http://localhost:5000/partida-aleatoria')
