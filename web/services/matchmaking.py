@@ -92,7 +92,22 @@ def cancel_queue(user_id):
     r.zrem(QUEUE_KEY, user_id)
     r.delete(f"{ATTEMPTS_KEY_PREFIX}{user_id}")
 
-def increment_attempts(user_id):
+def update_match_url(user_id, match_url):
     user_id = str(user_id)
-    r.incr(f"{ATTEMPTS_KEY_PREFIX}{user_id}")
-    r.expire(f"{ATTEMPTS_KEY_PREFIX}{user_id}", 1800) # 30 mins TTL
+    match_data = r.get(f"{MATCH_KEY_PREFIX}{user_id}")
+    if match_data:
+        data = json.loads(match_data)
+        data["match_url"] = match_url
+        # Keep same expiry
+        ttl = r.ttl(f"{MATCH_KEY_PREFIX}{user_id}")
+        if ttl > 0:
+            r.set(f"{MATCH_KEY_PREFIX}{user_id}", json.dumps(data), ex=ttl)
+            
+            # Also update for the opponent so they don't call the API again
+            opponent_id = data.get("opponent_id")
+            if opponent_id:
+                opp_match_data = r.get(f"{MATCH_KEY_PREFIX}{opponent_id}")
+                if opp_match_data:
+                    opp_data = json.loads(opp_match_data)
+                    opp_data["match_url"] = match_url
+                    r.set(f"{MATCH_KEY_PREFIX}{opponent_id}", json.dumps(opp_data), ex=ttl)

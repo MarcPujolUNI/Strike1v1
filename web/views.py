@@ -239,29 +239,19 @@ def waiting(request):
     # This view just renders the page, JS will handle the rest
     return render(request, 'pages/waiting.html')
 
-@login_required
-def matchmaking_join(request):
-    user = request.user
-    score = user.corresponding_CS_user.score
-    result = matchmaking.join_queue(user.id, score)
-    return JsonResponse(result)
-
-@login_required
-def matchmaking_status(request):
-    user = request.user
-    result = matchmaking.get_status(user.id)
-    
-    # If it was matched, we fetch the real server URL from the controller API
+def _enrich_match_info(user, result):
     if result.get("status") == "matched":
         opponent_id = result.get("opponent_id")
         try:
             opponent = WebUser.objects.get(id=opponent_id)
             result["opponent_name"] = opponent.username
             
-            # Call the external game server controller
+            # If we already have a cached URL in Redis, use it
+            if result.get("match_url"):
+                return result
+
+            # Otherwise, call the external game server controller
             try:
-                # We send the match ID or user IDs to the controller
-                # Assuming the controller expects a POST or GET with some info
                 api_response = requests.post(
                     settings.GAME_SERVER_API_URL,
                     json={
@@ -273,8 +263,10 @@ def matchmaking_status(request):
                 )
                 if api_response.status_code == 200:
                     api_data = api_response.json()
-                    # Map the 'url' from FastAPI to 'match_url' in our response
-                    result["match_url"] = api_data.get("url", "Server allocating...")
+                    match_url = api_data.get("url", "Server allocating...")
+                    result["match_url"] = match_url
+                    # Save it in Redis so the opponent gets the same one
+                    matchmaking.update_match_url(user.id, match_url)
                 else:
                     result["match_url"] = "Error starting server"
             except requests.RequestException:
@@ -283,7 +275,22 @@ def matchmaking_status(request):
         except WebUser.DoesNotExist:
             result["opponent_name"] = "Unknown"
             result["match_url"] = "#"
+    return result
 
+@login_required
+def matchmaking_join(request):
+    user = request.user
+    score = user.corresponding_CS_user.score
+    result = matchmaking.join_queue(user.id, score)
+    # Enrich data even on join!
+    result = _enrich_match_info(user, result)
+    return JsonResponse(result)
+
+@login_required
+def matchmaking_status(request):
+    user = request.user
+    result = matchmaking.get_status(user.id)
+    result = _enrich_match_info(user, result)
     return JsonResponse(result)
 
 @login_required
