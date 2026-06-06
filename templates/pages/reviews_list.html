@@ -24,7 +24,7 @@
         <div class="bg-card-dark border-x border-b border-black p-6 space-y-6">
 
             <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b-2 border-black pb-4">
-                <div class="flex flex-col gap-1">
+                <div property="aggregateRating" typeof="AggregateRating" class="flex flex-col gap-1">
                     <h2 class="text-white font-black text-sm uppercase">
                         {% if other_reviews.paginator.count > 0 or my_review %}Community Feedback{% else %}Community Feedback - No reviews yet{% endif %}
                     </h2>
@@ -33,15 +33,17 @@
                         <div class="flex items-center gap-2 mt-1 bg-black/30 border border-white/5 px-2.5 py-1 rounded-[2px] w-fit">
                             <span class="text-yellow-500 font-black text-xs flex items-center gap-1">
                                 <span class="material-symbols-outlined text-[16px]" style="font-variation-settings: 'FILL' 1;">star</span>
-                                {{ target_user.avg_rating }} / 5.0
+                                <span property="ratingValue">{{ target_user.avg_rating }}</span> / 5.0
                             </span>
                             <span class="text-white/30 text-xs">|</span>
                             <span class="text-footer-text text-[10px] font-bold uppercase tracking-wider">
-                                Total Reviews: {{ target_user.total_reviews_count }}
+                                Total Reviews: <span property="reviewCount">{{ target_user.total_reviews_count }}</span>
                             </span>
                         </div>
                     {% else %}
                         <div class="flex items-center mt-1 bg-black/20 border border-white/5 px-2.5 py-1 rounded-[2px] w-fit">
+                            <meta property="ratingValue" content="0.0">
+                            <meta property="reviewCount" content="0">
                             <span class="text-footer-text text-[10px] font-black uppercase tracking-widest opacity-60">
                                 0 Reviews Registered
                             </span>
@@ -125,7 +127,6 @@
                                             <span class="material-symbols-outlined text-xl">account_circle</span>
                                         </div>
                                     {% endif %}
-                                tapo
                                 </div>
                                 <div class="flex flex-col justify-center">
                                     <div property="name" class="text-white font-black text-sm uppercase tracking-tight">{{ my_review.title }}</div>
@@ -141,7 +142,7 @@
                                     </div>
                                 </div>
                             </div>
-
+                            <meta property="dateModified" content="{{ my_review.last_modified|date:'Y-m-d' }}T{{ my_review.last_modified|time:'H:i:s' }}">
                             <div class="flex items-center gap-3 ml-auto sm:ml-0 flex-wrap justify-end">
                                 {% if my_review.last_modified %}
                                     <div class="text-[10px] font-mono text-white/40 group-hover:text-white/60 transition-colors flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px]">
@@ -223,7 +224,7 @@
                                 </div>
                             </div>
                         </div>
-
+                        <meta property="dateModified" content="{{ r.last_modified|date:'Y-m-d' }}T{{ r.last_modified|time:'H:i:s' }}">
                         <div class="mt-4 pt-4 border-t border-white/5">
                             <p property="reviewBody" class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-left hyphens-auto break-words whitespace-pre-wrap line-clamp-2 leading-normal">"{{ r.description }}"</p>
                         </div>
