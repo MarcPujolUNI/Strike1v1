@@ -3,21 +3,26 @@
 
 {% block content %}
     <div vocab="https://schema.org/" typeof="Person" class="w-full max-w-[850px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma">
+        <meta property="identifier" content="{{ target_user.id }}">
         <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
             <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
                 <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
                     S
                 </div>
-                Reviews from the player -&nbsp<span property="name">{{ target_user.username }}</span>&nbsp-
+                Reviews from the player -&nbsp;<span property="name">{{ target_user.username }}</span>&nbsp;-
             </div>
             <div class="flex gap-1">
                 <span class="ctrl-display">_</span><span class="ctrl-display">□</span><span
                     class="ctrl-display close">x</span>
             </div>
+            {% if target_user.user_image %}
+                <meta property="image" content="{{ target_user.user_image.url }}">
+            {% else %}
+                <meta property="image" content="None">
+            {% endif %}
         </div>
 
         <div class="bg-card-dark border-x border-b border-black p-6">
-
             <div class="flex justify-between items-center mb-6 border-b-2 border-black pb-4">
                 <div class="flex flex-col">
                     <h2 class="text-white font-black text-sm uppercase">
@@ -87,22 +92,25 @@
 
                     <div rel="review" typeof="Review" class="group relative bg-main-dark border-2 border-xp-blue-border p-5 transition-all hover:bg-black/50 cursor-pointer shadow-[5px_5px_0px_rgba(0,88,230,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username my_review.review_id %}'">
+                        <meta property="identifier" content="{{ my_review.review_id }}">
                         <div class="flex justify-between items-center">
                             <div class="flex items-center gap-4 min-w-0 flex-1 mr-4">
                                 <div property="author" typeof="Person" class="w-12 h-12 bg-black border border-white/20 shrink-0 overflow-hidden">
+                                    <meta property="identifier" content="{{ my_review.reviewer.id }}">
                                     <meta property="name" content="{{ my_review.reviewer.username }}">
                                     {% if my_review.reviewer.user_image %}
                                         <img property="image" src="{{ my_review.reviewer.user_image.url }}"
                                              class="w-full h-full object-cover" alt="Profile picture">
                                     {% else %}
+                                        <meta property="image" content="None">
                                         <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
                                             <span class="material-symbols-outlined text-xl">account_circle</span>
                                         </div>
                                     {% endif %}
                                 </div>
-                                <div property="reviewRating" typeof="Rating" class="flex flex-col justify-center min-w-0 flex-1">
+                                <div class="flex flex-col justify-center min-w-0 flex-1">
                                     <div property="name" class="text-white font-black text-sm uppercase tracking-tight truncate">{{ my_review.title }}</div>
-                                    <div class="flex text-yellow-500 gap-1 items-center">
+                                    <div property="reviewRating" typeof="Rating" class="flex text-yellow-500 gap-1 items-center">
                                         <meta property="ratingValue" content="{{ my_review.rating }}">
                                         <meta property="bestRating" content="5">
                                         <meta property="worstRating" content="1">
@@ -135,10 +143,17 @@
                 {% for r in other_reviews %}
                     <div rel="review" typeof="Review" class="group border-2 border-black bg-main-dark/50 p-4 hover:border-xp-blue-border hover:bg-black/40 transition-all cursor-pointer relative shadow-[4px_4px_0px_rgba(0,0,0,0.2)]"
                          onclick="window.location='{% url 'web:review_detail' target_user.username r.review_id %}'">
+                        <meta property="identifier" content="{{ r.review_id }}">
                         <div class="flex justify-between items-center mb-2 gap-4">
                             <div class="flex items-center gap-3 min-w-0 flex-1">
                                 <span property="author" typeof="Person">
+                                    <meta property="identifier" content="{{ r.reviewer.id }}">
                                     <span property="name" class="text-xp-blue-border font-black text-[11px] uppercase tracking-tighter shrink-0">{{ r.reviewer.username }}</span>
+                                    {% if target_user.user_image %}
+                                        <meta property="image" content="{{ target_user.user_image.url }}">
+                                    {% else %}
+                                        <meta property="image" content="None">
+                                    {% endif %}
                                 </span>
                                 <span property="name" class="text-white font-bold text-[11px] uppercase truncate">{{ r.title }}</span>
                             </div>
@@ -154,7 +169,7 @@
                                 {% endfor %}
                             </div>
                         </div>
-                        <p class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-1 leading-normal">"{{ r.description }}"</p>
+                        <p property="reviewBody" class="text-footer-text text-[11px] italic opacity-70 group-hover:opacity-100 text-justify hyphens-auto break-words whitespace-pre-wrap line-clamp-1 leading-normal">"{{ r.description }}"</p>
                     </div>
                 {% empty %}
                     {% if not my_review %}
