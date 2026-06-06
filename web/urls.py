@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/matchmaking/status/', views.matchmaking_status, name='matchmaking_status'),
     path('api/matchmaking/cancel/', views.matchmaking_cancel, name='matchmaking_cancel'),
     path('api/matchmaking/timeout/', views.matchmaking_timeout, name='matchmaking_timeout'),
+    path('registrar-partida/', views.save_match, name='save_match'),
     path('tos/', views.terms_of_service, name='tos'),
     path('privacy/', views.privacy_policy, name='privacy'),
     path('cookies/', views.cookie_policy, name='cookies'),
