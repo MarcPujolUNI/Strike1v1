@@ -4,6 +4,9 @@ FROM python:3.14-slim
 # Install uv
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
+# Install system dependencies
+RUN apt-get update && apt-get install -y cron && rm -rf /var/lib/apt/lists/*
+
 # Set working directory
 WORKDIR /app
 
