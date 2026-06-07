@@ -404,26 +404,3 @@ def save_match(request):
 
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')
-
-@csrf_exempt
-def save_match(request):
-    if request.method == 'POST':
-        data = json.loads(request.body)
-        winner_name, loser_name, map_name = data.get('winner'), data.get('loser'), data.get('map')
-        winner, loser = CounterUser.objects.get(user__username=winner_name), CounterUser.objects.get(user__username=loser_name)
-        map_played, duration = Map.objects.get(map_name=map_name), timedelta(seconds=int(data.get('duration')))
-        date = timezone.make_aware(datetime.strptime(f"{data.get('date')} {data.get('start')}", "%m/%d/%Y %H:%M:%S"))
-        log_text = data.get('log')
-        filename = f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
-        with transaction.atomic():
-            new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name, winner=winner,
-                                         winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
-            new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
-            winner_points, loser_points = score(winner.score, loser.score)
-            loser_points = max(0, loser.score + loser_points)
-            MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
-                                                 deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
-            MatchStats.objects.create(user=loser, username=loser_name, kills=data.get('kills_loser'),
-                                                 deaths=data.get('deaths_loser'), match=new_match, points=loser_points)
-        return JsonResponse({"status": "success"})
-    return JsonResponse({"status": "failed"}, status=400)
