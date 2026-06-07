@@ -419,7 +419,7 @@ def save_match(request):
             new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name, winner=winner,
                                          winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
             new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
-            winner_points, loser_points = score()
+            winner_points, loser_points = score(winner.score, loser.score)
             loser_points = max(0, loser.score + loser_points)
             MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
                                                  deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
