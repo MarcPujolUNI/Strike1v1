@@ -245,14 +245,13 @@ def waiting(request):
     # This view just renders the page, JS will handle the rest
     return render(request, 'pages/waiting.html')
 
+
 def _enrich_match_info(user, result):
     if result.get("status") == "matched":
         opponent_id = result.get("opponent_id")
         try:
             opponent = WebUser.objects.get(id=opponent_id)
             result["opponent_name"] = opponent.username
-            
-            # If we don't have a URL yet, try to get it (only if we are the requester)
             if not result.get("match_url"):
                 if result.get("request_server") is True:
                     try:
@@ -269,32 +268,28 @@ def _enrich_match_info(user, result):
                             api_data = api_response.json()
                             match_url = api_data.get("url", "Server allocating...")
                             result["match_url"] = match_url
-                            # Save the BASE URL in Redis so the opponent gets the same one
                             matchmaking.update_match_url(user.id, match_url)
                         else:
                             result["match_url"] = "Error starting server"
                     except requests.RequestException:
                         result["match_url"] = "Controller offline"
                 else:
-                    # If not the requester, just say we're waiting for the server
                     result["match_url"] = "Waiting for server allocation..."
 
-                    # Append the encrypted (Base64) username to the URL for the current user
-                    current_url = result.get("match_url")
-                    if current_url and "://" in current_url:
-                        if not current_url.endswith("/"):
-                            current_url += "/"
-                        # Cifrem el nom d'usuari a Base64 (Python demana codificar-ho a bytes primer)
-                        import base64
-                        username_bytes = user.username.encode('utf-8')
-                        base64_username = base64.b64encode(username_bytes).decode('utf-8')
+            current_url = result.get("match_url")
+            if current_url and "://" in current_url:
+                if not current_url.endswith("/"):
+                    current_url += "/"
+                import base64
+                username_bytes = user.username.encode('utf-8')
+                base64_username = base64.b64encode(username_bytes).decode('utf-8')
 
-                        # Passem el text codificat per la URL
-                        result["match_url"] = f"{current_url}?username={base64_username}"
+                result["match_url"] = f"{current_url}?username={base64_username}"
 
         except WebUser.DoesNotExist:
             result["opponent_name"] = "Unknown"
             result["match_url"] = "#"
+
     return result
 
 @login_required
