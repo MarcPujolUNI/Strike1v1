@@ -330,69 +330,28 @@ def save_match(request):
     if request.method == 'POST':
         try:
             data = json.loads(request.body)
-            winner_name = data.get('winner')
-            loser_name = data.get('loser')
-            map_name = data.get('map')
-            
-            # Buscamos los usuarios usando user__username porque el campo username está en WebUser
-            winner = CounterUser.objects.get(user__username=winner_name)
-            loser = CounterUser.objects.get(user__username=loser_name)
-            
-            # Buscamos el mapa
+            winner_name, loser_name, map_name = data.get('winner'), data.get('loser'), data.get('map')
+            winner, loser = CounterUser.objects.get(user__username=winner_name), CounterUser.objects.get(user__username=loser_name)
             map_played = Map.objects.get(map_name=map_name)
-            
             duration = timedelta(seconds=int(data.get('duration')))
-            
-            # Parseamos la fecha del JSON
             date_str = f"{data.get('date')} {data.get('start')}"
-            naive_date = datetime.strptime(date_str, "%m/%d/%Y %H:%M:%S")
-            date = timezone.make_aware(naive_date)
-            
-            log_text = data.get('log', '')
-            filename = f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
-            
+            date = timezone.make_aware(datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S"))
+            log_text, filename = data.get('log', ''), f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
             with transaction.atomic():
-                # NOTA: He quitado map_played y map_name porque no existen en tu modelo Match en models.py
-                new_match = Match.objects.create(
-                    loser=loser, 
-                    loser_name=loser_name, 
-                    # map_played=map_played, 
-                    # map_name=map_name, 
-                    winner=winner,
-                    winner_name=winner_name, 
-                    score_display=data.get('score'), 
-                    duration=duration, 
-                    date=date
-                )
-                
+                new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name,
+                    winner=winner, winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
                 if log_text:
                     new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
-                
-                # Lógica de puntos simple (ya que no existe la función score() en el proyecto)
-                winner_points = 25
-                loser_points = -25 # El modelo MatchStats restará esto al score actual
-                
-                MatchStats.objects.create(
-                    user=winner, 
-                    username=winner_name, 
-                    kills=data.get('kills_winner'),
-                    deaths=data.get('deaths_winner'), 
-                    match=new_match, 
-                    points=winner_points
-                )
-                MatchStats.objects.create(
-                    user=loser, 
-                    username=loser_name, 
-                    kills=data.get('kills_loser'),
-                    deaths=data.get('deaths_loser'), 
-                    match=new_match, 
-                    points=loser_points
-                )
-                
+                winner_points, loser_points = score()
+                if loser.score + loser_points:
+                    loser_points = -loser.score
+                MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
+                    deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
+                MatchStats.objects.create(user=loser, username=loser_name, kills=data.get('kills_loser'),
+                    deaths=data.get('deaths_loser'), match=new_match, points=loser_points)
             return JsonResponse({"status": "success"})
         except Exception as e:
             return JsonResponse({"status": "error", "message": str(e)}, status=500)
-            
     return JsonResponse({"status": "failed"}, status=400)
 
 def cookie_policy(request):
