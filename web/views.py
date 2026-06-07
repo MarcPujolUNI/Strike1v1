@@ -390,7 +390,7 @@ def save_match(request):
                     winner=winner, winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
                 if log_text:
                     new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
-                winner_points, loser_points = score()
+                winner_points, loser_points = score(winner.score, loser.score)
                 if loser.score + loser_points < 0:
                     loser_points = -loser.score
                 MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
