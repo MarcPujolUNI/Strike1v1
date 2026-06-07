@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.2/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.2/ref/settings/
 """
-
+import os
 from pathlib import Path
 from decouple import config, Csv
 
@@ -26,11 +26,7 @@ SECRET_KEY = config('DJANGO_SECRET_KEY', default='unsafe-secret-key')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = config(
-    'ALLOWED_HOSTS',
-    default='localhost,127.0.0.1,0.0.0.0',
-    cast=Csv()
-)
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -143,3 +139,13 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 # User used for authentication
 AUTH_USER_MODEL = 'web.WebUser'
+
+#REDIS config
+REDIS_HOST = config('REDIS_HOST', default='localhost')
+REDIS_PORT = config('REDIS_PORT', default=6379, cast=int)
+REDIS_DB = config('REDIS_DB', default=0, cast=int)
+
+# Game Server Controller Config
+# If running in Docker, use host.docker.internal to reach the host port 5000
+# If running locally, use localhost
+GAME_SERVER_API_URL = config('GAME_SERVER_API_URL', default='http://localhost:5000/partida-aleatoria')

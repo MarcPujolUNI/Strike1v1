@@ -1,10 +1,12 @@
+import requests, json
+from django.conf import settings
+from .services import matchmaking
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect, get_object_or_404, reverse
-from .models import CounterUser, Country, Match, WebUser, Review, MatchStats
+from django.shortcuts import render, redirect, get_object_or_404
+from .models import CounterUser, Country, Match, WebUser, Review, MatchStats, Map
 from django.urls import reverse_lazy
 from django.views.generic import CreateView
 from django.contrib.auth import update_session_auth_hash, logout
-from web.forms import SignUpForm, UserProfileForm, ReviewForm
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib import messages
 from django.core.paginator import Paginator
@@ -14,7 +16,10 @@ from uuid import uuid4
 from web.utils import score
 from django.http import JsonResponse
 from web.forms import SignUpForm, UserProfileForm, ReviewForm
-
+from django.db import transaction
+from django.core.files.base import ContentFile
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 class SignUpView(CreateView):
     form_class = SignUpForm
@@ -271,8 +276,94 @@ def matches(request):
     })
 
 
+@login_required
 def play(request):
     return render(request, 'pages/play.html')
+
+@login_required
+def waiting(request):
+    # This view just renders the page, JS will handle the rest
+    return render(request, 'pages/waiting.html')
+
+
+def _enrich_match_info(user, result):
+    if result.get("status") == "matched":
+        opponent_id = result.get("opponent_id")
+        try:
+            opponent = WebUser.objects.get(id=opponent_id)
+            result["opponent_name"] = opponent.username
+            if not result.get("match_url"):
+                if result.get("request_server") is True:
+                    try:
+                        api_response = requests.post(
+                            settings.GAME_SERVER_API_URL,
+                            json={
+                                "player1_id": user.id,
+                                "player2_id": opponent_id,
+                                "matchmaking_timestamp": result.get("timestamp")
+                            },
+                            timeout=5
+                        )
+                        if api_response.status_code == 200:
+                            api_data = api_response.json()
+                            match_url = api_data.get("url", "Server allocating...")
+                            result["match_url"] = match_url
+                            matchmaking.update_match_url(user.id, match_url)
+                        else:
+                            result["match_url"] = "Error starting server"
+                    except requests.RequestException:
+                        result["match_url"] = "Controller offline"
+                else:
+                    result["match_url"] = "Waiting for server allocation..."
+
+            current_url = result.get("match_url")
+            if current_url and "://" in current_url:
+                if not current_url.endswith("/"):
+                    current_url += "/"
+                import base64
+                username_bytes = user.username.encode('utf-8')
+                base64_username = base64.b64encode(username_bytes).decode('utf-8')
+
+                result["match_url"] = f"{current_url}?username={base64_username}"
+
+        except WebUser.DoesNotExist:
+            result["opponent_name"] = "Unknown"
+            result["match_url"] = "#"
+
+    return result
+
+@login_required
+def matchmaking_join(request):
+    user = request.user
+    score = user.corresponding_CS_user.score
+    result = matchmaking.join_queue(user.id, score)
+    # Enrich data even on join!
+    result = _enrich_match_info(user, result)
+    return JsonResponse(result)
+
+@login_required
+def matchmaking_status(request):
+    user = request.user
+    result = matchmaking.get_status(user.id)
+    result = _enrich_match_info(user, result)
+    return JsonResponse(result)
+
+@login_required
+def matchmaking_cancel(request):
+    user = request.user
+    matchmaking.cancel_queue(user.id)
+    return JsonResponse({"status": "cancelled"})
+
+@login_required
+def matchmaking_timeout(request):
+    user = request.user
+    matchmaking.increment_attempts(user.id)
+
+    score = user.corresponding_CS_user.score
+    result = matchmaking.join_queue(user.id, score)
+    result = _enrich_match_info(user, result)
+
+    return JsonResponse(result)
 
 
 def terms_of_service(request):
@@ -281,6 +372,35 @@ def terms_of_service(request):
 
 def privacy_policy(request):
     return render(request, 'legal/privacy.html')
+
+@csrf_exempt
+def save_match(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            winner_name, loser_name, map_name = data.get('winner'), data.get('loser'), data.get('map')
+            winner, loser = CounterUser.objects.get(user__username=winner_name), CounterUser.objects.get(user__username=loser_name)
+            map_played = Map.objects.get(map_name=map_name)
+            duration = timedelta(seconds=int(data.get('duration')))
+            date_str = f"{data.get('date')} {data.get('start')}"
+            date = timezone.make_aware(datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S"))
+            log_text, filename = data.get('log', ''), f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
+            with transaction.atomic():
+                new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name,
+                    winner=winner, winner_name=winner_name, score_display=data.get('score'), duration=duration, date=date)
+                if log_text:
+                    new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
+                winner_points, loser_points = score()
+                if loser.score + loser_points < 0:
+                    loser_points = -loser.score
+                MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
+                    deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
+                MatchStats.objects.create(user=loser, username=loser_name, kills=data.get('kills_loser'),
+                    deaths=data.get('deaths_loser'), match=new_match, points=loser_points)
+            return JsonResponse({"status": "success"})
+        except Exception as e:
+            return JsonResponse({"status": "error", "message": str(e)}, status=500)
+    return JsonResponse({"status": "failed"}, status=400)
 
 def cookie_policy(request):
     return render(request, 'legal/cookies.html')

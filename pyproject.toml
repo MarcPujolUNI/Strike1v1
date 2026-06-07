@@ -15,4 +15,5 @@ dependencies = [
     "selenium>=4.44.0",
     "splinter>=0.21.0",
     "whitenoise>=6.12.0",
+    "redis>=6.0.0",
 ]
