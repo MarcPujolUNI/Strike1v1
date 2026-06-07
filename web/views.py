@@ -279,13 +279,18 @@ def _enrich_match_info(user, result):
                     # If not the requester, just say we're waiting for the server
                     result["match_url"] = "Waiting for server allocation..."
 
-            # Append the username to the URL for the current user
-            current_url = result.get("match_url")
-            if current_url and "://" in current_url:
-                # Ensure it follows the requested format: /?username=name
-                if not current_url.endswith("/"):
-                    current_url += "/"
-                result["match_url"] = f"{current_url}?username={user.username}"
+                    # Append the encrypted (Base64) username to the URL for the current user
+                    current_url = result.get("match_url")
+                    if current_url and "://" in current_url:
+                        if not current_url.endswith("/"):
+                            current_url += "/"
+                        # Cifrem el nom d'usuari a Base64 (Python demana codificar-ho a bytes primer)
+                        import base64
+                        username_bytes = user.username.encode('utf-8')
+                        base64_username = base64.b64encode(username_bytes).decode('utf-8')
+
+                        # Passem el text codificat per la URL
+                        result["match_url"] = f"{current_url}?username={base64_username}"
 
         except WebUser.DoesNotExist:
             result["opponent_name"] = "Unknown"
