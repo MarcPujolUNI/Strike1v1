@@ -312,10 +312,14 @@ def matchmaking_cancel(request):
 
 @login_required
 def matchmaking_timeout(request):
-    # Called by frontend when they want to widen search
     user = request.user
     matchmaking.increment_attempts(user.id)
-    return JsonResponse({"status": "attempts_incremented"})
+
+    score = user.corresponding_CS_user.score
+    result = matchmaking.join_queue(user.id, score)
+    result = _enrich_match_info(user, result)
+    
+    return JsonResponse(result)
 
 
 def terms_of_service(request):

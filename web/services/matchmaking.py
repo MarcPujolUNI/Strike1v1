@@ -16,44 +16,28 @@ ATTEMPTS_KEY_PREFIX = "matchmaking:attempts:"
 LOCK_NAME = "matchmaking:lock"
 
 BASE_RANGE = 100
-RANGE_INCREMENT = 50
 
 def join_queue(user_id, score):
     user_id = str(user_id)
-    with r.lock(LOCK_NAME, timeout=5):
-        # 1. Check if already matched
+    with r.lock(LOCK_NAME, timeout=30):
         match_data = r.get(f"{MATCH_KEY_PREFIX}{user_id}")
+
         if match_data:
             return json.loads(match_data)
-
-        # 2. Get current attempts to calculate range
         attempts = int(r.get(f"{ATTEMPTS_KEY_PREFIX}{user_id}") or 0)
-        effective_range = BASE_RANGE + (attempts * RANGE_INCREMENT)
-
-        # 3. Search for compatible players in the queue
-        # We look for players with score between [score - effective_range, score + effective_range]
+        effective_range = (attempts+1) * BASE_RANGE
         potential_matches = r.zrangebyscore(QUEUE_KEY, score - effective_range, score + effective_range)
-        
-        # Filter out self if somehow present
         potential_matches = [m for m in potential_matches if m != user_id]
 
         if potential_matches:
-            # Found a match! (Take the first one)
             opponent_id = potential_matches[0]
-            
-            # Remove both from queue
             r.zrem(QUEUE_KEY, user_id, opponent_id)
-            
-            # Create match records
-            # ONLY the person who just joined (user_id) will trigger the server request
             match_info = {
                 "opponent_id": opponent_id,
                 "status": "matched",
                 "timestamp": time.time(),
                 "request_server": True 
             }
-            
-            # The person who was already waiting (opponent_id) will just wait for the URL
             opponent_match_info = {
                 "opponent_id": user_id,
                 "status": "matched",
@@ -69,8 +53,7 @@ def join_queue(user_id, score):
             r.delete(f"{ATTEMPTS_KEY_PREFIX}{opponent_id}")
             
             return match_info
-        
-        # 4. No match found, add to queue
+
         r.zadd(QUEUE_KEY, {user_id: score})
         return {"status": "searching"}
 
@@ -114,3 +97,8 @@ def update_match_url(user_id, match_url):
                     opp_data = json.loads(opp_match_data)
                     opp_data["match_url"] = match_url
                     r.set(f"{MATCH_KEY_PREFIX}{opponent_id}", json.dumps(opp_data), ex=ttl)
+
+def increment_attempts(user_id):
+    user_id = str(user_id)
+    r.incr(f"{ATTEMPTS_KEY_PREFIX}{user_id}")
+    r.expire(f"{ATTEMPTS_KEY_PREFIX}{user_id}", 1800) # 30 mins TTL
