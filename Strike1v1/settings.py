@@ -40,6 +40,11 @@ INSTALLED_APPS = [
     'web.apps.WebConfig',
     'behave_django',
     'rest_framework',
+    'django_crontab',
+]
+
+CRONJOBS = [
+    ('0 0 * * *', 'django.core.management.call_command', ['cleanuplogs'])
 ]
 
 MIDDLEWARE = [
