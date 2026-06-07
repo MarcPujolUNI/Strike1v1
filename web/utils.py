@@ -4,6 +4,8 @@ from web.models import Match
 from math import exp
 
 LOGS_DAYS = 30
+BASE = 30
+
 def clean_old_match_logs():
     cutoff = timezone.now() - timedelta(days=LOGS_DAYS)
     matches = Match.objects.filter(date__lt=cutoff, log_file__isnull=False)
