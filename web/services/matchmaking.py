@@ -45,8 +45,8 @@ def join_queue(user_id, score):
                 "request_server": False
             }
             
-            r.set(f"{MATCH_KEY_PREFIX}{user_id}", json.dumps(match_info), ex=60)
-            r.set(f"{MATCH_KEY_PREFIX}{opponent_id}", json.dumps(opponent_match_info), ex=60)
+            r.set(f"{MATCH_KEY_PREFIX}{user_id}", json.dumps(match_info), ex=300)
+            r.set(f"{MATCH_KEY_PREFIX}{opponent_id}", json.dumps(opponent_match_info), ex=300)
             
             # Clear attempts
             r.delete(f"{ATTEMPTS_KEY_PREFIX}{user_id}")

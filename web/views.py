@@ -252,36 +252,40 @@ def _enrich_match_info(user, result):
             opponent = WebUser.objects.get(id=opponent_id)
             result["opponent_name"] = opponent.username
             
-            # If we already have a cached URL in Redis, use it
-            if result.get("match_url"):
-                return result
+            # If we don't have a URL yet, try to get it (only if we are the requester)
+            if not result.get("match_url"):
+                if result.get("request_server") is True:
+                    try:
+                        api_response = requests.post(
+                            settings.GAME_SERVER_API_URL,
+                            json={
+                                "player1_id": user.id,
+                                "player2_id": opponent_id,
+                                "matchmaking_timestamp": result.get("timestamp")
+                            },
+                            timeout=5
+                        )
+                        if api_response.status_code == 200:
+                            api_data = api_response.json()
+                            match_url = api_data.get("url", "Server allocating...")
+                            result["match_url"] = match_url
+                            # Save the BASE URL in Redis so the opponent gets the same one
+                            matchmaking.update_match_url(user.id, match_url)
+                        else:
+                            result["match_url"] = "Error starting server"
+                    except requests.RequestException:
+                        result["match_url"] = "Controller offline"
+                else:
+                    # If not the requester, just say we're waiting for the server
+                    result["match_url"] = "Waiting for server allocation..."
 
-            # ONLY call the API if this user is the designated requester
-            # and we don't have a URL yet.
-            if result.get("request_server") is True:
-                try:
-                    api_response = requests.post(
-                        settings.GAME_SERVER_API_URL,
-                        json={
-                            "player1_id": user.id,
-                            "player2_id": opponent_id,
-                            "matchmaking_timestamp": result.get("timestamp")
-                        },
-                        timeout=5
-                    )
-                    if api_response.status_code == 200:
-                        api_data = api_response.json()
-                        match_url = api_data.get("url", "Server allocating...")
-                        result["match_url"] = match_url
-                        # Save it in Redis so the opponent gets the same one
-                        matchmaking.update_match_url(user.id, match_url)
-                    else:
-                        result["match_url"] = "Error starting server"
-                except requests.RequestException:
-                    result["match_url"] = "Controller offline"
-            else:
-                # If not the requester, just say we're waiting for the server
-                result["match_url"] = "Waiting for server allocation..."
+            # Append the username to the URL for the current user
+            current_url = result.get("match_url")
+            if current_url and "://" in current_url:
+                # Ensure it follows the requested format: /?username=name
+                if not current_url.endswith("/"):
+                    current_url += "/"
+                result["match_url"] = f"{current_url}?username={user.username}"
 
         except WebUser.DoesNotExist:
             result["opponent_name"] = "Unknown"
@@ -347,7 +351,7 @@ def save_match(request):
                 if log_text:
                     new_match.log_file.save(filename, ContentFile(log_text.encode("utf-8")))
                 winner_points, loser_points = score()
-                if loser.score + loser_points:
+                if loser.score + loser_points < 0:
                     loser_points = -loser.score
                 MatchStats.objects.create(user=winner, username=winner_name, kills=data.get('kills_winner'),
                     deaths=data.get('deaths_winner'), match=new_match, points=winner_points)
