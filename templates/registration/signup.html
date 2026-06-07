@@ -45,9 +45,10 @@
                                 <input type="text" id="country-ajax-input"
                                        class="bg-white border-2 border-black px-3 py-2 text-black font-black text-xs uppercase focus:outline-none w-full shadow-[inset_2px_2px_0px_rgba(0,0,0,0.2)] placeholder-black/30"
                                        placeholder="SEARCH REGION..."
+                                       value="{% if field.value %}{{ field.value }}{% else %}UNDEFINED{% endif %}"
                                        autocomplete="off">
 
-                                <input type="hidden" name="user_country" id="id_user_country" value="{{ field.value|default:'' }}">
+                                <input type="hidden" name="user_country" id="id_user_country" value="{{ field.value|default:'9' }}">
 
                                 <button type="button" id="clear-country-btn" class="absolute right-3 top-1/2 -translate-y-1/2 text-black/40 hover:text-brand-red font-black text-xs hidden transition-colors">
                                     ✕
@@ -57,9 +58,12 @@
                                 </div>
                             </div>
 
-                            <div class="w-[60px] h-[36px] bg-black border-2 border-white/30 flex items-center justify-center overflow-hidden shadow-[2px_2px_0px_#000] shrink-0">
-                                <img id="flag-preview" src="" class="hidden w-full h-full object-contain" alt="Flag picture">
-                                <span id="flag-placeholder" class="text-[9px] text-gray-400 font-bold">N/A</span>
+                            <div class="w-[60px] h-[36px] bg-black border-2 border-white/30 p-1.5 flex items-center justify-center shadow-[2px_2px_0px_#000] shrink-0 relative">
+                                <img id="flag-preview"
+                                     src="/media/country_flags/AQ.svg"
+                                     class="w-full h-full object-contain block"
+                                     alt="Flag picture">
+                                <span id="flag-placeholder" class="hidden text-[9px] text-gray-400 font-bold tracking-wider">N/A</span>
                             </div>
                         </div>
                     {% else %}
@@ -80,7 +84,7 @@
             </div>
 
             <div>
-                <button type="submit" class="xp-btn xp-btn-blue w-full py-3.5 text-[15px] font-bold uppercase tracking-wider">
+                <button type="submit" class="xp-btn xp-btn-blue w-full py-4 text-[14px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.98] transition-all">
                     Create Account
                 </button>
             </div>
@@ -107,6 +111,25 @@
         const flagPlaceholder = document.getElementById('flag-placeholder');
         let debounceTimer;
 
+        const DEFAULT_COUNTRY_ID = "9";
+        const DEFAULT_FLAG_URL = "/media/country_flags/AQ.svg";
+
+        function setInitialState() {
+            const currentHiddenValue = hiddenInput.value.trim();
+            if (!currentHiddenValue || currentHiddenValue === 'undefined' || currentHiddenValue === DEFAULT_COUNTRY_ID) {
+                input.value = "UNDEFINED";
+                hiddenInput.value = DEFAULT_COUNTRY_ID;
+                flagImg.src = DEFAULT_FLAG_URL;
+                flagImg.classList.remove('hidden');
+                flagPlaceholder.classList.add('hidden');
+                clearBtn.classList.remove('hidden');
+            } else {
+                clearBtn.classList.remove('hidden');
+            }
+        }
+
+        setInitialState();
+
         input.addEventListener('input', function() {
             clearTimeout(debounceTimer);
             const query = this.value.trim();
@@ -117,7 +140,6 @@
             }
 
             debounceTimer = setTimeout(() => {
-                // CORRECCIÓN: Llamamos a la API de países reales, no la de usuarios
                 fetch(`/api/countries/?q=${encodeURIComponent(query)}`)
                     .then(response => response.json())
                     .then(data => {
@@ -135,7 +157,6 @@
                             const row = document.createElement('div');
                             row.className = "flex items-center gap-2.5 p-2.5 hover:bg-brand-red cursor-pointer transition-colors text-[11px] font-black uppercase text-white select-none";
 
-                            // CORRECCIÓN: Mapeamos los datos limpios directamente desde el objeto Country
                             let imgTag = country.flag_image
                                 ? `<img src="${country.flag_image}" class="w-5 h-auto flex-shrink-0">`
                                 : `<span class="material-symbols-outlined text-xs text-white/40 flex-shrink-0">flag</span>`;
@@ -174,9 +195,12 @@
         clearBtn.addEventListener('click', function() {
             input.value = "";
             hiddenInput.value = "";
-            this.classList.add('hidden');
+
             flagImg.classList.add('hidden');
             flagPlaceholder.classList.remove('hidden');
+
+            this.classList.add('hidden');
+            input.focus();
         });
 
         document.addEventListener('click', function(e) {

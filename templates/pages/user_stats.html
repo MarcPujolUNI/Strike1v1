@@ -1,0 +1,89 @@
+{% extends 'base/base.html' %}
+{% block title %} Strike 1v1 - {{ target_user.username }} Stats {% endblock %}
+
+{% block content %}
+<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma text-white">
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
+                S
+            </div>
+            Player Performance Profile - {{ target_user.username }}
+        </div>
+        <div class="flex gap-1">
+            <span class="ctrl-display">_</span>
+            <span class="ctrl-display">□</span>
+            <span class="ctrl-display close">x</span>
+        </div>
+    </div>
+
+    <div class="bg-card-dark border-x border-b border-black p-6 md:p-8 space-y-6">
+        <div class="flex items-center gap-4 border-b border-white/10 pb-4">
+            <div class="w-16 h-16 bg-black border-2 border-brand-red overflow-hidden flex-shrink-0 shadow-[4px_4px_0px_rgba(0,0,0,0.4)]">
+                {% if target_user.user_image %}
+                    <img src="{{ target_user.user_image.url }}" class="w-full h-full object-cover" alt="Avatar">
+                {% else %}
+                    <div class="w-full h-full flex items-center justify-center text-white/20">
+                        <span class="material-symbols-outlined text-3xl">account_circle</span>
+                    </div>
+                {% endif %}
+            </div>
+            <div class="min-w-0 flex-1">
+                <h2 class="text-2xl font-black uppercase tracking-tight truncate">{{ target_user.username }}</h2>
+                <div class="flex items-center gap-1.5 mt-0.5">
+                    {% if target_user.user_country and target_user.user_country.flag_image %}
+                        <img src="{{ target_user.user_country.flag_image.url }}" class="w-4 h-2.5 object-cover border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.2)]" alt="">
+                    {% else %}
+                        <span class="material-symbols-outlined text-xs text-footer-text">flag</span>
+                    {% endif %}
+                    <p class="text-footer-text text-[10px] uppercase tracking-wider truncate">Region: {{ target_user.user_country.country_name|default:"Undefined" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-[#1e1e1e] border-2 border-black/60 p-5 md:p-6 shadow-[inset_0px_0px_8px_rgba(0,0,0,0.6)]">
+            <h3 class="text-white text-base font-black uppercase tracking-wide pb-2 mb-6 border-b border-white/10">PERFORMANCE STATISTICS</h3>
+
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-4">
+                <div class="bg-[#141414] border-2 border-black/80 p-5 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.3)] min-w-0">
+                    <span class="block text-[9px] font-black text-footer-text uppercase tracking-widest mb-3 truncate">SCORE</span>
+                    <span class="block text-2xl font-black text-white font-mono truncate px-1" title="{{ counter_user.score }}">{{ counter_user.score }}</span>
+                </div>
+
+                <div class="bg-[#141414] border-2 border-black/80 p-5 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.3)] min-w-0">
+                    <span class="block text-[9px] font-black text-green-500 uppercase tracking-widest mb-3 truncate">TOTAL WINS</span>
+                    <span class="block text-2xl font-black text-white font-mono truncate px-1" title="{{ counter_user.wins }}">{{ counter_user.wins }}</span>
+                </div>
+
+                <div class="bg-[#141414] border-2 border-black/80 p-5 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.3)] min-w-0">
+                    <span class="block text-[9px] font-black text-xp-red-border uppercase tracking-widest mb-3 truncate">TOTAL LOSSES</span>
+                    <span class="block text-2xl font-black text-white font-mono truncate px-1" title="{{ counter_user.losses }}">{{ counter_user.losses }}</span>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div class="bg-[#141414] border-2 border-black/80 p-5 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.3)] min-w-0">
+                    <span class="block text-[9px] font-black text-footer-text uppercase tracking-widest mb-3 truncate">TOTAL KILLS</span>
+                    <span class="block text-2xl font-black text-white font-mono truncate px-1" title="{{ counter_user.kills }}">{{ counter_user.kills }}</span>
+                </div>
+
+                <div class="bg-[#141414] border-2 border-black/80 p-5 text-center shadow-[4px_4px_0px_rgba(0,0,0,0.3)] min-w-0">
+                    <span class="block text-[9px] font-black text-footer-text uppercase tracking-widest mb-3 truncate">TOTAL DEATHS</span>
+                    <span class="block text-2xl font-black text-white font-mono truncate px-1" title="{{ counter_user.deaths }}">{{ counter_user.deaths }}</span>
+                </div>
+            </div>
+        </div>
+
+        <hr class="border-white/10">
+
+        <div class="pt-0">
+            <a href="{% url 'web:user_reviews_list' username=target_user.username %}" class="block">
+                <button type="button" class="xp-btn xp-btn-blue block w-full text-center py-3.5 text-[12px] font-black text-white uppercase tracking-wider hover:brightness-110 active:scale-[0.99] transition-all cursor-pointer">
+                    <span class="material-symbols-outlined text-sm align-middle mr-1">forum</span>
+                    <span class="truncate align-middle">View {{ target_user.username }} Reviews ({{ target_user.total_reviews_count }})</span>
+                </button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

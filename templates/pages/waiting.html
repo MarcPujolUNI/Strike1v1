@@ -1,0 +1,166 @@
+{% extends 'base/base.html' %}
+{% block title %} Strike 1v1 - Matchmaking {% endblock %}
+{% block content %}
+<div class="w-full max-w-[650px] shadow-[10px_10px_0px_rgba(0,0,0,0.5)] font-tahoma relative">
+    <div class="xp-title-bar h-[35px] flex justify-between items-center px-3 border-b-2 border-black">
+        <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
+            <div id="status-icon" class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40">S</div>
+            <span id="status-title">Searching Match...</span>
+        </div>
+    </div>
+    <div class="bg-card-dark border-x border-b border-black p-10 md:p-14 text-center">
+        <div class="mb-6">
+            <h1 id="status-h1" class="text-white text-4xl md:text-5xl font-black uppercase tracking-tighter drop-shadow-[4px_4px_0_#000]">
+                INITIALIZING SERVER
+            </h1>
+        </div>
+        <div class="group relative">
+            <div id="status-container" class="bg-black/40 border-[3px] border-black p-10 shadow-[inset_2px_2px_20px_rgba(0,0,0,0.6)] border-brand-red">
+                <div id="searching-ui">
+                    <div class="mb-6 animate-pulse">
+                        <div class="text-brand-red text-2xl font-black uppercase tracking-widest mb-2">
+                            Searching Opponent...
+                        </div>
+                        <div class="h-[1px] w-16 bg-brand-red/50 mx-auto"></div>
+                    </div>
+                    <p class="text-[11px] text-white/60 font-medium uppercase tracking-[1px] mb-6">
+                        Looking for players with similar ELO.<br>
+                        Search range expands every 30 seconds.
+                    </p>
+                    <div class="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-brand-red border-r-transparent"></div>
+                </div>
+                <div id="matched-ui" class="hidden">
+                    <div class="mb-6">
+                        <div id="match-status-text" class="text-green-500 text-2xl font-black uppercase tracking-widest mb-2">
+                            Match Found!                                                </div>
+                        <div id="match-status-line" class="h-[1px] w-16 bg-green-500/50 mx-auto"></div>
+                    </div>
+                    <div class="bg-black/60 p-4 mb-8 border border-white/10">
+                        <p class="text-footer-text text-[10px] uppercase mb-1">Opponent:</p>
+                        <p id="opponent-name" class="text-white text-xl font-bold mb-4"></p>
+                        <p class="text-footer-text text-[10px] uppercase mb-1">Server Address:</p>
+                        <code id="match-url" class="text-green-400 text-xl font-bold select-all"></code>
+                    </div>
+                    <a id="connect-btn" href="#" target="_blank" onclick="startMatchInUI(event, this.href)" class="xp-btn xp-btn-blue block w-full py-5 text-2xl tracking-[4px] font-bold uppercase no-underline">
+                        >> CONNECT NOW <<
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="mt-8">
+            <button id="cancel-btn" onclick="cancelMatchmaking()" class="text-[11px] text-footer-text hover:text-white uppercase tracking-widest transition-colors bg-transparent border-none cursor-pointer">
+                Cancel Matchmaking
+            </button>
+            <a id="return-btn" href="/" class="hidden text-[11px] text-brand-red hover:text-white uppercase tracking-widest transition-colors no-underline font-bold">
+                Return to dashboard when finished
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+    let searchStartTime = Date.now();
+    let pollInterval;
+
+    async function joinQueue() {
+        try {
+            const response = await fetch("{% url 'web:matchmaking_join' %}");
+            const data = await response.json();
+            if (data.status === "matched") {
+                showMatched(data);
+                if (!(data.match_url && data.match_url.includes('://'))) {
+                    startPolling();
+                }
+            } else {
+                startPolling();
+            }
+        } catch (error) {
+            console.error("Join queue error:", error);
+            setTimeout(joinQueue, 5000);
+        }
+    }
+
+    function startPolling() {
+        if (pollInterval) clearInterval(pollInterval);
+        pollInterval = setInterval(async () => {
+            try {
+                const response = await fetch("{% url 'web:matchmaking_status' %}");
+                const data = await response.json();
+                if (data.status === "matched") {
+                    showMatched(data);
+                    if (data.match_url && data.match_url.includes('://')) {
+                        clearInterval(pollInterval);
+                    }
+                } else if (data.status === "idle") {
+                    joinQueue();
+                    clearInterval(pollInterval);
+                }
+                if (Date.now() - searchStartTime > 30000) {
+                    searchStartTime = Date.now();
+                    await fetch("{% url 'web:matchmaking_timeout' %}");
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
+            }
+        }, 2000);
+    }
+
+    function showMatched(data) {
+        document.getElementById('status-title').innerText = "Match Ready!";
+        document.getElementById('status-h1').innerText = "SERVER READY";
+        document.getElementById('status-container').classList.remove('border-brand-red');
+        document.getElementById('status-container').classList.add('border-green-500');
+        document.getElementById('searching-ui').classList.add('hidden');
+        document.getElementById('matched-ui').classList.remove('hidden');
+        document.getElementById('opponent-name').innerText = data.opponent_name;
+        document.getElementById('match-url').innerText = data.match_url;
+
+        const connectBtn = document.getElementById('connect-btn');
+        if (data.match_url && data.match_url.includes('://')) {
+            connectBtn.href = data.match_url;
+            connectBtn.classList.remove('opacity-50', 'pointer-events-none');
+            connectBtn.innerText = ">> CONNECT NOW <<";
+        } else {
+            connectBtn.href = "#";
+            connectBtn.classList.add('opacity-50', 'pointer-events-none');
+            connectBtn.innerText = "WAITING FOR SERVER...";
+        }
+    }
+
+    function startMatchInUI(event, url) {
+        if (event) event.preventDefault();
+        if (url && url !== '#') {
+            window.open(url, '_blank');
+        }
+        document.getElementById('status-title').innerText = "Match in Progress...";
+        document.getElementById('status-h1').innerText = "MATCH PLAYING";
+
+        const container = document.getElementById('status-container');
+        container.classList.remove('border-green-500');
+        container.classList.add('border-blue-500');
+
+        const statusText = document.getElementById('match-status-text');
+        statusText.innerText = "YOU ARE IN GAME";
+        statusText.classList.remove('text-green-500');
+        statusText.classList.add('text-blue-400');
+
+        const statusLine = document.getElementById('match-status-line');
+        statusLine.classList.remove('bg-green-500/50');
+        statusLine.classList.add('bg-blue-500/50');
+        const connectBtn = document.getElementById('connect-btn');
+        connectBtn.innerText = "ALREADY PLAYING...";
+        connectBtn.removeAttribute('href');
+        connectBtn.style.pointerEvents = 'none';
+        connectBtn.style.opacity = '0.5';
+        document.getElementById('cancel-btn').classList.add('hidden');
+        document.getElementById('return-btn').classList.remove('hidden');
+    }
+
+    async function cancelMatchmaking() {
+        clearInterval(pollInterval);
+        await fetch("{% url 'web:matchmaking_cancel' %}");
+        window.location.href = "{% url 'web:play' %}";
+    }
+    joinQueue();
+</script>
+{% endblock %}

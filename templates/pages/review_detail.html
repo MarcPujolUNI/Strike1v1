@@ -21,11 +21,11 @@
             <div class="flex flex-col gap-3 w-full">
                 <form action="{% url 'web:delete_review' review.review_id %}" method="POST" class="w-full">
                     {% csrf_token %}
-                    <button type="submit" class="w-full bg-brand-red border-[3px] border-black py-3 text-white font-black text-xs uppercase shadow-[4px_4px_0px_#000] active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
+                    <button type="submit" class="w-full xp-btn xp-btn-red py-3 text-[12px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                         Yes, Delete Review
                     </button>
                 </form>
-                <button onclick="toggleModal(false)" class="w-full bg-xp-gray-light border-[3px] border-black py-3 text-black font-black text-xs uppercase shadow-[4px_4px_0px_#000] hover:bg-white active:translate-y-[2px] active:shadow-none transition-all cursor-pointer">
+                <button onclick="toggleModal(false)" class="w-full xp-btn bg-white/10 border border-white/20 text-white py-3 text-[12px] font-black uppercase tracking-wider hover:bg-white/20 active:scale-[0.97] transition-all">
                     Cancel
                 </button>
             </div>
@@ -33,13 +33,22 @@
     </div>
 </div>
 
-<div class="w-full max-w-[800px] shadow-[12px_12px_0px_rgba(0,0,0,0.6)] font-tahoma">
+<div vocab="https://schema.org/" typeof="Review" class="w-full max-w-[800px] shadow-[12px_12px_0px_rgba(0,0,0,0.6)] font-tahoma">
     <div class="xp-title-bar h-[38px] flex justify-between items-center px-3 border-b-2 border-black">
         <div class="flex items-center text-[13px] font-bold text-white drop-shadow-[1px_1px_2px_rgba(0,0,0,0.8)]">
             <div class="bg-brand-red w-5 h-5 flex justify-center items-center rounded-[3px] mr-2.5 text-[12px] border border-black/40 shadow-[1px_1px_0px_rgba(0,0,0,0.5)]">
                 S
             </div>
-            Review from - {{ review.reviewer.username }} - to - {{ review.reviewee.username }}
+            <meta property="identifier" content="{{ review.review_id }}">
+            Review from - {{ review.reviewer.username }} - to -&nbsp;<span property="itemReviewed" typeof="Person">
+                <meta property="identifier" content="{{ review.reviewee.id }}">
+                <span property="name">{{ review.reviewee.username }}</span> -
+                {% if review.reviewee.user_image %}
+                    <meta property="image" content="{{ review.reviewee.user_image.url }}">
+                {% else %}
+                    <meta property="image" content="None">
+                {% endif %}
+            </span>
         </div>
         <div class="flex gap-1.5">
             <span class="ctrl-display">_</span>
@@ -49,14 +58,16 @@
     </div>
 
     <div class="bg-card-dark border-x border-b border-black p-6 md:p-10 relative">
-
         <div id="read-mode">
             <div class="flex flex-col md:flex-row justify-between items-center gap-6 border-b-2 border-black pb-8 mb-8">
-                <div class="flex items-center gap-6">
+                <div class="flex items-center gap-6" property="author" typeof="Person">
+                    <meta property="identifier" content="{{ review.reviewer.id }}">
+                    <meta property="name" content="{{ review.reviewer.username }}">
                     <div class="relative w-24 h-24 border-4 border-black shadow-[4px_4px_0px_rgba(0,0,0,0.3)] bg-black overflow-hidden">
                         {% if review.reviewer.user_image %}
-                            <img src="{{ review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
+                            <img property="image" src="{{ review.reviewer.user_image.url }}" class="w-full h-full object-cover" alt="Profile picture">
                         {% else %}
+                            <meta property="image" content="None">
                             <div class="w-full h-full bg-[#111] flex items-center justify-center text-white/40">
                                 <span class="material-symbols-outlined text-2xl">account_circle</span>
                             </div>
@@ -68,9 +79,12 @@
                         <span class="text-footer-text text-[11px] font-bold uppercase mt-2 block opacity-60">To: {{ review.reviewee.username }}</span>
                     </div>
                 </div>
-
-                <div class="flex flex-col items-center md:items-end">
+                <meta property="name" content="{{ review.title }}">
+                <div class="flex flex-col items-center md:items-end" property="reviewRating" typeof="Rating">
                     <span class="text-footer-text text-[10px] font-black uppercase tracking-[3px] mb-1">Score Given</span>
+                    <meta property="ratingValue" content="{{ review.rating }}">
+                    <meta property="bestRating" content="5">
+                    <meta property="worstRating" content="1">
                     <div class="flex text-yellow-500 gap-1">
                         {% for i in "12345" %}
                             <span class="material-symbols-outlined text-4xl !leading-none"
@@ -81,39 +95,45 @@
                     </div>
                 </div>
             </div>
-
-            <div class="mb-10 border-2 border-black bg-main-dark/50 shadow-[6px_6px_0px_rgba(0,0,0,0.2)]">
-                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex justify-between items-center">
-                    <div class="flex items-center gap-4">
-                        <span class="text-xp-blue-border font-black text-xs uppercase tracking-tighter">{{ review.reviewer.username }}</span>
-                        <span class="text-white font-black text-xs uppercase">{{ review.title }}</span>
+            <meta property="dateModified" content="{{ review.last_modified|date:'Y-m-d' }}T{{ review.last_modified|time:'H:i:s' }}">
+            <div class="mb-10 border-2 border-black bg-main-dark/50 shadow-[6px_6px_0px_rgba(0,0,0,0.2)] overflow-hidden">
+                <div class="bg-black/40 px-6 py-4 border-b-2 border-black flex flex-wrap items-center gap-4">
+                    <div class="flex items-center gap-4 min-w-0 max-w-full">
+                        <span class="text-xp-blue-border font-black text-xs uppercase tracking-tighter shrink-0">{{ review.reviewer.username }}</span>
+                        <span class="text-white font-black text-xs uppercase break-words min-w-0">{{ review.title }}</span>
                     </div>
+                    {% if review.last_modified %}
+                        <div class="text-[10px] font-mono text-white/40 flex items-center gap-1.5 bg-black/20 px-2 py-0.5 border border-white/5 rounded-[2px] self-end sm:self-auto">
+                            <span class="material-symbols-outlined text-[12px] opacity-60">calendar_month</span>
+                            <span class="font-bold tracking-wide text-[9px] uppercase mr-0.5 text-footer-text">Created or modified at:</span>
+                            <span>{{ review.last_modified|date:"d/m/Y" }}</span>
+                            <span class="opacity-30">|</span>
+                            <span>{{ review.last_modified|time:"H:i" }}</span>
+                        </div>
+                    {% endif %}
                 </div>
                 <div class="p-8">
-                    <p class="text-footer-text text-lg italic leading-relaxed">
-                        "{{ review.description }}"
-                    </p>
+                    <p property="reviewBody" class="text-footer-text text-lg italic leading-relaxed text-justify hyphens-auto break-words whitespace-pre-wrap">"{{ review.description }}"</p>
                 </div>
             </div>
-
             <div class="flex flex-row gap-4 pt-6 border-t border-white/5">
-                <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}"
-                   class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000] no-underline text-center">
-                    &lt; Return
+                <a href="{% url 'web:user_reviews_list' username=review.reviewee.username %}" class="flex-1">
+                    <button class="w-full xp-btn xp-btn-blue py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
+                        &lt; Return to the list
+                    </button>
                 </a>
                 {% if is_author %}
                 <button onclick="document.getElementById('read-mode').classList.add('hidden'); document.getElementById('edit-mode').classList.remove('hidden');"
-                        class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000]">
+                        class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                     Modify
                 </button>
                 <button onclick="toggleModal(true)"
-                        class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase shadow-[4px_4px_0px_#000]">
+                        class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">
                     Delete
                 </button>
                 {% endif %}
             </div>
         </div>
-
         {% if is_author %}
         <div id="edit-mode" class="hidden">
             <div class="flex items-center gap-4 mb-8 border-b-2 border-xp-blue-border pb-4">
@@ -144,8 +164,8 @@
                     {{ form.description }}
                 </div>
                 <div class="flex flex-row gap-4 pt-4">
-                    <button type="button" onclick="location.reload()" class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase shadow-[3px_3px_0px_#000]">CANCEL</button>
-                    <button type="submit" class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase shadow-[3px_3px_0px_#000]">SAVE</button>
+                    <button type="button" onclick="location.reload()" class="xp-btn xp-btn-red flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">CANCEL</button>
+                    <button type="submit" class="xp-btn xp-btn-blue flex-1 py-3 text-[11px] font-black uppercase tracking-wider hover:brightness-110 active:scale-[0.97] transition-all">SAVE</button>
                 </div>
             </form>
         </div>

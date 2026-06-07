@@ -6,9 +6,9 @@ from django.core.exceptions import ValidationError
 from django.core.files.base import ContentFile
 from django.core.validators import MinValueValidator, MaxValueValidator, RegexValidator, MinLengthValidator
 from django.db import models, transaction
-from django.db.models import Q, F, Max
+from django.db.models import Q, F, Max, Avg
 from django.db.models.functions import Coalesce
-from django.utils.timezone import now
+from django.utils import timezone
 from web.services.rankings import update_global_ranking, update_local_ranking
 
 DEFAULT_COUNTRY = 9
@@ -17,13 +17,19 @@ WIN_MODE = 1
 class Map(models.Model):
     MapType = models.TextChoices("MapType", "Small Big")
     map_id = models.AutoField(primary_key=True)
-    map_name = models.CharField(max_length=50)
+    map_name = models.CharField(max_length=50, unique=True)
     creator = models.CharField(max_length=50)
     type = models.CharField(max_length=10, choices=MapType)
     dimensions = models.DecimalField(decimal_places=2, max_digits=10, validators=[MinValueValidator(2)])
 
     def __str__(self):
         return self.map_name
+
+    def save(self, *args, **kwargs):
+        old_name = Map.objects.get(pk=self.pk).map_name
+        super().save(*args, **kwargs)
+        if old_name != self.map_name:
+            Match.objects.filter(map_played__map_id=self.pk).update(map_name=self.map_name)
 
 class Country(models.Model):
     country_id = models.AutoField(primary_key=True)
@@ -53,7 +59,7 @@ class Country(models.Model):
 class WebUser(AbstractUser):
     username = models.CharField(max_length=50, unique=True, validators=[UnicodeUsernameValidator(), MinLengthValidator(3)])
     email = models.EmailField(unique=True, validators=[RegexValidator(r"^[^@]+@gmail\.com$")])
-    user_country = models.ForeignKey(Country, on_delete=models.SET_NULL, related_name="country_users", blank=True, null=True)
+    user_country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="country_users", blank=True, null=True, default=Country.get_default_country())
     user_image = models.ImageField(upload_to="user_images/", blank=True)
 
     class Meta:
@@ -80,13 +86,13 @@ class WebUser(AbstractUser):
 
     def update_rankings_countries(self, old_country_id):
         cs_user = self.corresponding_CS_user
-        new_country_id = Country.get_default_country() if not self.user_country else self.user_country.country_id
+        new_country_id = self.user_country.country_id
         global_ranking, local_ranking = cs_user.corresponding_global_ranking, cs_user.corresponding_local_ranking
         global_ranking.country_id, local_ranking.country_id = new_country_id, new_country_id
         global_ranking.save()
         local_ranking.local_position = None
         local_ranking.save()
-        if old_country_id: update_local_ranking(old_country_id)
+        update_local_ranking(old_country_id)
         update_local_ranking(new_country_id)
 
     def update_matches_reviews_username(self):
@@ -94,6 +100,15 @@ class WebUser(AbstractUser):
         Review.objects.filter(reviewer_id=cs_user.pk).update(reviewer_name=self.username)
         for match in Match.objects.filter(Q(winner_id=self.pk)|Q(loser_id=self.pk)).prefetch_related("matches_match_stats"):
             match.update_match_usernames(match.winner_id == cs_user.pk, cs_user.pk, self.username)
+
+    @property
+    def avg_rating(self):
+        result = self.reviews_received.aggregate(Avg('rating'))['rating__avg']
+        return round(result, 1) if result is not None else 0.0
+
+    @property
+    def total_reviews_count(self):
+        return self.reviews_received.count()
 
 class Review(models.Model):
     review_id = models.AutoField(primary_key=True)
@@ -103,6 +118,7 @@ class Review(models.Model):
     rating = models.IntegerField(validators=[MinValueValidator(1), MaxValueValidator(5)])
     title = models.CharField(max_length=200)
     description = models.TextField()
+    last_modified = models.DateTimeField(auto_now=True)
 
     class Meta:
         constraints = [models.UniqueConstraint(fields=["reviewer", "reviewee"],name="unique_reviewer_reviewee"),
@@ -137,9 +153,6 @@ class CounterUser(models.Model):
                 local_position = LocalRanking.objects.filter(country=country).aggregate(max_position=Coalesce(Max("local_position"), 0))["max_position"] + 1
                 GlobalRanking.objects.create(counter_user=self, country=country, global_position=global_position)
                 LocalRanking.objects.create(counter_user=self, country=country, local_position=local_position)
-        #else:
-            #update_global_ranking()
-            #update_local_ranking(self.user.user_country_id)
 
     def update_parameters(self, stats, mode):
         self.score += stats.points
@@ -157,11 +170,13 @@ class Match(models.Model):
     match_id = models.AutoField(primary_key=True)
     loser = models.ForeignKey(CounterUser, related_name= "matches_lost", on_delete=models.SET_NULL, null=True)
     loser_name = models.CharField(max_length=50)
+    map_played = models.ForeignKey(Map, related_name= "map_matches", on_delete=models.SET_NULL, null=True)
+    map_name = models.CharField(max_length=50)
     winner = models.ForeignKey(CounterUser, related_name= "matches_won", on_delete=models.SET_NULL, null=True)
     winner_name = models.CharField(max_length=50)
     score_display = models.CharField(max_length=5, validators=[RegexValidator(regex=r"^(10-[0-9]|[0-9]-10)$")])
     duration = models.DurationField(validators=[MinValueValidator(timedelta(0))])
-    date = models.DateTimeField(validators=[MaxValueValidator(now)])
+    date = models.DateTimeField(validators=[MaxValueValidator(timezone.now)])
     log_file = models.FileField(upload_to="match_logs/", null=True)
 
     class Meta:
@@ -169,7 +184,7 @@ class Match(models.Model):
         verbose_name_plural = "Matches"
 
     def __str__(self):
-        return f"{self.winner_name} vs {self.loser_name}: {self.score_display} - {self.date}"
+        return f"{self.winner_name} vs {self.loser_name} in {self.map_name}: {self.score_display} - {self.date}"
 
     def update_match_usernames(self, mode, user_id, new_username):
         if mode == WIN_MODE:
@@ -212,7 +227,7 @@ class MatchStats(models.Model):
 class GlobalRanking(models.Model):
     global_ranking_id = models.AutoField(primary_key=True)
     counter_user = models.OneToOneField(CounterUser, on_delete=models.CASCADE, related_name="corresponding_global_ranking")
-    country = models.ForeignKey(Country, on_delete=models.SET_NULL, related_name="global_country_counter_users", null=True)
+    country = models.ForeignKey(Country, on_delete=models.SET_DEFAULT, related_name="global_country_counter_users", default=Country.get_default_country())
     global_position = models.IntegerField(unique=True, validators=[MinValueValidator(1)], null=True)
 
     class Meta:
