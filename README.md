@@ -90,7 +90,7 @@ Open your browser and navigate to: http://localhost:8000
 
 # Public URL
 
-The project is accesible via the following public url: [https://strike1v1-web.onrender.com](https://strike1v1-web.onrender.com)
+The project is accesible via the following public url: [http://strike1v1.duckdns.org:1136/](http://strike1v1.duckdns.org:1136/)
 
 # Contributions & Academic Disclaimer
 
