@@ -63,28 +63,44 @@
     let pollInterval;
 
     async function joinQueue() {
-        const response = await fetch("{% url 'web:matchmaking_join' %}");
-        const data = await response.json();
-        if (data.status === "matched") {
-            showMatched(data);
-        } else {
-            startPolling();
+        try {
+            const response = await fetch("{% url 'web:matchmaking_join' %}");
+            const data = await response.json();
+            if (data.status === "matched") {
+                showMatched(data);
+                if (!(data.match_url && data.match_url.includes('://'))) {
+                    startPolling();
+                }
+            } else {
+                startPolling();
+            }
+        } catch (error) {
+            console.error("Join queue error:", error);
+            setTimeout(joinQueue, 5000);
         }
     }
 
     function startPolling() {
+        if (pollInterval) clearInterval(pollInterval);
         pollInterval = setInterval(async () => {
-            const response = await fetch("{% url 'web:matchmaking_status' %}");
-            const data = await response.json();
-            if (data.status === "matched") {
-                clearInterval(pollInterval);
-                showMatched(data);
-            } else if (data.status === "idle") {
-                joinQueue();
-            }
-            if (Date.now() - searchStartTime > 30000) {
-                searchStartTime = Date.now();
-                await fetch("{% url 'web:matchmaking_timeout' %}");
+            try {
+                const response = await fetch("{% url 'web:matchmaking_status' %}");
+                const data = await response.json();
+                if (data.status === "matched") {
+                    showMatched(data);
+                    if (data.match_url && data.match_url.includes('://')) {
+                        clearInterval(pollInterval);
+                    }
+                } else if (data.status === "idle") {
+                    joinQueue();
+                    clearInterval(pollInterval);
+                }
+                if (Date.now() - searchStartTime > 30000) {
+                    searchStartTime = Date.now();
+                    await fetch("{% url 'web:matchmaking_timeout' %}");
+                }
+            } catch (error) {
+                console.error("Polling error:", error);
             }
         }, 2000);
     }
@@ -98,7 +114,17 @@
         document.getElementById('matched-ui').classList.remove('hidden');
         document.getElementById('opponent-name').innerText = data.opponent_name;
         document.getElementById('match-url').innerText = data.match_url;
-        document.getElementById('connect-btn').href = data.match_url;
+
+        const connectBtn = document.getElementById('connect-btn');
+        if (data.match_url && data.match_url.includes('://')) {
+            connectBtn.href = data.match_url;
+            connectBtn.classList.remove('opacity-50', 'pointer-events-none');
+            connectBtn.innerText = ">> CONNECT NOW <<";
+        } else {
+            connectBtn.href = "#";
+            connectBtn.classList.add('opacity-50', 'pointer-events-none');
+            connectBtn.innerText = "WAITING FOR SERVER...";
+        }
     }
 
     function startMatchInUI(event, url) {
