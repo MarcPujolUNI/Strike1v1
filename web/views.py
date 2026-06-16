@@ -383,7 +383,7 @@ def save_match(request):
             map_played = Map.objects.get(map_name=map_name)
             duration = timedelta(seconds=int(data.get('duration')))
             date_str = f"{data.get('date')} {data.get('start')}"
-            date = timezone.make_aware(datetime.strptime(date_str, "%d/%m/%Y %H:%M:%S"))
+            date = timezone.make_aware(datetime.strptime(date_str, "%m/%d/%Y %H:%M:%S"))
             log_text, filename = data.get('log', ''), f"match_{date.strftime('%Y-%m-%d_%H-%M-%S')}_{uuid4().hex[:8]}.log"
             with transaction.atomic():
                 new_match = Match.objects.create(loser=loser, loser_name=loser_name, map_played=map_played, map_name=map_name,
